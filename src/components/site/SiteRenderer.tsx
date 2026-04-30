@@ -161,8 +161,24 @@ export default function SiteRenderer() {
           }
         `}</style>
 
-        <nav className="p-nav">
-          <div className="p-logo">{settings?.logo_text ?? "Portfolio"}<span>.</span></div>
+        <nav className={`p-nav${scrolled ? " scrolled" : ""}`}>
+          <div className="p-logo">
+            {(() => {
+              const text = settings?.logo_text ?? "Portfolio";
+              const words = text.trim().split(/\s+/);
+              return words.map((w, i) => {
+                const first = w.charAt(0);
+                const rest = w.slice(1);
+                return (
+                  <span key={i} className="p-logo-word">
+                    {first}
+                    <span className="p-logo-rest">{rest}</span>
+                  </span>
+                );
+              });
+            })()}
+            <span className="p-logo-dot">.</span>
+          </div>
           <ul className="p-nav-links">
             {(settings?.nav_items ?? []).map((it, i) => (
               <li key={i}><a href={it.href}>{it.label}</a></li>
