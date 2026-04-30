@@ -62,11 +62,11 @@ export default function ProjectDetail() {
         <section className="p-pd-hero">
           <div className="p-inner" style={{ width: "100%" }}>
             <Link to="/#projects" className="p-pd-back">← Projects</Link>
-            {item.tag && <div className="p-hero-tag">{item.tag}</div>}
             <div className="p-pd-head">
               {item.iconUrl && <img className="p-pd-icon" src={item.iconUrl} alt="" />}
               <h1 className="p-pd-title">{item.title}</h1>
             </div>
+            {item.tag && <div className="p-hero-tag">{item.tag}</div>}
             {item.subtitle && <p className="p-pd-sub">{item.subtitle}</p>}
             {(item.role || item.client || item.year) && (
               <div className="p-pd-meta">
@@ -78,7 +78,10 @@ export default function ProjectDetail() {
             {(links.length > 0 || item.link) && (
               <div className="p-pd-link-row">
                 {item.link && (
-                  <a className="p-pd-link-btn" href={item.link} target="_blank" rel="noreferrer">Live →</a>
+                  <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
+                    <span className="p-pd-live-dot" aria-hidden="true" />
+                    <span>Live</span>
+                  </a>
                 )}
                 {links.map((l, i) => (
                   <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
