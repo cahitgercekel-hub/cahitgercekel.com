@@ -228,7 +228,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             <Textarea rows={6} value={(data.paragraphs ?? []).join("\n\n")} onChange={(e) => set("paragraphs", e.target.value.split(/\n\n+/))} />
           </Field>
           <Field label="Skill tags (comma separated)">
-            <Input value={(data.skills ?? []).join(", ")} onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} />
+            <CsvInput value={data.skills ?? []} onChange={(v) => set("skills", v)} />
           </Field>
           <FileUploadField
             label="Portrait image (optional)"
