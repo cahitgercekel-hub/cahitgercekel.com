@@ -49,6 +49,7 @@ export type Database = {
           favicon_url: string | null
           font_family: string | null
           footer_text: string
+          i18n: Json
           id: string
           logo_text: string
           meta_description: string | null
@@ -63,6 +64,7 @@ export type Database = {
           favicon_url?: string | null
           font_family?: string | null
           footer_text?: string
+          i18n?: Json
           id?: string
           logo_text?: string
           meta_description?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           favicon_url?: string | null
           font_family?: string | null
           footer_text?: string
+          i18n?: Json
           id?: string
           logo_text?: string
           meta_description?: string | null

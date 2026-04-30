@@ -7,15 +7,19 @@ import { Trash2, Plus } from "lucide-react";
 import type { BlockType } from "@/lib/blocks";
 import FileUploadField from "./FileUploadField";
 import LayoutEditor from "./LayoutEditor";
+import TranslationsPanel from "./TranslationsPanel";
+import { TRANSLATABLE_FIELDS } from "@/lib/i18n";
 
 type Props = { type: BlockType; data: any; onChange: (d: any) => void };
 
 function withLayout(type: BlockType, data: any, onChange: (d: any) => void, children: React.ReactNode) {
-  if (type === "footer" || type === "html") return <>{children}</>;
+  const hasTranslations = (TRANSLATABLE_FIELDS[type] ?? []).length > 0;
+  const showLayout = type !== "footer" && type !== "html";
   return (
     <div className="space-y-4">
       {children}
-      <LayoutEditor type={type} data={data} onChange={onChange} />
+      {showLayout && <LayoutEditor type={type} data={data} onChange={onChange} />}
+      {hasTranslations && <TranslationsPanel type={type} data={data} onChange={onChange} />}
     </div>
   );
 }

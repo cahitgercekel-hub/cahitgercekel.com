@@ -3,6 +3,8 @@ import DOMPurify from "dompurify";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
+import { useLang, LANGS, type Lang } from "@/contexts/LanguageContext";
+import { mergeI18n, translateNavItems, translateString } from "@/lib/i18n";
 
 const FONT_MAP: Record<string, string> = {
   Inter: "Inter:wght@300;400;500;600;700;800",
@@ -20,6 +22,7 @@ export default function SiteRenderer() {
   const isLoading = sectionsLoading || settingsLoading;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { lang, setLang } = useLang();
 
   useEffect(() => {
     const onScroll = () => {
@@ -175,6 +178,12 @@ export default function SiteRenderer() {
           .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
           .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
+          .portfolio-root .p-lang-pill { position: fixed; bottom: 20px; right: 20px; z-index: 95; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 100px; background: rgba(255,255,255,0.55); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+          .portfolio-root .p-lang-pill button { background: transparent; border: 0; padding: 2px 4px; font-family: inherit; font-size: 0.78rem; font-weight: 500; letter-spacing: 1px; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease, transform .2s ease; }
+          .portfolio-root .p-lang-pill button:hover { opacity: 0.85; }
+          .portfolio-root .p-lang-pill button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
+          .portfolio-root .p-lang-pill .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.78rem; user-select: none; }
+          .portfolio-root .p-lang-mobile { display: none; }
           @media (max-width: 800px) {
             .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr; }
             .portfolio-root .p-hero-photo { max-width: 240px; }
@@ -207,6 +216,11 @@ export default function SiteRenderer() {
             .portfolio-root .p-logos-row { gap: 28px; }
             .portfolio-root .p-logo-item img { max-height: 40px; max-width: 100px; }
             .portfolio-root .p-footer { padding: 28px 20px; }
+            .portfolio-root .p-lang-pill { display: none; }
+            .portfolio-root .p-lang-mobile { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px 0 4px; margin-top: 8px; border-top: 1px solid var(--p-border); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+            .portfolio-root .p-lang-mobile button { background: transparent; border: 0; padding: 4px 6px; font-family: inherit; font-size: 0.72rem; letter-spacing: 1px; font-weight: 500; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease; }
+            .portfolio-root .p-lang-mobile button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
+            .portfolio-root .p-lang-mobile .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.72rem; }
           }
           @media (max-width: 420px) {
             .portfolio-root nav.p-nav { padding: 8px 14px; }
@@ -222,7 +236,7 @@ export default function SiteRenderer() {
           <div className="p-nav-row">
             <div className="p-logo">
               {(() => {
-                const text = settings?.logo_text ?? "Portfolio";
+                const text = translateString(settings?.logo_text, settings?.i18n, lang, "logo_text") || "Portfolio";
                 const words = text.trim().split(/\s+/);
                 return words.map((w, i) => {
                   const first = w.charAt(0);
@@ -238,7 +252,7 @@ export default function SiteRenderer() {
               <span className="p-logo-dot">.</span>
             </div>
             <ul className="p-nav-links">
-              {(settings?.nav_items ?? []).map((it, i) => (
+              {translateNavItems(settings?.nav_items, settings?.i18n, lang).map((it, i) => (
                 <li key={i}><a href={it.href}>{it.label}</a></li>
               ))}
             </ul>
@@ -253,21 +267,53 @@ export default function SiteRenderer() {
             </button>
           </div>
           {menuOpen && (
-            <ul className="p-mobile-menu">
-              {(settings?.nav_items ?? []).map((it, i) => (
-                <li key={i}>
-                  <a href={it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="p-mobile-menu">
+                {translateNavItems(settings?.nav_items, settings?.i18n, lang).map((it, i) => (
+                  <li key={i}>
+                    <a href={it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
+                  </li>
+                ))}
+              </ul>
+              <div className="p-lang-mobile" role="group" aria-label="Language">
+                {LANGS.map((l, i) => (
+                  <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                    {i > 0 && <span className="p-lang-sep">|</span>}
+                    <button
+                      type="button"
+                      className={lang === l ? "active" : ""}
+                      onClick={() => setLang(l)}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </>
           )}
         </nav>
 
         {(sections ?? []).map((s, i) => (
-          <RenderBlock key={s.id} section={s} alt={i % 2 === 1} settings={settings} />
+          <RenderBlock key={s.id} section={s} alt={i % 2 === 1} settings={settings} lang={lang} />
         ))}
 
-        <footer className="p-footer">{settings?.footer_text}</footer>
+        <footer className="p-footer">{translateString(settings?.footer_text, settings?.i18n, lang, "footer_text")}</footer>
+
+        <div className="p-lang-pill" role="group" aria-label="Language">
+          {LANGS.map((l, i) => (
+            <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              {i > 0 && <span className="p-lang-sep">|</span>}
+              <button
+                type="button"
+                className={lang === l ? "active" : ""}
+                onClick={() => setLang(l)}
+                aria-pressed={lang === l}
+              >
+                {l.toUpperCase()}
+              </button>
+            </span>
+          ))}
+        </div>
       </div>
     </>
   );
@@ -302,8 +348,9 @@ const IMAGE_SIZE_MAP: Record<string, string> = {
   full: "100%",
 };
 
-function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boolean; settings: SiteSettings | null | undefined }) {
-  const d = section.data ?? {};
+function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; alt: boolean; settings: SiteSettings | null | undefined; lang: Lang }) {
+  const raw = section.data ?? {};
+  const d = mergeI18n(raw, lang);
   const sectionId = d.id || section.type;
   const layout = d.layout ?? {};
   const sectionStyle = getLayoutStyle(layout);
