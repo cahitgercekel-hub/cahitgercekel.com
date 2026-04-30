@@ -174,10 +174,38 @@ export default function SiteRenderer() {
             .portfolio-root .p-hero-photo { max-width: 240px; }
           }
           @media (max-width: 700px) {
-            .portfolio-root .p-about-grid { grid-template-columns: 1fr; }
+            .portfolio-root nav.p-nav { width: calc(100% - 24px); padding: 10px 16px; top: 12px; }
             .portfolio-root .p-nav-links { display: none; }
-            .portfolio-root .p-section { padding: 70px 24px; }
-            .portfolio-root .p-hero { padding: 110px 24px 70px; }
+            .portfolio-root .p-nav-burger { display: inline-flex; }
+            .portfolio-root .p-section { padding: 60px 20px; }
+            .portfolio-root .p-title { font-size: clamp(1.7rem, 7vw, 2.2rem); margin-bottom: 28px; }
+            .portfolio-root .p-hero { padding: 100px 20px 60px; min-height: auto; }
+            .portfolio-root .p-hero-grid,
+            .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr !important; gap: 28px; }
+            .portfolio-root .p-hero-title { font-size: clamp(2.4rem, 10vw, 3.2rem); letter-spacing: -1px; }
+            .portfolio-root .p-hero-sub { font-size: 1.05rem; margin-bottom: 28px; }
+            .portfolio-root .p-hero-photo { max-width: 220px !important; }
+            .portfolio-root .p-btns { flex-direction: column; align-items: stretch; gap: 12px; width: 100%; }
+            .portfolio-root .p-btns > a { width: 100%; padding: 12px 20px; }
+            .portfolio-root .p-about-grid { grid-template-columns: 1fr !important; gap: 32px; }
+            .portfolio-root .p-about-portrait { max-width: 280px !important; margin: 0 auto; display: block; }
+            .portfolio-root .p-about-text p { font-size: 1rem; }
+            .portfolio-root .p-projects { grid-template-columns: 1fr; gap: 18px; }
+            .portfolio-root .p-card { min-width: 0; }
+            .portfolio-root .p-timeline { padding-left: 22px; }
+            .portfolio-root .p-tl-dot { left: -22px; }
+            .portfolio-root .p-tl-role { font-size: 1.05rem; }
+            .portfolio-root .p-contact-grid { grid-template-columns: 1fr; }
+            .portfolio-root .p-stat-label, .portfolio-root .p-lang-row { font-size: 0.88rem; }
+            .portfolio-root .p-footer { padding: 28px 20px; }
+          }
+          @media (max-width: 420px) {
+            .portfolio-root nav.p-nav { padding: 8px 14px; }
+            .portfolio-root .p-section { padding: 50px 16px; }
+            .portfolio-root .p-hero { padding: 90px 16px 50px; }
+            .portfolio-root .p-hero-title { font-size: clamp(2rem, 11vw, 2.8rem); }
+            .portfolio-root .p-hero-photo { max-width: 180px !important; }
+            .portfolio-root .p-title { font-size: 1.6rem; margin-bottom: 22px; }
           }
         `}</style>
 
