@@ -128,7 +128,14 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           </div>
           <ul className="p-nav-links">
             {navItems.map((it, i) => (
-              <li key={i}><a href={it.href.startsWith("#") ? `/${it.href}` : it.href}>{it.label}</a></li>
+              <li key={i}>
+                <a
+                  href={it.href.startsWith("#") ? `/${it.href}` : it.href}
+                  onClick={(e) => handleNavClick(e, it.href)}
+                >
+                  {it.label}
+                </a>
+              </li>
             ))}
           </ul>
           <button
