@@ -231,7 +231,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
             {d.cvUrl && (
               <a className="p-btn-cv" href={d.cvUrl} download target="_blank" rel="noreferrer">
-                ⬇ {d.cvLabel || "Download CV"}
+                {d.cvLabel || "Download CV"}
               </a>
             )}
           </div>
