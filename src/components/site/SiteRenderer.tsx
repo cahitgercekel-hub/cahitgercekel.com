@@ -4,7 +4,7 @@ import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 
-const fontLink = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;700&display=swapdisplay=swap";
+const fontLink = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
 
 export default function SiteRenderer() {
   const { data: sections } = useSections(false);
