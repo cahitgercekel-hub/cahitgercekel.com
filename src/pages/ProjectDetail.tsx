@@ -61,7 +61,7 @@ export default function ProjectDetail() {
         {/* Hero */}
         <section className="p-pd-hero">
           <div className="p-inner" style={{ width: "100%" }}>
-            <Link to="/#projects" className="p-pd-back">← Projects</Link>
+            <Link to="/#projects" className="p-pd-back">← Back to Home</Link>
             <div className="p-pd-head">
               {item.iconUrl && <img className="p-pd-icon" src={item.iconUrl} alt="" />}
               <h1 className="p-pd-title">{item.title}</h1>
