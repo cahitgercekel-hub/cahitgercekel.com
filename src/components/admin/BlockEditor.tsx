@@ -591,6 +591,21 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Eyebrow"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <Field label="Timeline dot color">
+            <div className="flex items-center gap-2">
+              <Input
+                type="color"
+                value={data.dotColor ?? "#db0000"}
+                onChange={(e) => set("dotColor", e.target.value)}
+                className="w-16 h-10 p-1"
+              />
+              <Input
+                value={data.dotColor ?? ""}
+                placeholder="Leave empty to use site accent"
+                onChange={(e) => set("dotColor", e.target.value)}
+              />
+            </div>
+          </Field>
           <ListEditor
             data={data}
             onChange={onChange}
