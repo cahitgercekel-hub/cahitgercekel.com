@@ -96,9 +96,12 @@ export default function SiteRenderer() {
           .portfolio-root .p-hero-photo { width: 100%; aspect-ratio: 1 / 1; max-width: 360px; justify-self: center; border-radius: calc(var(--p-radius) * 2); object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 4px solid rgba(255,255,255,0.4); }
           .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; align-items: stretch; }
           .portfolio-root .p-btns > a { min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
-          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: 2px solid #fff; border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; }
-          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; }
-          .portfolio-root .p-btn-cv { background: var(--p-fg); color: #fff; border: 2px solid var(--p-fg); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 700; text-decoration: none; gap: 8px; }
+          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: 2px solid #fff; border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; box-shadow: 0 6px 18px rgba(0,0,0,0.18); transition: transform .2s ease, box-shadow .2s ease; }
+          .portfolio-root .p-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
+          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; box-shadow: 0 6px 18px rgba(0,0,0,0.15); transition: transform .2s ease, box-shadow .2s ease; }
+          .portfolio-root .p-btn-ghost:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.22); }
+          .portfolio-root .p-btn-cv { background: var(--p-fg); color: #fff; border: 2px solid var(--p-fg); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 700; text-decoration: none; gap: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.22); transition: transform .2s ease, box-shadow .2s ease; }
+          .portfolio-root .p-btn-cv:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
           .portfolio-root .p-about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
           .portfolio-root .p-about-text p { font-size: 1.05rem; line-height: 1.75; color: #444; margin-bottom: 16px; }
           .portfolio-root .p-about-portrait { width: 100%; border-radius: calc(var(--p-radius) * 1.5); object-fit: cover; }
@@ -133,8 +136,9 @@ export default function SiteRenderer() {
           .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; margin-bottom: 8px; }
           .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
           .portfolio-root .p-contact-info p { font-size: 1.05rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
-          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 12px 16px; border-radius: var(--p-radius); border: 1px solid var(--p-border); margin-bottom: 12px; }
-          .portfolio-root .p-contact-link:hover { background: var(--p-bg); border-color: var(--p-accent); }
+          .portfolio-root .p-contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 14px 18px; border-radius: var(--p-radius); border: 1px solid var(--p-border); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease; }
+          .portfolio-root .p-contact-link:hover { transform: translateY(-4px); background: var(--p-bg); border-color: var(--p-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.14); }
           .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
           @media (max-width: 800px) {
@@ -382,14 +386,16 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-contact-info">
               {d.intro && <p>{d.intro}</p>}
-              {(d.links ?? []).map((l: any, i: number) => (
-                <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
-                  {l.iconUrl
-                    ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
-                    : <span>{l.icon}</span>}
-                  <span>{l.label}</span>
-                </a>
-              ))}
+              <div className="p-contact-grid">
+                {(d.links ?? []).map((l: any, i: number) => (
+                  <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
+                    {l.iconUrl
+                      ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
+                      : <span>{l.icon}</span>}
+                    <span>{l.label}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </section>
