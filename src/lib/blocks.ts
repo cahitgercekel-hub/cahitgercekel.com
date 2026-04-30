@@ -9,6 +9,7 @@ export type BlockType =
   | "projects"
   | "experience"
   | "contact"
+  | "logos"
   | "image"
   | "html"
   | "footer";
@@ -51,6 +52,7 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
   projects: "Project grid",
   experience: "Timeline / Experience",
   contact: "Contact links",
+  logos: "Logos / Previously at",
   image: "Image",
   html: "Custom HTML",
   footer: "Footer note",
@@ -119,6 +121,14 @@ export const BLOCK_DEFAULTS: Record<BlockType, any> = {
     title: "Let's Connect",
     intro: "Drop me a line.",
     links: [{ icon: "✉️", iconUrl: "", label: "email@example.com", href: "mailto:email@example.com" }],
+  },
+  logos: {
+    id: "logos",
+    label: "Previously at",
+    title: "",
+    items: [
+      { name: "Company", logo: "", href: "" },
+    ],
   },
   image: {
     id: "image",
