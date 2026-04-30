@@ -204,6 +204,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             value={data.portrait ?? ""}
             onChange={(v) => set("portrait", v)}
             folder="about"
+            focal={data.portraitFocal}
+            onFocalChange={(v) => set("portraitFocal", v)}
           />
         </div>
       );
