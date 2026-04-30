@@ -2,7 +2,7 @@ import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
-import Grainient from "./Grainient";
+import DotGrid from "./DotGrid";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
@@ -110,25 +110,20 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       const heroSectionStyle: React.CSSProperties = isBackground && d.image
         ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: d.imageFocal || "center" }
         : heroBg;
+      const dotBg = d.dotBg ?? {};
       return (
         <section id={sectionId} className="p-hero" style={{ ...heroSectionStyle, position: "relative", overflow: "hidden" }}>
-          <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-            <Grainient
-              color1="#9d9d9d"
-              color2="#545454"
-              color3="#9b9b9b"
-              timeSpeed={0.25}
-              warpStrength={1.0}
-              warpFrequency={5.0}
-              warpSpeed={2.0}
-              warpAmplitude={50.0}
-              blendSoftness={0.05}
-              rotationAmount={500.0}
-              noiseScale={2.0}
-              grainAmount={0.1}
-              grainScale={2.0}
-              contrast={1.5}
-              zoom={0.9}
+          <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0, background: dotBg.background || "transparent" }}>
+            <DotGrid
+              dotSize={dotBg.dotSize ?? 6}
+              gap={dotBg.gap ?? 22}
+              baseColor={dotBg.baseColor ?? "#d4d0c8"}
+              activeColor={dotBg.activeColor ?? "#db0000"}
+              proximity={dotBg.proximity ?? 120}
+              shockRadius={dotBg.shockRadius ?? 250}
+              shockStrength={dotBg.shockStrength ?? 5}
+              resistance={dotBg.resistance ?? 750}
+              returnDuration={dotBg.returnDuration ?? 1.5}
             />
           </div>
           <div className="p-inner" style={{ width: "100%", position: "relative", zIndex: 1, ...innerStyle }}>
