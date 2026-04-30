@@ -512,7 +512,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               },
             ]}
             factory={() => ({
-              tag: "", title: "", description: "", image: "", emoji: "✨", link: "",
+              tag: "", title: "", description: "", pills: [], image: "", emoji: "✨", link: "",
               openExternal: false, featured: false, slug: "",
               status: "live", statusText: "",
               subtitle: "", role: "", client: "", year: "", iconUrl: "",
