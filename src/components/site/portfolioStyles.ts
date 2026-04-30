@@ -37,8 +37,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-hero-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; width: 100%; }
   .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1.2fr 1fr; }
   .portfolio-root .p-hero-tag { display: inline-block; background: rgba(255,255,255,0.25); color: #fff; border-radius: 100px; padding: 6px 16px; font-size: 0.85rem; font-weight: 500; margin-bottom: 24px; backdrop-filter: blur(4px); }
-  .portfolio-root .p-hero-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
-  .portfolio-root .p-hero-title .dot { color: var(--p-accent3); }
+  .portfolio-root .p-hero-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(2.6rem, 5.2vw, 4rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
+  .portfolio-root .p-hero-title .dot { color: #db0000; }
+  .portfolio-root .p-hero-title .split-parent > span:last-child > span:last-child { color: #db0000; }
   .portfolio-root .p-hero-sub { font-size: 1.25rem; color: rgba(255,255,255,0.85); max-width: 480px; line-height: 1.6; margin-bottom: 36px; }
   .portfolio-root .p-hero-photo { width: 100%; aspect-ratio: 1 / 1; max-width: 360px; justify-self: center; border-radius: calc(var(--p-radius) * 2); object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 4px solid rgba(255,255,255,0.4); }
   .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; align-items: stretch; }
