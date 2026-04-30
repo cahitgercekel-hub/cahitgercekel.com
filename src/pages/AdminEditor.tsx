@@ -340,7 +340,21 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
   const [items, setItems] = useState<{ label: string; href: string }[]>(settings.nav_items ?? []);
   const [navTr, setNavTr] = useState<string[]>(settings.i18n?.tr?.nav_items ?? []);
   const [navDe, setNavDe] = useState<string[]>(settings.i18n?.de?.nav_items ?? []);
+  const [rowIds, setRowIds] = useState<string[]>(() => (settings.nav_items ?? []).map(() => crypto.randomUUID()));
   const [busy, setBusy] = useState(false);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = rowIds.indexOf(String(active.id));
+    const to = rowIds.indexOf(String(over.id));
+    if (from < 0 || to < 0) return;
+    setItems((arr) => arrayMove(arr, from, to));
+    setNavTr((arr) => arrayMove([...arr, ...Array(Math.max(0, items.length - arr.length)).fill("")], from, to));
+    setNavDe((arr) => arrayMove([...arr, ...Array(Math.max(0, items.length - arr.length)).fill("")], from, to));
+    setRowIds((arr) => arrayMove(arr, from, to));
+  };
 
   const setNavLang = (lang: "tr" | "de", i: number, v: string) => {
     const arr = [...(lang === "tr" ? navTr : navDe)];
