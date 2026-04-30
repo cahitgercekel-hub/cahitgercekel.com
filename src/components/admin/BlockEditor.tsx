@@ -360,6 +360,30 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             <Field label="Secondary button label"><Input value={data.secondaryBtn?.label ?? ""} onChange={(e) => setNested(["secondaryBtn", "label"], e.target.value)} /></Field>
             <Field label="Secondary button link"><Input value={data.secondaryBtn?.href ?? ""} onChange={(e) => setNested(["secondaryBtn", "href"], e.target.value)} /></Field>
           </div>
+
+          <div className="rounded-md border p-3 space-y-3">
+            <Label className="text-xs font-semibold">Background dot grid</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Base dot color">
+                <Input type="color" value={data.dotBg?.baseColor ?? "#d4d0c8"} onChange={(e) => setNested(["dotBg", "baseColor"], e.target.value)} />
+              </Field>
+              <Field label="Hover (active) color">
+                <Input type="color" value={data.dotBg?.activeColor ?? "#db0000"} onChange={(e) => setNested(["dotBg", "activeColor"], e.target.value)} />
+              </Field>
+              <Field label="Background color">
+                <Input type="color" value={data.dotBg?.background ?? "#f5f3ef"} onChange={(e) => setNested(["dotBg", "background"], e.target.value)} />
+              </Field>
+              <Field label="Dot size (px)">
+                <Input type="number" min={1} value={data.dotBg?.dotSize ?? 6} onChange={(e) => setNested(["dotBg", "dotSize"], Number(e.target.value))} />
+              </Field>
+              <Field label="Gap (px)">
+                <Input type="number" min={1} value={data.dotBg?.gap ?? 22} onChange={(e) => setNested(["dotBg", "gap"], Number(e.target.value))} />
+              </Field>
+              <Field label="Proximity (px)">
+                <Input type="number" min={0} value={data.dotBg?.proximity ?? 120} onChange={(e) => setNested(["dotBg", "proximity"], Number(e.target.value))} />
+              </Field>
+            </div>
+          </div>
         </div>
       );
     case "about":
