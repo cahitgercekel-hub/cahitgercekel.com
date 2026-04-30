@@ -15,8 +15,9 @@ const FONT_MAP: Record<string, string> = {
 };
 
 export default function SiteRenderer() {
-  const { data: sections } = useSections(false);
-  const { data: settings } = useSiteSettings();
+  const { data: sections, isLoading: sectionsLoading } = useSections(false);
+  const { data: settings, isLoading: settingsLoading } = useSiteSettings();
+  const isLoading = sectionsLoading || settingsLoading;
 
   const fontFamily = settings?.font_family || "Inter";
   const fontSpec = FONT_MAP[fontFamily] || FONT_MAP.Inter;
@@ -57,6 +58,10 @@ export default function SiteRenderer() {
     "--p-radius": `${radius}px`,
     "--p-font": `'${fontFamily}', sans-serif`,
   } as React.CSSProperties;
+
+  if (isLoading) {
+    return <div style={{ minHeight: "100vh", background: t.bg }} aria-hidden />;
+  }
 
   return (
     <>
