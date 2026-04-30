@@ -97,6 +97,8 @@ function ListEditor({
                   folder={s.folder || field}
                   accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
                   preview={s.type === "image" ? "image" : "file"}
+                  focal={s.focalKey ? it[s.focalKey] : undefined}
+                  onFocalChange={s.focalKey ? (v) => update(i, s.focalKey!, v) : undefined}
                 />
               );
             }
