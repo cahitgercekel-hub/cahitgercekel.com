@@ -213,15 +213,22 @@ function EditDialog({ section, onClose, onSaved }: { section: SectionRow; onClos
 function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void }) {
   const [theme, setTheme] = useState(settings.theme);
   const [footer, setFooter] = useState(settings.footer_text);
+  const [footerTr, setFooterTr] = useState(settings.i18n?.tr?.footer_text ?? "");
+  const [footerDe, setFooterDe] = useState(settings.i18n?.de?.footer_text ?? "");
   const [font, setFont] = useState(settings.font_family || "Inter");
   const [radius, setRadius] = useState<number>(settings.radius ?? 14);
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
     setBusy(true);
+    const i18n = {
+      ...(settings.i18n ?? {}),
+      tr: { ...(settings.i18n?.tr ?? {}), footer_text: footerTr },
+      de: { ...(settings.i18n?.de ?? {}), footer_text: footerDe },
+    };
     const { error } = await supabase
       .from("site_settings")
-      .update({ theme, footer_text: footer, font_family: font, radius })
+      .update({ theme, footer_text: footer, font_family: font, radius, i18n })
       .eq("id", settings.id);
     setBusy(false);
     if (error) toast.error(error.message); else { toast.success("Saved"); onSaved(); }
@@ -263,8 +270,18 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
           <Textarea value={theme.heroGradient} onChange={(e) => setTheme({ ...theme, heroGradient: e.target.value })} rows={2} />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs">Footer text</Label>
+          <Label className="text-xs">Footer text (English)</Label>
           <Input value={footer} onChange={(e) => setFooter(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Footer · Türkçe (TR)</Label>
+            <Input value={footerTr} onChange={(e) => setFooterTr(e.target.value)} placeholder={footer} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Footer · Deutsch (DE)</Label>
+            <Input value={footerDe} onChange={(e) => setFooterDe(e.target.value)} placeholder={footer} />
+          </div>
         </div>
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
       </CardContent>
