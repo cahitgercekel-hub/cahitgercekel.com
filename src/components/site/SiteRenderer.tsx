@@ -339,7 +339,14 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             <div className="p-timeline">
               {(d.items ?? []).map((it: any, i: number) => (
                 <div key={i} className="p-tl-item">
-                  <div className="p-tl-dot" />
+                  <div
+                    className="p-tl-dot"
+                    style={
+                      d.dotColor
+                        ? { background: d.dotColor, boxShadow: `0 0 0 3px ${d.dotColor}` }
+                        : undefined
+                    }
+                  />
                   <div className="p-tl-period">{it.period}</div>
                   <div className="p-tl-role">{it.role}</div>
                   <div className="p-tl-company-row">
