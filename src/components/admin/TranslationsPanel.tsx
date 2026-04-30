@@ -107,6 +107,12 @@ function writePathToTr(trData: any, p: Path, value: string): any {
       next[p.key] = { ...(next[p.key] ?? {}), [p.sub]: value };
       return next;
     }
+    case "nestedStringArr": {
+      const inner = [...((next[p.key]?.[p.sub]) ?? [])];
+      inner[p.index] = value;
+      next[p.key] = { ...(next[p.key] ?? {}), [p.sub]: inner };
+      return next;
+    }
     case "stringArr": {
       const arr = [...(next[p.key] ?? [])];
       arr[p.index] = value;
@@ -142,6 +148,13 @@ function collectAllPaths(type: BlockType, enData: any): Path[] {
       }
       case "nested": {
         if (String(enData?.[p.key]?.[p.sub] ?? "").trim()) paths.push({ kind: "nested", key: p.key, sub: p.sub });
+        break;
+      }
+      case "nestedStringArr": {
+        const arr: string[] = enData?.[p.key]?.[p.sub] ?? [];
+        arr.forEach((v, i) => {
+          if (String(v ?? "").trim()) paths.push({ kind: "nestedStringArr", key: p.key, sub: p.sub, index: i });
+        });
         break;
       }
       case "stringArr": {
