@@ -277,11 +277,17 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs">Footer · Türkçe (TR)</Label>
-            <Input value={footerTr} onChange={(e) => setFooterTr(e.target.value)} placeholder={footer} />
+            <div className="flex items-center gap-1.5">
+              <Input value={footerTr} onChange={(e) => setFooterTr(e.target.value)} placeholder={footer} />
+              <TBtn enValue={footer} lang="tr" onResult={setFooterTr} />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Footer · Deutsch (DE)</Label>
-            <Input value={footerDe} onChange={(e) => setFooterDe(e.target.value)} placeholder={footer} />
+            <div className="flex items-center gap-1.5">
+              <Input value={footerDe} onChange={(e) => setFooterDe(e.target.value)} placeholder={footer} />
+              <TBtn enValue={footer} lang="de" onResult={setFooterDe} />
+            </div>
           </div>
         </div>
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
