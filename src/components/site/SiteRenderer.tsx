@@ -274,6 +274,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                       <span className="p-tl-company">{it.company}</span>
                     )}
                   </div>
+                  {it.location && <div className="p-tl-location">{it.location}</div>}
                   <div className="p-tl-desc">{it.description}</div>
                 </div>
               ))}
