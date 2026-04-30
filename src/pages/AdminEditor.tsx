@@ -496,3 +496,46 @@ function TBtn({
     </Button>
   );
 }
+
+function SortableNavRow({
+  id, it, i, navTr, navDe, onLabel, onHref, onRemove, setNavLang,
+}: {
+  id: string;
+  it: { label: string; href: string };
+  i: number;
+  navTr: string;
+  navDe: string;
+  onLabel: (v: string) => void;
+  onHref: (v: string) => void;
+  onRemove: () => void;
+  setNavLang: (lang: "tr" | "de", i: number, v: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="space-y-1.5 border rounded-lg p-2 bg-muted/20">
+      <div className="flex gap-2 items-center">
+        <button {...attributes} {...listeners} className="cursor-grab text-muted-foreground p-1 shrink-0" title="Drag to reorder" type="button">
+          <GripVertical className="w-4 h-4" />
+        </button>
+        <Input placeholder="Label (EN)" value={it.label} onChange={(e) => onLabel(e.target.value)} />
+        <Input placeholder="#anchor" value={it.href} onChange={(e) => onHref(e.target.value)} />
+        <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="w-4 h-4" /></Button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex items-center gap-1.5">
+          <Input placeholder={`TR — ${it.label}`} value={navTr} onChange={(e) => setNavLang("tr", i, e.target.value)} />
+          <TBtn enValue={it.label} lang="tr" onResult={(v) => setNavLang("tr", i, v)} />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Input placeholder={`DE — ${it.label}`} value={navDe} onChange={(e) => setNavLang("de", i, e.target.value)} />
+          <TBtn enValue={it.label} lang="de" onResult={(v) => setNavLang("de", i, v)} />
+        </div>
+      </div>
+    </div>
+  );
+}
