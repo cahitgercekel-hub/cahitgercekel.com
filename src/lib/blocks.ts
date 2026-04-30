@@ -63,6 +63,8 @@ export const BLOCK_DEFAULTS: Record<BlockType, any> = {
   hero: {
     id: "hero",
     tag: "Open to opportunities",
+    greeting: "Hello",
+    intro: "I'm",
     name: "Your Name",
     subtitle: "Product Manager & Maker",
     image: "",

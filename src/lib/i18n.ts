@@ -11,7 +11,7 @@ import type { Lang } from "@/contexts/LanguageContext";
  */
 export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
   hero: [
-    "tag", "name", "subtitle", "cvLabel",
+    "tag", "greeting", "intro", "name", "subtitle", "cvLabel",
     "primaryBtn.label", "secondaryBtn.label",
   ],
   about: ["label", "title", "paragraphs[]", "skills[]"],
