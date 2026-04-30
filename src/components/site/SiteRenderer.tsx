@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
+import Grainient from "./Grainient";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
@@ -110,8 +111,27 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
         ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: d.imageFocal || "center" }
         : heroBg;
       return (
-        <section id={sectionId} className="p-hero" style={heroSectionStyle}>
-          <div className="p-inner" style={{ width: "100%", ...innerStyle }}>
+        <section id={sectionId} className="p-hero" style={{ ...heroSectionStyle, position: "relative", overflow: "hidden" }}>
+          <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+            <Grainient
+              color1="#9d9d9d"
+              color2="#545454"
+              color3="#9b9b9b"
+              timeSpeed={0.25}
+              warpStrength={1.0}
+              warpFrequency={5.0}
+              warpSpeed={2.0}
+              warpAmplitude={50.0}
+              blendSoftness={0.05}
+              rotationAmount={500.0}
+              noiseScale={2.0}
+              grainAmount={0.1}
+              grainScale={2.0}
+              contrast={1.5}
+              zoom={0.9}
+            />
+          </div>
+          <div className="p-inner" style={{ width: "100%", position: "relative", zIndex: 1, ...innerStyle }}>
             <div className="p-hero-grid" style={gridStyle}>
               {pos === "left" || pos === "top" ? <>{photo}{text}</> : <>{text}{photo}</>}
             </div>
