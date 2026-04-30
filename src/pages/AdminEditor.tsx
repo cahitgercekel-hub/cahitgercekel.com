@@ -55,7 +55,6 @@ export default function AdminEditor() {
     if (error) toast.error(error.message); else { toast.success("Block added"); refresh(); }
   };
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const onDragEnd = async (e: DragEndEvent) => {
     if (!e.over || e.active.id === e.over.id || !sections) return;
