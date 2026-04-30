@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import DotGrid from "./DotGrid";
+import SplitText from "./SplitText";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
@@ -91,11 +92,45 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       const photo = d.image && !isBackground && (
         <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax, objectPosition: d.imageFocal || "50% 50%" }} />
       );
+      const heroLine1 = `${d.greeting || "Hello"}.`;
+      const heroLine2 = `${d.nameLine || `${d.intro || "I'm"} ${d.name || ""}`.trim()}.`;
       const text = (
         <div>
           {d.tag && <div className="p-hero-tag">{d.tag}</div>}
-          <h1 className="p-hero-title">{d.greeting || "Hello"}<span className="dot">.</span><br />{d.nameLine || `${d.intro || "I'm"} ${d.name || ""}`.trim()}<span className="dot">.</span></h1>
-          <p className="p-hero-sub">{d.subtitle}</p>
+          <h1 className="p-hero-title" style={{ display: "block" }}>
+            <SplitText
+              tag="span"
+              text={heroLine1}
+              splitType="chars"
+              delay={40}
+              duration={0.7}
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              style={{ display: "block" }}
+            />
+            <SplitText
+              tag="span"
+              text={heroLine2}
+              splitType="chars"
+              delay={35}
+              duration={0.7}
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              style={{ display: "block" }}
+            />
+          </h1>
+          {d.subtitle && (
+            <SplitText
+              tag="p"
+              className="p-hero-sub"
+              text={d.subtitle}
+              splitType="words"
+              delay={60}
+              duration={0.6}
+              from={{ opacity: 0, y: 20 }}
+              to={{ opacity: 1, y: 0 }}
+            />
+          )}
           <div className="p-btns">
             {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
             {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
