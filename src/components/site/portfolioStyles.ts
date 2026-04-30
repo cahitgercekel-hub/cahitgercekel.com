@@ -134,6 +134,8 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-link-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: var(--p-radius); background: #fff; color: var(--p-accent); font-weight: 700; text-decoration: none; font-size: 0.92rem; box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
   .portfolio-root .p-pd-link-btn:hover { transform: translateY(-2px); }
   .portfolio-root .p-pd-link-btn.ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); }
+  .portfolio-root .p-pd-live-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 0 rgba(239,68,68,0.7); animation: p-pd-live-blink 1.4s ease-in-out infinite; vertical-align: middle; }
+  @keyframes p-pd-live-blink { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 50% { opacity: 0.35; box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
   .portfolio-root .p-pd-link-row { display: flex; flex-wrap: wrap; gap: 12px; }
 
   @media (max-width: 800px) {
