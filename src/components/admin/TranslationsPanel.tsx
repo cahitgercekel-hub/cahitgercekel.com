@@ -69,6 +69,7 @@ function fieldLabel(spec: string): string {
 type Path =
   | { kind: "string"; key: string }
   | { kind: "nested"; key: string; sub: string }
+  | { kind: "nestedStringArr"; key: string; sub: string; index: number }
   | { kind: "stringArr"; key: string; index: number }
   | { kind: "itemField"; key: string; sub: string; index: number }
   | { kind: "itemStringArr"; key: string; sub: string; index: number; inner: number };
@@ -77,6 +78,7 @@ function readPathFromEn(enData: any, p: Path): string {
   switch (p.kind) {
     case "string": return String(enData?.[p.key] ?? "");
     case "nested": return String(enData?.[p.key]?.[p.sub] ?? "");
+    case "nestedStringArr": return String(enData?.[p.key]?.[p.sub]?.[p.index] ?? "");
     case "stringArr": return String(enData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(enData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(enData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
@@ -87,6 +89,7 @@ function readPathFromTr(trData: any, p: Path): string {
   switch (p.kind) {
     case "string": return String(trData?.[p.key] ?? "");
     case "nested": return String(trData?.[p.key]?.[p.sub] ?? "");
+    case "nestedStringArr": return String(trData?.[p.key]?.[p.sub]?.[p.index] ?? "");
     case "stringArr": return String(trData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(trData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(trData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
