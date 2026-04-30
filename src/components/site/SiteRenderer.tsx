@@ -194,7 +194,32 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
-            {d.title && <h2 className="p-title">{d.title}</h2>}
+            {d.title && (
+              <h2 className="p-title" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+                <span>{d.title}</span>
+                {Array.isArray(d.rotatingPills?.texts) && d.rotatingPills.texts.filter(Boolean).length > 0 && (
+                  <RotatingText
+                    texts={d.rotatingPills.texts.filter(Boolean)}
+                    rotationInterval={d.rotatingPills?.intervalMs ?? 2000}
+                    staggerDuration={d.rotatingPills?.staggerDuration ?? 0.025}
+                    staggerFrom={d.rotatingPills?.staggerFrom ?? "last"}
+                    splitBy="characters"
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "-120%" }}
+                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                    mainClassName="px-3 py-1 rounded-lg overflow-hidden"
+                    splitLevelClassName="overflow-hidden pb-0.5"
+                    style={{
+                      background: d.rotatingPills?.bg ?? "#db0000",
+                      color: d.rotatingPills?.fg ?? "#ffffff",
+                      fontSize: "0.7em",
+                      lineHeight: 1.2,
+                    }}
+                  />
+                )}
+              </h2>
+            )}
             <div className="p-about-grid" style={gridStyle}>
               {pos === "left" || pos === "top" ? <>{portrait}{text}</> : <>{text}{portrait}</>}
             </div>
