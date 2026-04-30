@@ -28,7 +28,7 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
     "items[].subtitle", "items[].role", "items[].client",
     "items[].longDescription", "items[].tech[]", "items[].statusText",
   ],
-  experience: ["label", "title", "items[].period", "items[].role", "items[].company", "items[].description"],
+  experience: ["label", "title", "items[].period", "items[].role", "items[].company", "items[].location", "items[].description"],
   contact: ["label", "title", "intro", "links[].label"],
   logos: ["label", "title", "items[].name"],
   image: ["alt", "caption"],
