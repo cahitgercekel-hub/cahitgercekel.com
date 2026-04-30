@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminEditor from "./pages/AdminEditor.tsx";
+import ProjectDetail from "./pages/ProjectDetail.tsx";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/admin" element={<AdminEditor />} />
               <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/:slug" element={<ProjectDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
