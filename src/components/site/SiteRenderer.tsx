@@ -59,6 +59,10 @@ export default function SiteRenderer() {
     "--p-font": `'${fontFamily}', sans-serif`,
   } as React.CSSProperties;
 
+  if (isLoading) {
+    return <div style={{ minHeight: "100vh", background: t.bg }} aria-hidden />;
+  }
+
   return (
     <>
       <Helmet>
