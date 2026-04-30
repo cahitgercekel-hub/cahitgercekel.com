@@ -178,6 +178,12 @@ export default function SiteRenderer() {
           .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
           .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
+          .portfolio-root .p-lang-pill { position: fixed; bottom: 20px; right: 20px; z-index: 95; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 100px; background: rgba(255,255,255,0.55); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+          .portfolio-root .p-lang-pill button { background: transparent; border: 0; padding: 2px 4px; font-family: inherit; font-size: 0.78rem; font-weight: 500; letter-spacing: 1px; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease, transform .2s ease; }
+          .portfolio-root .p-lang-pill button:hover { opacity: 0.85; }
+          .portfolio-root .p-lang-pill button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
+          .portfolio-root .p-lang-pill .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.78rem; user-select: none; }
+          .portfolio-root .p-lang-mobile { display: none; }
           @media (max-width: 800px) {
             .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr; }
             .portfolio-root .p-hero-photo { max-width: 240px; }
@@ -210,6 +216,11 @@ export default function SiteRenderer() {
             .portfolio-root .p-logos-row { gap: 28px; }
             .portfolio-root .p-logo-item img { max-height: 40px; max-width: 100px; }
             .portfolio-root .p-footer { padding: 28px 20px; }
+            .portfolio-root .p-lang-pill { display: none; }
+            .portfolio-root .p-lang-mobile { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px 0 4px; margin-top: 8px; border-top: 1px solid var(--p-border); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+            .portfolio-root .p-lang-mobile button { background: transparent; border: 0; padding: 4px 6px; font-family: inherit; font-size: 0.72rem; letter-spacing: 1px; font-weight: 500; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease; }
+            .portfolio-root .p-lang-mobile button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
+            .portfolio-root .p-lang-mobile .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.72rem; }
           }
           @media (max-width: 420px) {
             .portfolio-root nav.p-nav { padding: 8px 14px; }
