@@ -124,7 +124,7 @@ export const BLOCK_DEFAULTS: Record<BlockType, any> = {
     id: "experience",
     label: "Career",
     title: "Work Experience",
-    items: [{ period: "2024", role: "Role", company: "Company", description: "Description." }],
+    items: [{ period: "2024", role: "Role", company: "Company", location: "", description: "Description." }],
   },
   contact: {
     id: "contact",
