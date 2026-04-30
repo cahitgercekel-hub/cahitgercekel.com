@@ -95,11 +95,6 @@ function ListEditor({
 }) {
   const items: any[] = data[field] ?? [];
   const setField = (next: any[]) => onChange({ ...data, [field]: next });
-  const update = (idx: number, key: string, val: any) => {
-    const next = [...items];
-    next[idx] = { ...next[idx], [key]: val };
-    setField(next);
-  };
 
   return (
     <div className="space-y-3">
@@ -111,74 +106,150 @@ function ListEditor({
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-          {schema.map((s) => {
-            if (s.type === "textarea") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <Textarea value={it[s.key] ?? ""} onChange={(e) => update(i, s.key, e.target.value)} />
-                </Field>
-              );
-            }
-            if (s.type === "number") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <Input type="number" value={it[s.key] ?? 0} onChange={(e) => update(i, s.key, Number(e.target.value))} />
-                </Field>
-              );
-            }
-            if (s.type === "image" || s.type === "file") {
-              return (
-                <FileUploadField
-                  key={s.key}
-                  label={s.label}
-                  value={it[s.key] ?? ""}
-                  onChange={(v) => update(i, s.key, v)}
-                  folder={s.folder || field}
-                  accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
-                  preview={s.type === "image" ? "image" : "file"}
-                  focal={s.focalKey ? it[s.focalKey] : undefined}
-                  onFocalChange={s.focalKey ? (v) => update(i, s.focalKey!, v) : undefined}
-                />
-              );
-            }
-            if (s.type === "select") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <select
-                    className="w-full border rounded h-9 px-2 text-sm bg-background"
-                    value={it[s.key] ?? ""}
-                    onChange={(e) => update(i, s.key, e.target.value)}
-                  >
-                    {(s.options ?? []).map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
-                </Field>
-              );
-            }
-            if (s.type === "checkbox") {
-              return (
-                <label key={s.key} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={!!it[s.key]}
-                    onChange={(e) => update(i, s.key, e.target.checked)}
-                  />
-                  {s.label}
-                </label>
-              );
-            }
-            return (
-              <Field key={s.key} label={s.label}>
-                <Input value={it[s.key] ?? ""} onChange={(e) => update(i, s.key, e.target.value)} />
-              </Field>
-            );
-          })}
+          {schema.map((s) => (
+            <RenderField
+              key={s.key}
+              field={s}
+              parentKey={field}
+              value={it}
+              onValueChange={(next) => {
+                const arr = [...items];
+                arr[i] = next;
+                setField(arr);
+              }}
+            />
+          ))}
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={() => setField([...items, factory()])}>
         <Plus className="w-3 h-3 mr-1" /> Add item
       </Button>
+    </div>
+  );
+}
+
+/**
+ * Renders a single schema field for one row of data. Handles all primitive
+ * field types plus nested sub-lists and collapsible groups.
+ */
+function RenderField({
+  field: s,
+  parentKey,
+  value,
+  onValueChange,
+}: {
+  field: SchemaField;
+  parentKey: string;
+  value: any;
+  onValueChange: (next: any) => void;
+}) {
+  const update = (key: string, val: any) => onValueChange({ ...value, [key]: val });
+
+  if (s.type === "group") {
+    return (
+      <CollapsibleGroup label={s.label} defaultOpen={!!s.defaultOpen}>
+        {(s.fields ?? []).map((f) => (
+          <RenderField key={f.key} field={f} parentKey={parentKey} value={value} onValueChange={onValueChange} />
+        ))}
+      </CollapsibleGroup>
+    );
+  }
+  if (s.type === "subList") {
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs">{s.label}</Label>
+        <ListEditor
+          data={value}
+          onChange={onValueChange}
+          field={s.key}
+          schema={s.subSchema ?? []}
+          factory={s.subFactory ?? (() => ({}))}
+        />
+      </div>
+    );
+  }
+  if (s.type === "csv") {
+    return (
+      <Field label={s.label}>
+        <CsvInput value={value[s.key] ?? []} onChange={(v) => update(s.key, v)} />
+      </Field>
+    );
+  }
+  if (s.type === "textarea") {
+    return (
+      <Field label={s.label}>
+        <Textarea value={value[s.key] ?? ""} onChange={(e) => update(s.key, e.target.value)} />
+      </Field>
+    );
+  }
+  if (s.type === "number") {
+    return (
+      <Field label={s.label}>
+        <Input type="number" value={value[s.key] ?? 0} onChange={(e) => update(s.key, Number(e.target.value))} />
+      </Field>
+    );
+  }
+  if (s.type === "image" || s.type === "file") {
+    return (
+      <FileUploadField
+        label={s.label}
+        value={value[s.key] ?? ""}
+        onChange={(v) => update(s.key, v)}
+        folder={s.folder || parentKey}
+        accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
+        preview={s.type === "image" ? "image" : "file"}
+        focal={s.focalKey ? value[s.focalKey] : undefined}
+        onFocalChange={s.focalKey ? (v) => update(s.focalKey!, v) : undefined}
+      />
+    );
+  }
+  if (s.type === "select") {
+    return (
+      <Field label={s.label}>
+        <select
+          className="w-full border rounded h-9 px-2 text-sm bg-background"
+          value={value[s.key] ?? ""}
+          onChange={(e) => update(s.key, e.target.value)}
+        >
+          {(s.options ?? []).map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </Field>
+    );
+  }
+  if (s.type === "checkbox") {
+    return (
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={!!value[s.key]}
+          onChange={(e) => update(s.key, e.target.checked)}
+        />
+        {s.label}
+      </label>
+    );
+  }
+  return (
+    <Field label={s.label}>
+      <Input value={value[s.key] ?? ""} onChange={(e) => update(s.key, e.target.value)} />
+    </Field>
+  );
+}
+
+function CollapsibleGroup({ label, defaultOpen, children }: { label: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <div className="border rounded-md bg-background/40">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full text-left px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1.5"
+      >
+        <span style={{ display: "inline-block", width: 10 }}>{open ? "▾" : "▸"}</span>
+        {label}
+      </button>
+      {open && <div className="p-2 pt-0 space-y-2">{children}</div>}
     </div>
   );
 }
