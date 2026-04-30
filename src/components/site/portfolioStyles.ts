@@ -169,7 +169,7 @@ export const PORTFOLIO_CSS = `
     .portfolio-root nav.p-nav { width: calc(100% - 24px); padding: 10px 16px; top: 12px; }
     .portfolio-root .p-nav-links { display: none; }
     .portfolio-root .p-nav-burger { display: inline-flex; }
-    .portfolio-root .p-section { padding: 60px 20px; }
+    .portfolio-root .p-section { padding: 60px 12px; }
     .portfolio-root .p-title { font-size: clamp(1.7rem, 7vw, 2.2rem); margin-bottom: 28px; }
     .portfolio-root .p-hero { padding: 100px 20px 60px; min-height: auto; }
     .portfolio-root .p-hero-grid,
