@@ -167,57 +167,120 @@ export default function SiteRenderer() {
   );
 }
 
+function getLayoutStyle(layout: any = {}): React.CSSProperties {
+  const s: React.CSSProperties = {};
+  if (layout.paddingY != null) s.paddingTop = s.paddingBottom = layout.paddingY;
+  if (layout.bgImage) {
+    s.backgroundImage = `url("${layout.bgImage}")`;
+    s.backgroundSize = "cover";
+    s.backgroundPosition = "center";
+  }
+  if (layout.bg) s.background = layout.bgImage
+    ? `${layout.bg}, url("${layout.bgImage}") center/cover`
+    : layout.bg;
+  if (layout.textAlign) s.textAlign = layout.textAlign as any;
+  return s;
+}
+
+function getInnerStyle(layout: any = {}): React.CSSProperties {
+  const s: React.CSSProperties = {};
+  if (layout.maxWidth) s.maxWidth = layout.maxWidth;
+  if (layout.textAlign) s.textAlign = layout.textAlign as any;
+  return s;
+}
+
+const IMAGE_SIZE_MAP: Record<string, string> = {
+  small: "200px",
+  medium: "360px",
+  large: "520px",
+  full: "100%",
+};
+
 function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boolean; settings: SiteSettings | null | undefined }) {
   const d = section.data ?? {};
   const sectionId = d.id || section.type;
+  const layout = d.layout ?? {};
+  const sectionStyle = getLayoutStyle(layout);
+  const innerStyle = getInnerStyle(layout);
 
   switch (section.type) {
-    case "hero":
+    case "hero": {
+      const pos = layout.imagePos ?? "right";
+      const imgMax = IMAGE_SIZE_MAP[layout.imageSize ?? "medium"];
+      const heroBg = layout.bg || layout.bgImage
+        ? sectionStyle
+        : { background: "var(--p-hero)", ...sectionStyle };
+      const isStacked = pos === "top" || pos === "bottom";
+      const isBackground = pos === "background";
+      const gridStyle: React.CSSProperties = isStacked
+        ? { gridTemplateColumns: "1fr" }
+        : d.image && !isBackground
+        ? { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" }
+        : {};
+      const photo = d.image && !isBackground && (
+        <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax }} />
+      );
+      const text = (
+        <div>
+          {d.tag && <div className="p-hero-tag">{d.tag}</div>}
+          <h1 className="p-hero-title">Hello<span className="dot">.</span><br />I'm {d.name}<span className="dot">.</span></h1>
+          <p className="p-hero-sub">{d.subtitle}</p>
+          <div className="p-btns">
+            {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
+            {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
+            {d.cvUrl && (
+              <a className="p-btn-cv" href={d.cvUrl} download target="_blank" rel="noreferrer">
+                ⬇ {d.cvLabel || "Download CV"}
+              </a>
+            )}
+          </div>
+        </div>
+      );
+      const heroSectionStyle: React.CSSProperties = isBackground && d.image
+        ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: "center" }
+        : heroBg;
       return (
-        <section id={sectionId} className="p-hero">
-          <div className="p-inner" style={{ width: "100%" }}>
-            <div className={`p-hero-grid${d.image ? " has-image" : ""}`}>
-              <div>
-                {d.tag && <div className="p-hero-tag">{d.tag}</div>}
-                <h1 className="p-hero-title">Hello<span className="dot">.</span><br />I'm {d.name}<span className="dot">.</span></h1>
-                <p className="p-hero-sub">{d.subtitle}</p>
-                <div className="p-btns">
-                  {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
-                  {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
-                  {d.cvUrl && (
-                    <a className="p-btn-cv" href={d.cvUrl} download target="_blank" rel="noreferrer">
-                      ⬇ {d.cvLabel || "Download CV"}
-                    </a>
-                  )}
-                </div>
-              </div>
-              {d.image && (
-                <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} />
-              )}
+        <section id={sectionId} className="p-hero" style={heroSectionStyle}>
+          <div className="p-inner" style={{ width: "100%", ...innerStyle }}>
+            <div className="p-hero-grid" style={gridStyle}>
+              {pos === "left" || pos === "top" ? <>{photo}{text}</> : <>{text}{photo}</>}
             </div>
           </div>
         </section>
       );
-    case "about":
+    }
+    case "about": {
+      const pos = layout.imagePos ?? "right";
+      const imgMax = IMAGE_SIZE_MAP[layout.imageSize ?? "medium"];
+      const isStacked = pos === "top" || pos === "bottom";
+      const gridStyle: React.CSSProperties = !d.portrait || isStacked
+        ? { gridTemplateColumns: "1fr" }
+        : { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" };
+      const portrait = d.portrait && (
+        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax }} />
+      );
+      const text = (
+        <div className="p-about-text">
+          {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{p}</p>)}
+          {(d.skills ?? []).length > 0 && (
+            <div className="p-skills">
+              {d.skills.map((s: string, i: number) => <span key={i} className="p-skill">{s}</span>)}
+            </div>
+          )}
+        </div>
+      );
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
-            <div className="p-about-grid" style={!d.portrait ? { gridTemplateColumns: "1fr" } : undefined}>
-              <div className="p-about-text">
-                {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{p}</p>)}
-                {(d.skills ?? []).length > 0 && (
-                  <div className="p-skills">
-                    {d.skills.map((s: string, i: number) => <span key={i} className="p-skill">{s}</span>)}
-                  </div>
-                )}
-              </div>
-              {d.portrait && <img className="p-about-portrait" src={d.portrait} alt="" />}
+            <div className="p-about-grid" style={gridStyle}>
+              {pos === "left" || pos === "top" ? <>{portrait}{text}</> : <>{text}{portrait}</>}
             </div>
           </div>
         </section>
       );
+    }
     case "stats":
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
