@@ -161,12 +161,14 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Name"><Input value={data.name ?? ""} onChange={(e) => set("name", e.target.value)} /></Field>
           <Field label="Subtitle"><Input value={data.subtitle ?? ""} onChange={(e) => set("subtitle", e.target.value)} /></Field>
           <FileUploadField
-            label="Profile picture (right side)"
+            label="Profile picture"
             value={data.image ?? ""}
             onChange={(v) => set("image", v)}
             folder="hero"
             accept="image/*"
             preview="image"
+            focal={data.imageFocal}
+            onFocalChange={(v) => set("imageFocal", v)}
           />
           <FileUploadField
             label="CV / Resume (PDF)"
