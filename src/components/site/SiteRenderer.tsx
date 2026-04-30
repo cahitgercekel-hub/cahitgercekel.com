@@ -18,6 +18,14 @@ export default function SiteRenderer() {
   const { data: sections, isLoading: sectionsLoading } = useSections(false);
   const { data: settings, isLoading: settingsLoading } = useSiteSettings();
   const isLoading = sectionsLoading || settingsLoading;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const fontFamily = settings?.font_family || "Inter";
   const fontSpec = FONT_MAP[fontFamily] || FONT_MAP.Inter;
