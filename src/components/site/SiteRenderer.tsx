@@ -237,7 +237,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
         </div>
       );
       const heroSectionStyle: React.CSSProperties = isBackground && d.image
-        ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: "center" }
+        ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: d.imageFocal || "center" }
         : heroBg;
       return (
         <section id={sectionId} className="p-hero" style={heroSectionStyle}>
