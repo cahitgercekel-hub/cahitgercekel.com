@@ -328,7 +328,6 @@ export default function BlockEditor({ type, data, onChange }: Props) {
         <div className="space-y-4">
           <Field label="Section ID (anchor)"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Tagline (badge)"><Input value={data.tag ?? ""} onChange={(e) => set("tag", e.target.value)} /></Field>
-          <div className="grid grid-cols-2 gap-3">
           <Field label="Greeting (e.g. Hello)"><Input value={data.greeting ?? ""} placeholder="Hello" onChange={(e) => set("greeting", e.target.value)} /></Field>
           <Field label="Name line (e.g. I'm Cahit) — translated as one phrase"><Input value={data.nameLine ?? ""} placeholder="I'm Cahit" onChange={(e) => set("nameLine", e.target.value)} /></Field>
           <div className="grid grid-cols-2 gap-3">
