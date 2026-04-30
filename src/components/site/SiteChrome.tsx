@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSite";
 import { useLang, LANGS } from "@/contexts/LanguageContext";
 import { translateNavItems, translateString } from "@/lib/i18n";
@@ -25,6 +25,33 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { lang, setLang } = useLang();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const NAV_OFFSET = 80;
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    window.scrollTo({ top, behavior: "smooth" });
+    try { window.history.replaceState(null, "", `#${id}`); } catch {}
+  };
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    // Extract anchor id from "#x" or "/#x"
+    const hashIdx = href.indexOf("#");
+    if (hashIdx === -1) return; // not a hash link, let it navigate normally
+    const id = href.slice(hashIdx + 1);
+    if (!id) return;
+    e.preventDefault();
+    setMenuOpen(false);
+    if (location.pathname !== "/") {
+      navigate("/");
+      // Wait for the home page to render, then scroll.
+      setTimeout(() => scrollToId(id), 80);
+    } else {
+      scrollToId(id);
+    }
+  };
 
   const [showTop, setShowTop] = useState(false);
 
@@ -101,7 +128,14 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           </div>
           <ul className="p-nav-links">
             {navItems.map((it, i) => (
-              <li key={i}><a href={it.href.startsWith("#") ? `/${it.href}` : it.href}>{it.label}</a></li>
+              <li key={i}>
+                <a
+                  href={it.href.startsWith("#") ? `/${it.href}` : it.href}
+                  onClick={(e) => handleNavClick(e, it.href)}
+                >
+                  {it.label}
+                </a>
+              </li>
             ))}
           </ul>
           <button
@@ -119,7 +153,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             <ul className="p-mobile-menu">
               {navItems.map((it, i) => (
                 <li key={i}>
-                  <a href={it.href.startsWith("#") ? `/${it.href}` : it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
+                  <a href={it.href.startsWith("#") ? `/${it.href}` : it.href} onClick={(e) => handleNavClick(e, it.href)}>{it.label}</a>
                 </li>
               ))}
             </ul>

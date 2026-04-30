@@ -1,48 +1,33 @@
-# Project card pills + 2-up grid
+# Smooth scroll for nav anchors
 
-## Changes
+## Problem
+Clicking nav links like "Projects" or "Contact" jumps instantly (or worse, triggers a route change) instead of smoothly scrolling to the section. Two causes:
 
-### 1. Card pills (admin)
-`src/components/admin/BlockEditor.tsx` — in the `projects` block items schema, add a new CSV field right after `description`:
-- `pills` — "Card pills (comma separated, shown under description)" — type `csv`
+1. In `SiteChrome.tsx`, hash links are rendered as `href="/#projects"` — when already on `/`, browsers do an instant jump; on other routes it's a full navigation.
+2. There's no smooth-scroll behavior configured, and no offset for the sticky `.p-nav` header (the section title would slide under the nav).
 
-Update the item factory to include `pills: []`.
+## Fix
 
-### 2. Render pills on the card
-`src/components/site/SiteRenderer.tsx` — inside the project card, after `<p>{it.description}</p>` and before the CTA, render:
+### 1. Intercept anchor clicks (desktop + mobile menu) in `src/components/site/SiteChrome.tsx`
+- Add a `handleNavClick(href)` helper. If `href` starts with `#` (or `/#`), prevent default, find the target element by id, and call `window.scrollTo({ top: el.offsetTop - NAV_OFFSET, behavior: "smooth" })`.
+- If we're not on `/`, navigate to `/` first (via `useNavigate`) and then scroll after a tick.
+- Update `history.pushState` so the URL hash reflects the section.
+- Close the mobile menu on click (already handled, keep it).
 
-```tsx
-{Array.isArray(it.pills) && it.pills.length > 0 && (
-  <div className="p-card-pills">
-    {it.pills.map((p, idx) => <span key={idx} className="p-card-pill">{p}</span>)}
-  </div>
-)}
-```
+### 2. Apply to both nav lists
+- Desktop `<ul className="p-nav-links">` and mobile `<ul className="p-mobile-menu">` — both map nav items.
 
-### 3. Grid: at least 2 cards, max 2 per row
-`src/components/site/portfolioStyles.ts` — change the projects grid so it always shows 2 columns on desktop/tablet and scales the cards accordingly. Replace the `auto-fill, minmax(280px, 1fr)` rule with a fixed 2-column grid:
+### 3. Add CSS scroll-margin for sections in `src/components/site/portfolioStyles.ts`
+- Add `.portfolio-root section[id] { scroll-margin-top: 80px; }` as a safety net (also helps when users land via a hash URL or use browser back/forward).
+- Add `html { scroll-behavior: smooth; }` so the existing "Back to top" button and any direct hash-URL loads also animate.
 
-```css
-.p-projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
-```
+### 4. Keep "Back to top" buttons as-is
+They already use `behavior: "smooth"` — no change needed.
 
-The existing mobile rule (`grid-template-columns: 1fr` at ≤700px) keeps single-column on phones.
+## Files to edit
+- `src/components/site/SiteChrome.tsx` — add click handler, wire to both nav lists.
+- `src/components/site/portfolioStyles.ts` — add `scroll-margin-top` and `scroll-behavior: smooth`.
 
-Add styles for the new pills:
-```css
-.p-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
-.p-card-pill { display: inline-block; padding: 4px 10px; border-radius: 100px; background: rgba(0,0,0,0.06); color: var(--p-fg); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2px; }
-```
-
-Card thumb height may want a small bump now that cards are wider — leave it as-is unless it looks off.
-
-### 4. i18n
-`src/lib/i18n.ts` — add `items[].pills[]` to the projects translatable paths so pills auto-translate alongside description.
-
-## Files touched
-- `src/components/admin/BlockEditor.tsx`
-- `src/components/site/SiteRenderer.tsx`
-- `src/components/site/portfolioStyles.ts`
-- `src/lib/i18n.ts`
-
-No DB migration — stored in existing `sections.data` JSONB.
+## Out of scope
+- Active-section highlighting in the nav (can be added later if wanted).
+- Animating section reveal on scroll.
