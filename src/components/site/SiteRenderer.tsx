@@ -386,14 +386,16 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-contact-info">
               {d.intro && <p>{d.intro}</p>}
-              {(d.links ?? []).map((l: any, i: number) => (
-                <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
-                  {l.iconUrl
-                    ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
-                    : <span>{l.icon}</span>}
-                  <span>{l.label}</span>
-                </a>
-              ))}
+              <div className="p-contact-grid">
+                {(d.links ?? []).map((l: any, i: number) => (
+                  <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
+                    {l.iconUrl
+                      ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
+                      : <span>{l.icon}</span>}
+                    <span>{l.label}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </section>
