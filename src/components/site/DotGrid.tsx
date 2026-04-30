@@ -64,6 +64,7 @@ const DotGrid: React.FC<DotGridProps> = ({
   const pointerRef = useRef({
     x: -9999, y: -9999, vx: 0, vy: 0, speed: 0, lastTime: 0, lastX: 0, lastY: 0
   });
+  const isTouchRef = useRef(false);
 
   const baseRgb = useMemo(() => hexToRgb(baseColor), [baseColor]);
   const activeRgb = useMemo(() => hexToRgb(activeColor), [activeColor]);
