@@ -467,6 +467,40 @@ function SpecField({
     );
   }
 
+  if (parsed.kind === "nestedStringArr") {
+    const { key: k, sub: sk } = parsed;
+    const enArr: string[] = enData?.[k]?.[sk] ?? [];
+    const trArr: string[] = trData?.[k]?.[sk] ?? [];
+    if (enArr.length === 0) return null;
+    const writeAt = (i: number, v: string) =>
+      setTr((cur) => {
+        const inner = [...((cur?.[k]?.[sk]) ?? [])];
+        inner[i] = v;
+        return { ...cur, [k]: { ...(cur?.[k] ?? {}), [sk]: inner } };
+      });
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs font-semibold">{label}</Label>
+        {enArr.map((enItem, i) => (
+          <Field
+            key={i}
+            label={`#${i + 1}`}
+            en={enItem}
+            action={
+              <TranslateBtn enValue={enItem} lang={lang} onResult={(v) => writeAt(i, v)} />
+            }
+          >
+            <Input
+              value={trArr[i] ?? ""}
+              onChange={(e) => writeAt(i, e.target.value)}
+              placeholder={enItem}
+            />
+          </Field>
+        ))}
+      </div>
+    );
+  }
+
   if (parsed.kind === "itemField") {
     const { key: k, sub: sk } = parsed;
     const enArr: any[] = enData?.[k] ?? [];
