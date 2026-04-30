@@ -143,7 +143,18 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
 
       {children}
 
-      <footer className="p-footer">{translateString(settings?.footer_text, settings?.i18n, lang, "footer_text")}</footer>
+      <footer className="p-footer">
+        <div className="p-inner p-footer-inner">
+          <p>{translateString(settings?.footer_text, settings?.i18n, lang, "footer_text")}</p>
+          <button
+            type="button"
+            className="p-footer-to-top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            Back to top ↑
+          </button>
+        </div>
+      </footer>
 
       <div className="p-lang-pill" role="group" aria-label="Language">
         {LANGS.map((l, i) => (
