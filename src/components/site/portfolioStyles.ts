@@ -102,6 +102,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-lang-pill button:hover { opacity: 0.85; }
   .portfolio-root .p-lang-pill button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
   .portfolio-root .p-lang-pill .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.78rem; user-select: none; }
+  .portfolio-root .p-to-top { display: none; position: fixed; bottom: 20px; right: 20px; z-index: 96; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.6); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); color: var(--p-fg); box-shadow: 0 6px 20px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6); cursor: pointer; opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .25s ease, transform .25s ease; }
+  .portfolio-root .p-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .portfolio-root .p-to-top:active { transform: scale(0.94); }
   .portfolio-root .p-lang-mobile { display: none; }
 
   /* ----- Project detail page ----- */
