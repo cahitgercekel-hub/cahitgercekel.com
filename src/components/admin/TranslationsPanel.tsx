@@ -28,6 +28,7 @@ const LANGS: { code: LangCode; label: string }[] = [
 type ParsedSpec =
   | { kind: "string"; key: string }
   | { kind: "nested"; key: string; sub: string }
+  | { kind: "nestedStringArr"; key: string; sub: string }
   | { kind: "stringArr"; key: string }
   | { kind: "itemField"; key: string; sub: string }
   | { kind: "itemStringArr"; key: string; sub: string };
@@ -40,7 +41,14 @@ function parseSpec(spec: string): ParsedSpec {
     }
     return { kind: "itemField", key: arrKey, sub: rest };
   }
-  if (spec.endsWith("[]")) return { kind: "stringArr", key: spec.slice(0, -2) };
+  if (spec.endsWith("[]")) {
+    const inner = spec.slice(0, -2);
+    if (inner.includes(".")) {
+      const [k, sk] = inner.split(".");
+      return { kind: "nestedStringArr", key: k, sub: sk };
+    }
+    return { kind: "stringArr", key: inner };
+  }
   if (spec.includes(".")) {
     const [k, sk] = spec.split(".");
     return { kind: "nested", key: k, sub: sk };
@@ -61,6 +69,7 @@ function fieldLabel(spec: string): string {
 type Path =
   | { kind: "string"; key: string }
   | { kind: "nested"; key: string; sub: string }
+  | { kind: "nestedStringArr"; key: string; sub: string; index: number }
   | { kind: "stringArr"; key: string; index: number }
   | { kind: "itemField"; key: string; sub: string; index: number }
   | { kind: "itemStringArr"; key: string; sub: string; index: number; inner: number };
@@ -69,6 +78,7 @@ function readPathFromEn(enData: any, p: Path): string {
   switch (p.kind) {
     case "string": return String(enData?.[p.key] ?? "");
     case "nested": return String(enData?.[p.key]?.[p.sub] ?? "");
+    case "nestedStringArr": return String(enData?.[p.key]?.[p.sub]?.[p.index] ?? "");
     case "stringArr": return String(enData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(enData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(enData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
@@ -79,6 +89,7 @@ function readPathFromTr(trData: any, p: Path): string {
   switch (p.kind) {
     case "string": return String(trData?.[p.key] ?? "");
     case "nested": return String(trData?.[p.key]?.[p.sub] ?? "");
+    case "nestedStringArr": return String(trData?.[p.key]?.[p.sub]?.[p.index] ?? "");
     case "stringArr": return String(trData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(trData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(trData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
@@ -94,6 +105,12 @@ function writePathToTr(trData: any, p: Path, value: string): any {
     }
     case "nested": {
       next[p.key] = { ...(next[p.key] ?? {}), [p.sub]: value };
+      return next;
+    }
+    case "nestedStringArr": {
+      const inner = [...((next[p.key]?.[p.sub]) ?? [])];
+      inner[p.index] = value;
+      next[p.key] = { ...(next[p.key] ?? {}), [p.sub]: inner };
       return next;
     }
     case "stringArr": {
@@ -131,6 +148,13 @@ function collectAllPaths(type: BlockType, enData: any): Path[] {
       }
       case "nested": {
         if (String(enData?.[p.key]?.[p.sub] ?? "").trim()) paths.push({ kind: "nested", key: p.key, sub: p.sub });
+        break;
+      }
+      case "nestedStringArr": {
+        const arr: string[] = enData?.[p.key]?.[p.sub] ?? [];
+        arr.forEach((v, i) => {
+          if (String(v ?? "").trim()) paths.push({ kind: "nestedStringArr", key: p.key, sub: p.sub, index: i });
+        });
         break;
       }
       case "stringArr": {
@@ -437,6 +461,40 @@ function SpecField({
                 placeholder={enItem}
               />
             )}
+          </Field>
+        ))}
+      </div>
+    );
+  }
+
+  if (parsed.kind === "nestedStringArr") {
+    const { key: k, sub: sk } = parsed;
+    const enArr: string[] = enData?.[k]?.[sk] ?? [];
+    const trArr: string[] = trData?.[k]?.[sk] ?? [];
+    if (enArr.length === 0) return null;
+    const writeAt = (i: number, v: string) =>
+      setTr((cur) => {
+        const inner = [...((cur?.[k]?.[sk]) ?? [])];
+        inner[i] = v;
+        return { ...cur, [k]: { ...(cur?.[k] ?? {}), [sk]: inner } };
+      });
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs font-semibold">{label}</Label>
+        {enArr.map((enItem, i) => (
+          <Field
+            key={i}
+            label={`#${i + 1}`}
+            en={enItem}
+            action={
+              <TranslateBtn enValue={enItem} lang={lang} onResult={(v) => writeAt(i, v)} />
+            }
+          >
+            <Input
+              value={trArr[i] ?? ""}
+              onChange={(e) => writeAt(i, e.target.value)}
+              placeholder={enItem}
+            />
           </Field>
         ))}
       </div>
