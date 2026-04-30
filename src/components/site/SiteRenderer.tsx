@@ -93,7 +93,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       const text = (
         <div>
           {d.tag && <div className="p-hero-tag">{d.tag}</div>}
-          <h1 className="p-hero-title">Hello<span className="dot">.</span><br />I'm {d.name}<span className="dot">.</span></h1>
+          <h1 className="p-hero-title">{d.greeting || "Hello"}<span className="dot">.</span><br />{d.intro || "I'm"} {d.name}<span className="dot">.</span></h1>
           <p className="p-hero-sub">{d.subtitle}</p>
           <div className="p-btns">
             {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
