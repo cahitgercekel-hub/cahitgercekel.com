@@ -98,7 +98,7 @@ export default function SiteRenderer() {
           .portfolio-root .p-mobile-menu li a { display: block; padding: 12px 6px; text-decoration: none; color: var(--p-fg); font-size: 1rem; font-weight: 500; }
           .portfolio-root .p-mobile-menu li a:hover { color: var(--p-accent); }
           @keyframes pNavFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-          .portfolio-root nav.p-nav.scrolled { box-shadow: 0 8px 28px rgba(0,0,0,0.1); background: rgba(255,255,255,0.96); }
+          .portfolio-root nav.p-nav.scrolled { box-shadow: 0 8px 28px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.7); background: rgba(255,255,255,0.65); }
           .portfolio-root .p-logo { font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: baseline; white-space: nowrap; }
           .portfolio-root .p-logo-word { display: inline-flex; align-items: baseline; }
           .portfolio-root .p-logo-word + .p-logo-word { margin-left: 0.28em; transition: margin-left .25s ease; }
