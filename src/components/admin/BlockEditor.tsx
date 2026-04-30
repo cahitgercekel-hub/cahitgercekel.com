@@ -451,8 +451,17 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "description", label: "Short description (card)", type: "textarea" },
               { key: "image", label: "Cover image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
-              { key: "link", label: "External link (optional)" },
+              { key: "link", label: "External link (used by Live button & card external link)" },
               { key: "openExternal", label: "Open external link instead of detail page", type: "checkbox" },
+              {
+                key: "status", label: "Status button on detail page", type: "select",
+                options: [
+                  { label: "Live (red blinking dot + opens link)", value: "live" },
+                  { label: "In Progress (🚧 no button)", value: "in_progress" },
+                  { label: "None (custom text, no button)", value: "none" },
+                ],
+              },
+              { key: "statusText", label: "Custom status text (used when status is None)" },
               { key: "featured", label: "Featured (highlight)", type: "checkbox" },
               {
                 key: "_detail", label: "Detail page", type: "group", defaultOpen: false,
@@ -504,6 +513,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             factory={() => ({
               tag: "", title: "", description: "", image: "", emoji: "✨", link: "",
               openExternal: false, featured: false, slug: "",
+              status: "live", statusText: "",
               subtitle: "", role: "", client: "", year: "", iconUrl: "",
               tech: [], longDescription: "",
               links: [], gallery: [], metrics: [],

@@ -80,19 +80,31 @@ export default function ProjectDetail() {
                 {item.year && <span>{item.year}</span>}
               </div>
             )}
-            {(links.length > 0 || item.link) && (
-              <div className="p-pd-link-row">
-                {item.link && (
-                  <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
-                    <span className="p-pd-live-dot" aria-hidden="true" />
-                    <span>Live</span>
-                  </a>
-                )}
-                {links.map((l, i) => (
-                  <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
-                ))}
-              </div>
-            )}
+            {(() => {
+              const status: string = item.status ?? (item.link ? "live" : "");
+              const hasGhost = links.length > 0;
+              const showRow = status === "live" || status === "in_progress" || (status === "none" && item.statusText) || hasGhost;
+              if (!showRow) return null;
+              return (
+                <div className="p-pd-link-row">
+                  {status === "live" && item.link && (
+                    <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
+                      <span className="p-pd-live-dot" aria-hidden="true" />
+                      <span>Live</span>
+                    </a>
+                  )}
+                  {status === "in_progress" && (
+                    <span className="p-pd-status"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
+                  )}
+                  {status === "none" && item.statusText && (
+                    <span className="p-pd-status">{item.statusText}</span>
+                  )}
+                  {links.map((l, i) => (
+                    <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </section>
 
