@@ -41,6 +41,7 @@ export interface SiteSettings {
   meta_description?: string;
   favicon_url?: string;
   og_image_url?: string;
+  i18n?: { tr?: any; de?: any };
 }
 
 export const BLOCK_LABELS: Record<BlockType, string> = {
