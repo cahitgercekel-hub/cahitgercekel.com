@@ -257,7 +257,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
         ? { gridTemplateColumns: "1fr" }
         : { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" };
       const portrait = d.portrait && (
-        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax }} />
+        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax, objectPosition: d.portraitFocal || "50% 50%" }} />
       );
       const text = (
         <div className="p-about-text">
