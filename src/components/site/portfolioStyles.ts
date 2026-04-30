@@ -76,10 +76,10 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; margin: 0 0 8px; transition: color .2s ease; }
   .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
   .portfolio-root .p-card .p-card-cta { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
-  .portfolio-root .p-timeline { position: relative; padding-left: 28px; }
-  .portfolio-root .p-timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--p-border); }
+  .portfolio-root .p-timeline { position: relative; padding-left: 32px; }
+  .portfolio-root .p-timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--p-border); }
   .portfolio-root .p-tl-item { position: relative; margin-bottom: 44px; }
-  .portfolio-root .p-tl-dot { position: absolute; left: -28px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--p-accent); }
+  .portfolio-root .p-tl-dot { position: absolute; left: -32px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--p-accent); }
   .portfolio-root .p-tl-period { font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--p-muted); margin-bottom: 4px; }
   .portfolio-root .p-tl-role { font-family: var(--p-font); font-size: 1.15rem; font-weight: 700; }
   .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; text-decoration: none; }
