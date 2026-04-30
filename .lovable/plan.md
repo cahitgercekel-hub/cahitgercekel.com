@@ -1,64 +1,85 @@
 ## Goal
 
-Make the public site fully usable on mobile (≤700px) without changing anything visible at desktop widths. All work is scoped to `src/components/site/SiteRenderer.tsx` inside `@media (max-width: 700px)` (and a smaller-phone breakpoint at 420px). No desktop CSS rules are modified.
+Add a floating EN / TR / DE language switcher pill (frosted-glass to match the navbar) and let the admin store TR + DE translations for each text field on every block. The site renders the picked language and falls back to EN.
 
-## Issues observed on mobile
+## What you'll see on the site
 
-1. Nav links (`About / Experience / Education / Projects / Contact`) are hidden via `display:none` with no replacement — there is no hamburger menu.
-2. Hero buttons (`View Projects`, `Contact Me`, `Download CV`) wrap to different widths because text length differs, making them look mismatched.
-3. Hero portrait floats next to the text awkwardly on small widths because the column collapses but the image still uses its desktop sizing.
-4. Section padding, titles, and the "About" portrait/text grid feel cramped on phones.
-5. Project cards, timeline, and contact grid don't always go single-column cleanly.
-6. The collapsing-logo animation works on mobile but the nav itself never opens the menu, so navigation is unreachable.
+- A pill fixed at the bottom-right of the viewport, always visible while scrolling.
+- Three buttons inside it: `EN` `|` `TR` `|` `DE`. Active one is bold + accent color, dividers are subtle vertical lines.
+- Same blurred glass background, border, and shadow as the navbar pill — feels like part of the same UI family.
+- On mobile (≤700px): the floating pill is hidden, and the same switcher is rendered centered at the bottom of the hamburger menu in a slightly smaller font.
+- The chosen language persists in `localStorage` so it sticks across reloads.
 
-## Plan
+## What changes in the admin
 
-### 1. Hamburger menu (mobile only)
+- A new "Translations" panel inside every block's edit dialog (collapsible, below the existing fields).
+- For each translatable field on that block (title, label, paragraphs, button labels, project descriptions, contact labels, intro, footer, hero name/subtitle/tag, etc.), we show a TR input and a DE input. EN is the existing field — no duplication.
+- Translations are stored on the same `sections.data` row under `data.i18n = { tr: {...}, de: {...} }`. No DB schema change needed (it's already `jsonb`).
+- Site settings (logo text, footer text, nav item labels) get the same TR/DE inputs in the Navigation and Theme tabs.
+- Empty translation = falls back to EN automatically.
 
-- Add a `menuOpen` React state in `SiteRenderer`.
-- Render a hamburger button (`button.p-nav-burger` with three `<span>` bars) inside the nav, hidden on desktop (`display:none`) and shown only at `max-width: 700px`.
-- When `menuOpen` is true, render a dropdown panel `div.p-mobile-menu` below the pill nav containing the same `nav_items` as a vertical list. Tapping a link sets `menuOpen=false`.
-- The desktop `ul.p-nav-links` becomes `display:none` on mobile (already is); the burger + dropdown replace it.
-- Clicking outside or scrolling closes the menu (simple `useEffect` listener).
-- Animate the panel with a short `fade-in / slide-down` transition.
-- Animate the burger bars into an "X" when open.
+## Technical implementation
 
-### 2. Hero section on mobile
+### 1. Language context
 
-Inside `@media (max-width: 700px)`:
-- Reduce hero padding (`90px 20px 60px`).
-- Stack content (already does at 800px); ensure image sits below the text and is centered with `max-width: 200px`.
-- Make all three buttons (`.p-btn-primary`, `.p-btn-ghost`, `.p-btn-cv`) full-width inside `.p-btns` (`flex-direction: column; align-items: stretch`) so they're identical width and visually aligned. Each keeps its existing height/shadow.
-- Reduce hero title to `clamp(2.4rem, 10vw, 3.2rem)` and sub text to `1.05rem`.
+New file `src/contexts/LanguageContext.tsx` exporting:
+- `LanguageProvider` (wraps `<App />`, reads from `localStorage.lang`, defaults to `"en"`).
+- `useLang()` returning `{ lang, setLang }`.
+- Helper `tr(value, i18n, lang)` that returns `i18n?.[lang]?.[key]` if non-empty, else `value`. We'll use a slightly different shape — `pickI18n(data, lang)` returns a shallow-merged object so the renderer keeps using `d.title` etc. without per-field branching.
 
-### 3. Sections / typography
+### 2. Renderer changes (`src/components/site/SiteRenderer.tsx`)
 
-- `.p-section` padding: `60px 20px` on mobile (already 70/24 — tighten and unify).
-- `.p-title` font-size clamp tuned for small screens.
-- `.p-about-grid` already collapses to one column; add `gap: 32px` and center the portrait with `max-width: 280px; margin: 0 auto`.
+- Inside `RenderBlock`, build `const d = mergeI18n(section.data, lang);` so all existing reads (`d.title`, `d.paragraphs`, `d.items[i].title`, etc.) automatically use the translated value when present. For arrays (paragraphs, items, links, languages, stats, skills, groups), we merge index-by-index — if `i18n.tr.items[2].title` exists, only that field overrides; otherwise EN value stays.
+- Add the floating pill JSX at the end of the root div: `<div className="p-lang-pill">…</div>`. Hidden on mobile via the existing `@media (max-width: 700px)` block.
+- Inside the mobile menu (`.p-mobile-menu`), append a centered `<div className="p-lang-mobile">EN | TR | DE</div>` after the nav links.
+- Translate `settings.logo_text`, `settings.footer_text`, and `settings.nav_items[i].label` the same way (read from `settings.i18n`).
 
-### 4. Cards / timeline / contact / languages
+### 3. Block defaults & schema (`src/lib/blocks.ts`)
 
-- `.p-projects` already auto-fits; ensure `minmax(0,1fr)` fallback so cards never overflow horizontally.
-- `.p-timeline` left padding reduced to `20px` on mobile; dot offset adjusted.
-- `.p-contact-grid` set to `grid-template-columns: 1fr` on mobile so all contact buttons stack uniformly full-width.
-- `.p-lang-row` and `.p-stat-label` keep flex layout; just shrink font sizes.
+- Extend `SiteSettings` and `SectionRow.data` types with optional `i18n?: { tr?: any; de?: any }`. No default values needed — absent = falls back to EN.
+- No new BlockType.
 
-### 5. Smaller phones (≤420px)
+### 4. Admin editor (`src/components/admin/BlockEditor.tsx`)
 
-Add a second breakpoint with extra-tight paddings (`50px 16px`), smaller hero title, and `.p-hero-photo { max-width: 170px }`.
+- Add a `<TranslationsPanel type={type} data={data} onChange={onChange} />` rendered by `withLayout` below the existing `LayoutEditor`.
+- The panel has a `Tabs` (TR / DE). For each language it renders the same form fields as EN but bound to `data.i18n[lang]`. To avoid duplicating every block's schema, we declare a small `TRANSLATABLE_FIELDS: Record<BlockType, FieldSpec[]>` map listing which keys are translatable per block (e.g. hero → `tag, name, subtitle, cvLabel, primaryBtn.label, secondaryBtn.label`; projects → `label, title, items[].tag/title/description`; etc.). Non-text fields (images, URLs, colors, numbers, focal points, layout) are NEVER translated.
+- Empty TR/DE field stores `""` which the merger treats as missing → EN fallback.
 
-### 6. Safety
+### 5. Settings translations (`src/pages/AdminEditor.tsx`)
 
-- All new rules live inside `@media (max-width: 700px)` and `@media (max-width: 420px)` so the desktop look is untouched.
-- No changes to `BlockEditor`, data shape, or admin UI.
+- In `NavEditor`: under each nav link, two small TR / DE inputs for the label. Logo text gets TR / DE inputs too.
+- In `ThemeEditor`: footer text gets TR / DE inputs.
+- All saved into `site_settings.i18n` (jsonb on existing `theme` row is wrong — we'll write to a new top-level key in the same row by extending the update payload; since `site_settings` already accepts arbitrary jsonb on `theme` we'll instead store `site_settings.theme.i18n` to avoid a schema migration). Actually cleaner: add a new `i18n jsonb` column via migration.
 
-## Files to edit
+### 6. Database migration
 
-- `src/components/site/SiteRenderer.tsx` — add `menuOpen` state, hamburger button + mobile dropdown JSX, and an expanded mobile media-query CSS block.
+```sql
+ALTER TABLE public.site_settings
+  ADD COLUMN IF NOT EXISTS i18n jsonb NOT NULL DEFAULT '{}'::jsonb;
+```
+
+`sections.data` is already `jsonb` so block translations need no migration.
+
+### 7. Styling (added to existing `<style>` block in SiteRenderer)
+
+- `.p-lang-pill`: `position: fixed; bottom: 20px; right: 20px; z-index: 95;` + same `backdrop-filter`, border, and shadow recipe as `nav.p-nav`. Padding `8px 14px`, rounded full.
+- Buttons: small uppercase mono font, `var(--p-fg)` with 0.55 opacity; active = full opacity + `var(--p-accent)` + bold.
+- Dividers: thin `|` spans at 0.3 opacity.
+- Mobile: `.p-lang-pill { display: none; }` and `.p-lang-mobile { display: flex; justify-content: center; gap: 10px; padding: 14px 0 4px; font-size: 0.78rem; }`.
+
+## Files to edit / create
+
+- `src/contexts/LanguageContext.tsx` (new)
+- `src/App.tsx` — wrap routes in `<LanguageProvider>`
+- `src/lib/blocks.ts` — extend types, add `TRANSLATABLE_FIELDS` map + `mergeI18n` helper (or place helper in a small `src/lib/i18n.ts`)
+- `src/components/site/SiteRenderer.tsx` — merge translations, render pill + mobile switcher, CSS
+- `src/components/admin/BlockEditor.tsx` — translations panel
+- `src/pages/AdminEditor.tsx` — translation inputs in NavEditor and ThemeEditor
+- Migration: add `i18n` column to `site_settings`
 
 ## Out of scope
 
-- Admin editor mobile polish.
-- Changing color theme or component structure.
-- Desktop layout tweaks.
+- Auto-translating existing content (admin fills TR/DE manually).
+- Translating block IDs, anchor links, image alt text, or URLs.
+- RTL languages.
+- Browser-language auto-detection (always defaults to EN; user picks once and it sticks).
