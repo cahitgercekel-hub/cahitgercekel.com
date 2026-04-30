@@ -2,6 +2,8 @@
 // Keep .portfolio-root scoped so styles never leak to the admin app.
 
 export const PORTFOLIO_CSS = `
+  html { scroll-behavior: smooth; }
+  .portfolio-root section[id] { scroll-margin-top: 96px; }
   .portfolio-root { font-family: var(--p-font); background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
   .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.55); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); border: 1px solid rgba(255,255,255,0.45); border-radius: calc(var(--p-radius) + 6px); padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6); transition: box-shadow .3s ease, background .3s ease; }
   .portfolio-root nav.p-nav .p-nav-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
