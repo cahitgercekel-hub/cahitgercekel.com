@@ -26,9 +26,12 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { lang, setLang } = useLang();
 
+  const [showTop, setShowTop] = useState(false);
+
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 80);
+      setShowTop(window.scrollY > 300);
       setMenuOpen(false);
     };
     onScroll();
