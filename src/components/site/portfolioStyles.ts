@@ -87,9 +87,10 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-tl-role { font-family: var(--p-font); font-size: 1.15rem; font-weight: 700; }
   .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; text-decoration: none; }
   .portfolio-root a.p-tl-company:hover { text-decoration: underline; }
-  .portfolio-root .p-tl-company-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .portfolio-root .p-tl-logo { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; background: #fff; border: 1px solid var(--p-border); padding: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; }
-  .portfolio-root .p-tl-location { font-size: 0.85rem; color: var(--p-muted); margin-bottom: 6px; display: inline-flex; align-items: center; gap: 4px; }
+  .portfolio-root .p-tl-company-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .portfolio-root .p-tl-company-text { display: flex; flex-direction: column; gap: 2px; }
+  .portfolio-root .p-tl-logo { width: 64px; height: 64px; border-radius: 10px; object-fit: contain; background: #fff; border: 1px solid var(--p-border); padding: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; }
+  .portfolio-root .p-tl-location { font-size: 0.85rem; color: var(--p-muted); display: inline-flex; align-items: center; gap: 4px; }
   .portfolio-root .p-tl-location::before { content: '📍'; font-size: 0.85rem; }
   .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
   .portfolio-root .p-contact-info p { font-size: 1.05rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
