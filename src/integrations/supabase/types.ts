@@ -46,26 +46,44 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          favicon_url: string | null
+          font_family: string | null
           footer_text: string
           id: string
           logo_text: string
+          meta_description: string | null
           nav_items: Json
+          og_image_url: string | null
+          radius: number | null
+          site_title: string | null
           theme: Json
           updated_at: string
         }
         Insert: {
+          favicon_url?: string | null
+          font_family?: string | null
           footer_text?: string
           id?: string
           logo_text?: string
+          meta_description?: string | null
           nav_items?: Json
+          og_image_url?: string | null
+          radius?: number | null
+          site_title?: string | null
           theme?: Json
           updated_at?: string
         }
         Update: {
+          favicon_url?: string | null
+          font_family?: string | null
           footer_text?: string
           id?: string
           logo_text?: string
+          meta_description?: string | null
           nav_items?: Json
+          og_image_url?: string | null
+          radius?: number | null
+          site_title?: string | null
           theme?: Json
           updated_at?: string
         }

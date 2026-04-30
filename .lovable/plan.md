@@ -1,63 +1,84 @@
-# Portfolio + Admin Page Builder
+# Portfolio Admin Upgrade Plan
 
-A public portfolio at `cahitgercekel.com` styled like the uploaded mockup, with a private `/admin` editor where you (and only you) can add/edit/remove sections, blocks, text, images (via URL), and links. Everything renders dynamically from the database, so changes appear instantly on the live site.
+## 1. Fix the "refresh on every keystroke" bug (highest priority)
 
-## What you get
+**Cause:** In `src/components/admin/BlockEditor.tsx`, helper components like `ListEditor` and `Field` are **defined inside** the `BlockEditor` function body. Every keystroke triggers a re-render, which produces a brand-new component identity, so React unmounts and remounts every input → the input loses focus after each character.
 
-### Public site (`/`)
-- Sticky pill navigation with your name/logo and section links
-- Sections rendered dynamically from your database in the order you set
-- Default sections seeded to match the mockup: Hero, About, Skills/Stats, Projects, Experience, Contact links, Footer
-- Smooth scroll, responsive layout, gradient hero, accent colors
-- No contact form (per your choice) — only contact links (email, LinkedIn, GitHub, X, etc.)
-- Fonts: Syne (headings), DM Sans (body), matching the mockup
+**Fix:** Move `Field` and `ListEditor` out of the component body into stable module-level components (passing `data`/`onChange` as props). This restores normal typing behavior across every block editor.
 
-### Admin (`/admin`)
-- Login page (email + password). No public sign-up — your account is the only one allowed; anyone else gets blocked
-- Dashboard listing all sections with drag-to-reorder
-- "Add section" menu with block types:
-  - **Hero** — tagline, title, subtitle, two buttons (label + link)
-  - **Text/About** — rich paragraphs + skill tags
-  - **Stat bars** — list of {label, percentage}
-  - **Project grid** — cards with {tag, title, description, image URL, link, emoji/icon}
-  - **Timeline / Experience** — items with {period, role, company, description}
-  - **Contact links** — list of {icon, label, URL}
-  - **Custom HTML/Markdown block** — for anything off-template
-  - **Footer** — text + copyright
-- Per-section controls: edit, duplicate, hide/show, delete, move up/down
-- Theme tab: edit accent colors, background, hero gradient
-- Navigation tab: edit logo text and which sections appear in the menu
-- All edits save to the database; live site updates on next refresh
+## 2. File uploads (CV, profile photo, custom icons)
 
-### Domain & login
-- After build, you connect `cahitgercekel.com` in Project Settings → Domains (you'll add DNS records at your registrar)
-- First visit to `/admin` lets you create your admin account; the email you sign up with becomes the only allowlisted admin. Further sign-ups are disabled.
+Create a public Supabase storage bucket `site-assets` with policies:
+- Public `SELECT` (so visitors can view/download).
+- `INSERT` / `UPDATE` / `DELETE` restricted to authenticated users with the `admin` role (uses existing `has_role` function).
 
-## Page structure
+Add a small reusable `<FileUploadField />` component used inside `BlockEditor`:
+- "Upload" button → uploads to `site-assets/<folder>/<uuid>-<filename>`.
+- Shows current URL + preview (image preview for images, filename for PDFs).
+- Also accepts a manually pasted URL (so existing URL workflow keeps working).
 
-```text
-/                → Public portfolio (renders sections from DB)
-/admin           → Login page (if signed out) or editor (if signed in & allowlisted)
-/admin/login     → Email + password form
-/admin/editor    → Section list, block editors, theme & nav tabs
-*                → 404
+## 3. Hero block additions
+
+Extend hero schema:
+- `image` (URL, with upload field) — shown on the right side of the hero on desktop, stacked on mobile.
+- `cvUrl` (PDF, with upload field) + `cvLabel` (default "Download CV") — renders a third button in the hero button row that downloads the file (`<a href download>`).
+
+Update `SiteRenderer` hero layout to a 2-column grid (text left, rounded image right) collapsing to 1 column under 800px.
+
+## 4. New "Skills" block (pills, side-by-side)
+
+Add a new block type `skills` to `src/lib/blocks.ts`:
 ```
+{ id, label, title, groups: [{ name: "Design", items: ["Figma","Sketch"] }, ...] }
+```
+Renderer: each group shows a small heading and a wrapping row of pill-style chips (reuses existing `.p-skill` styling, with optional category headers).
 
-## Data model (Lovable Cloud)
+Editor: group list with name + comma-separated items.
 
-- `sections` — id, type, position, visible, data (JSON for that block type)
-- `site_settings` — singleton row: logo text, theme colors, hero gradient, nav items
-- `admin_allowlist` — emails allowed to access /admin (seeded with your email on first sign-up)
-- `user_roles` + `has_role()` function — standard secure role pattern; `/admin` checks `has_role(uid, 'admin')`
-- Row-Level Security:
-  - Public can `SELECT` `sections` (only `visible=true`) and `site_settings`
-  - Only admins can `INSERT/UPDATE/DELETE` anything
+## 5. Re-purpose "Stat bars" → keep as-is, add a "Languages" block
 
-## Out of scope (can add later)
-- Image file uploads (you chose URL-only — paste links from Imgur, your CDN, etc.)
-- Contact form / inbox (you chose to remove it)
-- Multi-user / collaborator accounts
-- Blog / multi-page content beyond the single portfolio
+Rather than break existing stat bars (used elsewhere), add a dedicated `languages` block:
+```
+{ id, label, title, items: [{ name: "English", level: "Native", value: 100 }] }
+```
+Renderer: clean rows with language name, level label (Native/Fluent/Intermediate/Basic), and a thin progress bar. Editor uses the existing list editor with a level dropdown.
 
-## Next step
-Approve this plan and I'll switch to build mode: enable Lovable Cloud, create the database tables and auth, build the public renderer, then build the admin editor. After it's running you can connect your domain.
+We will also relabel the existing "Stat bars" entry in the Add menu to "Skill bars" for clarity, but keep the type for backward compatibility with current data.
+
+## 6. Contact block — icon URLs
+
+Update contact link schema: keep `icon` (emoji) but add `iconUrl` (image URL with upload field). Renderer prefers `iconUrl` if set (renders 20px image), otherwise falls back to emoji. This covers the LinkedIn / GitHub / mail icons from the uploaded screenshot.
+
+## 7. More admin power-ups
+
+- **Theme tab:** add font family dropdown (Inter, Poppins, Manrope, Space Grotesk, Playfair, Syne, DM Sans), border-radius slider (cards/buttons), nav style toggle (floating pill vs full-width).
+- **Site settings:** add `site_title`, `meta_description`, `favicon_url` (with upload), `og_image_url` (with upload). `SiteRenderer` Helmet uses them.
+- **Hero:** background type toggle — gradient (existing) or uploaded image with overlay opacity slider.
+- **About block:** optional portrait image (upload).
+- **Projects block:** add image upload per item (in addition to URL); add optional "Featured" toggle that highlights the card.
+- **Navigation:** drag-to-reorder nav items.
+
+## 8. Hide "Edit with Lovable" badge
+
+Toggle the project's badge visibility setting to hidden so the badge no longer appears on the published site.
+
+---
+
+## Technical details
+
+**Files to change**
+- `src/components/admin/BlockEditor.tsx` — extract `Field`/`ListEditor` to module scope (focus fix); add upload fields; new editors for `skills`, `languages`; extend hero/contact/about/projects editors.
+- `src/components/admin/FileUploadField.tsx` — new reusable upload + URL input component.
+- `src/lib/blocks.ts` — add `skills` and `languages` block types, defaults, labels; extend hero/contact/about/projects defaults.
+- `src/components/site/SiteRenderer.tsx` — render new blocks, hero image+CV button, contact iconUrl, theme font/radius, meta from settings, hero background image option.
+- `src/pages/AdminEditor.tsx` — extend `ThemeEditor` (fonts, radius), add site meta editor (title/description/favicon/og), drag-to-reorder nav items.
+- `src/hooks/useSite.ts` / `SiteSettings` type — extend with new fields.
+
+**Database migrations**
+- `ALTER TABLE site_settings ADD COLUMN font_family text DEFAULT 'Inter', radius int DEFAULT 14, site_title text, meta_description text, favicon_url text, og_image_url text;`
+- Storage: create `site-assets` bucket (public), with admin-only write policies via `has_role(auth.uid(),'admin')`.
+
+**Lovable settings**
+- Set publish badge visibility to hidden.
+
+No breaking changes to existing data; all new fields are optional with sensible fallbacks.
