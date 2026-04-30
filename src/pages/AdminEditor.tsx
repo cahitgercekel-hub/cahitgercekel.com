@@ -128,6 +128,10 @@ export default function AdminEditor() {
           <TabsContent value="navigation">
             {settings && <NavEditor settings={settings} onSaved={refresh} />}
           </TabsContent>
+
+          <TabsContent value="site">
+            {settings && <SiteMetaEditor settings={settings} onSaved={refresh} />}
+          </TabsContent>
         </Tabs>
       </main>
 
