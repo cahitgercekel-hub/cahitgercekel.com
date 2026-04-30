@@ -423,26 +423,35 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
               </Button>
             </div>
           </div>
-          {items.map((it, i) => (
-            <div key={i} className="space-y-1.5 border rounded-lg p-2 bg-muted/20">
-              <div className="flex gap-2">
-                <Input placeholder="Label (EN)" value={it.label} onChange={(e) => { const n = [...items]; n[i].label = e.target.value; setItems(n); }} />
-                <Input placeholder="#anchor" value={it.href} onChange={(e) => { const n = [...items]; n[i].href = e.target.value; setItems(n); }} />
-                <Button variant="ghost" size="icon" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="w-4 h-4" /></Button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-1.5">
-                  <Input placeholder={`TR — ${it.label}`} value={navTr[i] ?? ""} onChange={(e) => setNavLang("tr", i, e.target.value)} />
-                  <TBtn enValue={it.label} lang="tr" onResult={(v) => setNavLang("tr", i, v)} />
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Input placeholder={`DE — ${it.label}`} value={navDe[i] ?? ""} onChange={(e) => setNavLang("de", i, e.target.value)} />
-                  <TBtn enValue={it.label} lang="de" onResult={(v) => setNavLang("de", i, v)} />
-                </div>
-              </div>
-            </div>
-          ))}
-          <Button variant="outline" size="sm" onClick={() => setItems([...items, { label: "", href: "#" }])}><Plus className="w-3 h-3 mr-1" /> Add link</Button>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={rowIds} strategy={verticalListSortingStrategy}>
+              {items.map((it, i) => (
+                <SortableNavRow
+                  key={rowIds[i] ?? i}
+                  id={rowIds[i] ?? String(i)}
+                  it={it}
+                  i={i}
+                  navTr={navTr[i] ?? ""}
+                  navDe={navDe[i] ?? ""}
+                  onLabel={(v) => { const n = [...items]; n[i] = { ...n[i], label: v }; setItems(n); }}
+                  onHref={(v) => { const n = [...items]; n[i] = { ...n[i], href: v }; setItems(n); }}
+                  onRemove={() => {
+                    setItems(items.filter((_, x) => x !== i));
+                    setNavTr(navTr.filter((_, x) => x !== i));
+                    setNavDe(navDe.filter((_, x) => x !== i));
+                    setRowIds(rowIds.filter((_, x) => x !== i));
+                  }}
+                  setNavLang={setNavLang}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+          <Button variant="outline" size="sm" onClick={() => {
+            setItems([...items, { label: "", href: "#" }]);
+            setNavTr([...navTr, ""]);
+            setNavDe([...navDe, ""]);
+            setRowIds([...rowIds, crypto.randomUUID()]);
+          }}><Plus className="w-3 h-3 mr-1" /> Add link</Button>
         </div>
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
       </CardContent>
