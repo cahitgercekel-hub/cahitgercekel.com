@@ -24,7 +24,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-rest { display: inline-block; max-width: 10ch; overflow: hidden; opacity: 1; transform: translateX(0); transition: max-width .25s ease, opacity .15s ease, transform .25s ease; }
   .portfolio-root nav.p-nav.scrolled .p-logo-word + .p-logo-word { margin-left: 0; }
   .portfolio-root nav.p-nav.scrolled .p-logo-rest { max-width: 0; opacity: 0; transform: translateX(8px); }
-  .portfolio-root .p-logo-dot { color: var(--p-accent); }
+  .portfolio-root .p-logo-dot { color: #db0000; }
   .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
   .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
   .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
