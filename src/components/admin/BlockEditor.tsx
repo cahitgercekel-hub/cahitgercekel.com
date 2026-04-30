@@ -30,6 +30,32 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+/**
+ * Comma-separated input that keeps raw text locally so users can freely type commas
+ * and trailing spaces. Commits the parsed array on blur (or Enter).
+ */
+function CsvInput({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
+  const joined = (value ?? []).join(", ");
+  const [text, setText] = useState(joined);
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focused.current) setText(joined);
+  }, [joined]);
+  const commit = () => {
+    const next = text.split(",").map((s) => s.trim()).filter(Boolean);
+    onChange(next);
+  };
+  return (
+    <Input
+      value={text}
+      onFocus={() => { focused.current = true; }}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => { focused.current = false; commit(); }}
+      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } }}
+    />
+  );
+}
+
 type SchemaField = {
   key: string;
   label: string;
