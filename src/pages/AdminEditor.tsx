@@ -328,11 +328,27 @@ function SiteMetaEditor({ settings, onSaved }: { settings: any; onSaved: () => v
 
 function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }) {
   const [logo, setLogo] = useState(settings.logo_text);
+  const [logoTr, setLogoTr] = useState(settings.i18n?.tr?.logo_text ?? "");
+  const [logoDe, setLogoDe] = useState(settings.i18n?.de?.logo_text ?? "");
   const [items, setItems] = useState<{ label: string; href: string }[]>(settings.nav_items ?? []);
+  const [navTr, setNavTr] = useState<string[]>(settings.i18n?.tr?.nav_items ?? []);
+  const [navDe, setNavDe] = useState<string[]>(settings.i18n?.de?.nav_items ?? []);
   const [busy, setBusy] = useState(false);
+
+  const setNavLang = (lang: "tr" | "de", i: number, v: string) => {
+    const arr = [...(lang === "tr" ? navTr : navDe)];
+    arr[i] = v;
+    if (lang === "tr") setNavTr(arr); else setNavDe(arr);
+  };
+
   const save = async () => {
     setBusy(true);
-    const { error } = await supabase.from("site_settings").update({ logo_text: logo, nav_items: items }).eq("id", settings.id);
+    const i18n = {
+      ...(settings.i18n ?? {}),
+      tr: { ...(settings.i18n?.tr ?? {}), logo_text: logoTr, nav_items: navTr },
+      de: { ...(settings.i18n?.de ?? {}), logo_text: logoDe, nav_items: navDe },
+    };
+    const { error } = await supabase.from("site_settings").update({ logo_text: logo, nav_items: items, i18n }).eq("id", settings.id);
     setBusy(false);
     if (error) toast.error(error.message); else { toast.success("Saved"); onSaved(); }
   };
@@ -341,16 +357,32 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
       <CardHeader><CardTitle className="text-base">Navigation</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1.5">
-          <Label className="text-xs">Logo text</Label>
+          <Label className="text-xs">Logo text (English)</Label>
           <Input value={logo} onChange={(e) => setLogo(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Logo · Türkçe (TR)</Label>
+            <Input value={logoTr} onChange={(e) => setLogoTr(e.target.value)} placeholder={logo} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Logo · Deutsch (DE)</Label>
+            <Input value={logoDe} onChange={(e) => setLogoDe(e.target.value)} placeholder={logo} />
+          </div>
         </div>
         <div className="space-y-2">
           <Label className="text-xs">Nav links</Label>
           {items.map((it, i) => (
-            <div key={i} className="flex gap-2">
-              <Input placeholder="Label" value={it.label} onChange={(e) => { const n = [...items]; n[i].label = e.target.value; setItems(n); }} />
-              <Input placeholder="#anchor" value={it.href} onChange={(e) => { const n = [...items]; n[i].href = e.target.value; setItems(n); }} />
-              <Button variant="ghost" size="icon" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="w-4 h-4" /></Button>
+            <div key={i} className="space-y-1.5 border rounded-lg p-2 bg-muted/20">
+              <div className="flex gap-2">
+                <Input placeholder="Label (EN)" value={it.label} onChange={(e) => { const n = [...items]; n[i].label = e.target.value; setItems(n); }} />
+                <Input placeholder="#anchor" value={it.href} onChange={(e) => { const n = [...items]; n[i].href = e.target.value; setItems(n); }} />
+                <Button variant="ghost" size="icon" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="w-4 h-4" /></Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder={`TR — ${it.label}`} value={navTr[i] ?? ""} onChange={(e) => setNavLang("tr", i, e.target.value)} />
+                <Input placeholder={`DE — ${it.label}`} value={navDe[i] ?? ""} onChange={(e) => setNavLang("de", i, e.target.value)} />
+              </div>
             </div>
           ))}
           <Button variant="outline" size="sm" onClick={() => setItems([...items, { label: "", href: "#" }])}><Plus className="w-3 h-3 mr-1" /> Add link</Button>
