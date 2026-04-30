@@ -283,8 +283,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
     }
     case "stats":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             {(d.items ?? []).map((it: any, i: number) => (
@@ -298,8 +298,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "skills":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             {(d.groups ?? []).map((g: any, i: number) => (
@@ -315,8 +315,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "languages":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             {(d.items ?? []).map((it: any, i: number) => (
@@ -333,8 +333,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "projects":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-projects">
@@ -355,8 +355,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "experience":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-timeline">
@@ -375,8 +375,8 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "contact":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner">
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-contact-info">
@@ -395,7 +395,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "image":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" style={{ textAlign: d.align || "center" }}>
             {d.src && <img src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16 }} />}
             {d.caption && <p style={{ color: "var(--p-muted)", marginTop: 12, fontSize: ".9rem" }}>{d.caption}</p>}
@@ -404,7 +404,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       );
     case "html":
       return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(d.html || "") }} />
         </section>
       );
