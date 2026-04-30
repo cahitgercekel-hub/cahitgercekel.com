@@ -4,6 +4,7 @@ import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import DotGrid from "./DotGrid";
 import SplitText from "./SplitText";
+import RotatingText from "./RotatingText";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
