@@ -168,6 +168,12 @@ export default function SiteRenderer() {
           .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 14px 18px; border-radius: var(--p-radius); border: 1px solid var(--p-border); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease; }
           .portfolio-root .p-contact-link:hover { transform: translateY(-4px); background: var(--p-bg); border-color: var(--p-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.14); }
           .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
+          .portfolio-root .p-logos-section { padding: 60px 40px; }
+          .portfolio-root .p-logos-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 2px; color: var(--p-muted); text-align: center; margin-bottom: 28px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+          .portfolio-root .p-logos-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 48px; }
+          .portfolio-root .p-logo-item { display: inline-flex; align-items: center; justify-content: center; filter: grayscale(100%); opacity: 0.55; transition: filter .35s ease, opacity .35s ease, transform .35s ease; }
+          .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
+          .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
           @media (max-width: 800px) {
             .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr; }
