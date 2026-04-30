@@ -87,7 +87,17 @@ export default function SiteRenderer() {
       <div style={styleVars} className="portfolio-root">
         <style>{`
           .portfolio-root { font-family: var(--p-font); background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
-          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: calc(var(--p-radius) + 6px); display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); transition: box-shadow .3s ease, background .3s ease; }
+          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: calc(var(--p-radius) + 6px); padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); transition: box-shadow .3s ease, background .3s ease; }
+          .portfolio-root nav.p-nav .p-nav-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+          .portfolio-root .p-nav-burger { display: none; background: transparent; border: 0; padding: 6px; cursor: pointer; flex-direction: column; gap: 5px; }
+          .portfolio-root .p-nav-burger span { display: block; width: 22px; height: 2px; background: var(--p-fg); border-radius: 2px; transition: transform .25s ease, opacity .25s ease; }
+          .portfolio-root nav.p-nav.menu-open .p-nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+          .portfolio-root nav.p-nav.menu-open .p-nav-burger span:nth-child(2) { opacity: 0; }
+          .portfolio-root nav.p-nav.menu-open .p-nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+          .portfolio-root .p-mobile-menu { list-style: none; margin: 12px 0 4px; padding: 8px 0 4px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--p-border); animation: pNavFade .2s ease-out; }
+          .portfolio-root .p-mobile-menu li a { display: block; padding: 12px 6px; text-decoration: none; color: var(--p-fg); font-size: 1rem; font-weight: 500; }
+          .portfolio-root .p-mobile-menu li a:hover { color: var(--p-accent); }
+          @keyframes pNavFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
           .portfolio-root nav.p-nav.scrolled { box-shadow: 0 8px 28px rgba(0,0,0,0.1); background: rgba(255,255,255,0.96); }
           .portfolio-root .p-logo { font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: baseline; white-space: nowrap; }
           .portfolio-root .p-logo-word { display: inline-flex; align-items: baseline; }
