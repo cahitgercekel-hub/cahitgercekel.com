@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import DOMPurify from "dompurify";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
@@ -246,7 +247,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
     case "html":
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
-          <div className="p-inner" dangerouslySetInnerHTML={{ __html: d.html || "" }} />
+          <div className="p-inner" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(d.html || "") }} />
         </section>
       );
     case "footer":
