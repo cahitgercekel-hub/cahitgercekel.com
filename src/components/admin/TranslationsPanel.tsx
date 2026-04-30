@@ -28,6 +28,7 @@ const LANGS: { code: LangCode; label: string }[] = [
 type ParsedSpec =
   | { kind: "string"; key: string }
   | { kind: "nested"; key: string; sub: string }
+  | { kind: "nestedStringArr"; key: string; sub: string }
   | { kind: "stringArr"; key: string }
   | { kind: "itemField"; key: string; sub: string }
   | { kind: "itemStringArr"; key: string; sub: string };
@@ -40,7 +41,14 @@ function parseSpec(spec: string): ParsedSpec {
     }
     return { kind: "itemField", key: arrKey, sub: rest };
   }
-  if (spec.endsWith("[]")) return { kind: "stringArr", key: spec.slice(0, -2) };
+  if (spec.endsWith("[]")) {
+    const inner = spec.slice(0, -2);
+    if (inner.includes(".")) {
+      const [k, sk] = inner.split(".");
+      return { kind: "nestedStringArr", key: k, sub: sk };
+    }
+    return { kind: "stringArr", key: inner };
+  }
   if (spec.includes(".")) {
     const [k, sk] = spec.split(".");
     return { kind: "nested", key: k, sub: sk };
