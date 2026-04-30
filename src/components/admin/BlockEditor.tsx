@@ -5,8 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Plus } from "lucide-react";
 import type { BlockType } from "@/lib/blocks";
 import FileUploadField from "./FileUploadField";
+import LayoutEditor from "./LayoutEditor";
 
 type Props = { type: BlockType; data: any; onChange: (d: any) => void };
+
+function withLayout(type: BlockType, data: any, onChange: (d: any) => void, children: React.ReactNode) {
+  if (type === "footer" || type === "html") return <>{children}</>;
+  return (
+    <div className="space-y-4">
+      {children}
+      <LayoutEditor type={type} data={data} onChange={onChange} />
+    </div>
+  );
+}
 
 // --- Stable, module-scoped helpers (prevent input focus loss) ---
 
@@ -141,7 +152,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
     onChange(next);
   };
 
-  switch (type) {
+  const inner = (() => { switch (type) {
     case "hero":
       return (
         <div className="space-y-4">
@@ -342,7 +353,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
       return <Field label="Footer text"><Input value={data.text ?? ""} onChange={(e) => set("text", e.target.value)} /></Field>;
     default:
       return null;
-  }
+  } })();
+  return withLayout(type, data, onChange, inner);
 }
 
 function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
