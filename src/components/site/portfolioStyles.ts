@@ -97,7 +97,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
   .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
   .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; font-size: 0.88rem; }
-  .portfolio-root .p-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .portfolio-root .p-footer-inner { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 20px; text-align: left; }
+  .portfolio-root .p-footer-inner > p { margin: 0; }
+  .portfolio-root .p-footer-to-top { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
   .portfolio-root .p-footer-to-top { display: none; background: transparent; border: 0; padding: 0; color: #fff; font-weight: 600; cursor: pointer; opacity: 0.6; transition: opacity .2s ease; }
   .portfolio-root .p-footer-to-top:hover { opacity: 1; }
   @media (min-width: 701px) { .portfolio-root .p-footer-to-top { display: block; } }
