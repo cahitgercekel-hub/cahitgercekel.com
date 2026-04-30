@@ -152,7 +152,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
     onChange(next);
   };
 
-  switch (type) {
+  const inner = (() => { switch (type) {
     case "hero":
       return (
         <div className="space-y-4">
