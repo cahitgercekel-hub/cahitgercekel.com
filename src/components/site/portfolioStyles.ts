@@ -66,9 +66,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
   .portfolio-root .p-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
   .portfolio-root .p-card-pill { display: inline-block; padding: 4px 10px; border-radius: 100px; background: rgba(0,0,0,0.06); color: var(--p-fg); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2px; }
-  .portfolio-root .p-card { background: var(--p-bg); border-radius: calc(var(--p-radius) + 6px); overflow: hidden; border: 1px solid var(--p-border); transition: transform .25s; display: flex; flex-direction: column; }
-  .portfolio-root .p-card:hover { transform: translateY(-6px); }
-  .portfolio-root .p-card.featured { border-color: var(--p-accent); box-shadow: 0 8px 24px hsl(from var(--p-accent) h s l / 0.2); }
+  .portfolio-root .p-card { background: var(--p-bg); border-radius: calc(var(--p-radius) + 6px); overflow: hidden; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; display: flex; flex-direction: column; }
+  .portfolio-root .p-card:hover { transform: translateY(-6px); box-shadow: 0 4px 8px rgba(0,0,0,0.06), 0 18px 40px rgba(0,0,0,0.14); border-color: rgba(0,0,0,0.18); }
+  .portfolio-root .p-card.featured { border-color: var(--p-accent); box-shadow: 0 4px 10px rgba(0,0,0,0.06), 0 14px 32px hsl(from var(--p-accent) h s l / 0.25); }
   .portfolio-root a.p-card { color: inherit; text-decoration: none; }
   .portfolio-root a.p-card:hover h3 { color: var(--p-accent); }
   .portfolio-root .p-card-thumb { height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); color:#fff; }
