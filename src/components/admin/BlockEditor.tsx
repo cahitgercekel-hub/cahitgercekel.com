@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,32 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <Label className="text-xs">{label}</Label>
       {children}
     </div>
+  );
+}
+
+/**
+ * Comma-separated input that keeps raw text locally so users can freely type commas
+ * and trailing spaces. Commits the parsed array on blur (or Enter).
+ */
+function CsvInput({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
+  const joined = (value ?? []).join(", ");
+  const [text, setText] = useState(joined);
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focused.current) setText(joined);
+  }, [joined]);
+  const commit = () => {
+    const next = text.split(",").map((s) => s.trim()).filter(Boolean);
+    onChange(next);
+  };
+  return (
+    <Input
+      value={text}
+      onFocus={() => { focused.current = true; }}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => { focused.current = false; commit(); }}
+      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commit(); } }}
+    />
   );
 }
 
@@ -201,7 +228,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             <Textarea rows={6} value={(data.paragraphs ?? []).join("\n\n")} onChange={(e) => set("paragraphs", e.target.value.split(/\n\n+/))} />
           </Field>
           <Field label="Skill tags (comma separated)">
-            <Input value={(data.skills ?? []).join(", ")} onChange={(e) => set("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} />
+            <CsvInput value={data.skills ?? []} onChange={(v) => set("skills", v)} />
           </Field>
           <FileUploadField
             label="Portrait image (optional)"
@@ -386,11 +413,11 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
             }} />
           </Field>
           <Field label="Skills (comma separated)">
-            <Input
-              value={(g.items ?? []).join(", ")}
-              onChange={(e) => {
+            <CsvInput
+              value={g.items ?? []}
+              onChange={(v) => {
                 const next = [...groups];
-                next[i] = { ...next[i], items: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) };
+                next[i] = { ...next[i], items: v };
                 setGroups(next);
               }}
             />
