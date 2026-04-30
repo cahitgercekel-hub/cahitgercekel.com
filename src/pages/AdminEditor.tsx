@@ -359,6 +359,20 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
     setBusy(false);
     if (error) toast.error(error.message); else { toast.success("Saved"); onSaved(); }
   };
+  const translateAllNav = async (lang: TargetLang) => {
+    const inputs = [logo, ...items.map((it) => it.label)];
+    try {
+      const out = await translateTexts(inputs, lang);
+      const setter = lang === "tr" ? setLogoTr : setLogoDe;
+      const navSetter = lang === "tr" ? setNavTr : setNavDe;
+      setter(out[0] ?? "");
+      navSetter(out.slice(1));
+      toast.success(`Translated nav to ${lang.toUpperCase()}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Translation failed");
+    }
+  };
+
   return (
     <Card>
       <CardHeader><CardTitle className="text-base">Navigation</CardTitle></CardHeader>
@@ -370,15 +384,31 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs">Logo · Türkçe (TR)</Label>
-            <Input value={logoTr} onChange={(e) => setLogoTr(e.target.value)} placeholder={logo} />
+            <div className="flex items-center gap-1.5">
+              <Input value={logoTr} onChange={(e) => setLogoTr(e.target.value)} placeholder={logo} />
+              <TBtn enValue={logo} lang="tr" onResult={setLogoTr} />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Logo · Deutsch (DE)</Label>
-            <Input value={logoDe} onChange={(e) => setLogoDe(e.target.value)} placeholder={logo} />
+            <div className="flex items-center gap-1.5">
+              <Input value={logoDe} onChange={(e) => setLogoDe(e.target.value)} placeholder={logo} />
+              <TBtn enValue={logo} lang="de" onResult={setLogoDe} />
+            </div>
           </div>
         </div>
         <div className="space-y-2">
-          <Label className="text-xs">Nav links</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Nav links</Label>
+            <div className="flex gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => translateAllNav("tr")}>
+                <Sparkles className="w-3 h-3 mr-1" /> Auto TR
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => translateAllNav("de")}>
+                <Sparkles className="w-3 h-3 mr-1" /> Auto DE
+              </Button>
+            </div>
+          </div>
           {items.map((it, i) => (
             <div key={i} className="space-y-1.5 border rounded-lg p-2 bg-muted/20">
               <div className="flex gap-2">
@@ -387,8 +417,14 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
                 <Button variant="ghost" size="icon" onClick={() => setItems(items.filter((_, x) => x !== i))}><Trash2 className="w-4 h-4" /></Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Input placeholder={`TR — ${it.label}`} value={navTr[i] ?? ""} onChange={(e) => setNavLang("tr", i, e.target.value)} />
-                <Input placeholder={`DE — ${it.label}`} value={navDe[i] ?? ""} onChange={(e) => setNavLang("de", i, e.target.value)} />
+                <div className="flex items-center gap-1.5">
+                  <Input placeholder={`TR — ${it.label}`} value={navTr[i] ?? ""} onChange={(e) => setNavLang("tr", i, e.target.value)} />
+                  <TBtn enValue={it.label} lang="tr" onResult={(v) => setNavLang("tr", i, v)} />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Input placeholder={`DE — ${it.label}`} value={navDe[i] ?? ""} onChange={(e) => setNavLang("de", i, e.target.value)} />
+                  <TBtn enValue={it.label} lang="de" onResult={(v) => setNavLang("de", i, v)} />
+                </div>
               </div>
             </div>
           ))}
@@ -397,5 +433,43 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
       </CardContent>
     </Card>
+  );
+}
+
+function TBtn({
+  enValue,
+  lang,
+  onResult,
+}: {
+  enValue: string;
+  lang: TargetLang;
+  onResult: (text: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const empty = !enValue || !enValue.trim();
+  const run = async () => {
+    if (empty) return;
+    setBusy(true);
+    try {
+      const out = await translateOne(enValue, lang);
+      onResult(out);
+    } catch (e: any) {
+      toast.error(e?.message || "Translation failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Button
+      type="button"
+      size="icon"
+      variant="ghost"
+      className="h-9 w-9 shrink-0"
+      onClick={run}
+      disabled={busy || empty}
+      title={empty ? "Nothing to translate" : `Auto-translate to ${lang.toUpperCase()}`}
+    >
+      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+    </Button>
   );
 }
