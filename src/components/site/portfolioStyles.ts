@@ -96,7 +96,12 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-item { display: inline-flex; align-items: center; justify-content: center; filter: grayscale(100%); opacity: 0.55; transition: filter .35s ease, opacity .35s ease, transform .35s ease; }
   .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
   .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
-  .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
+  .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; font-size: 0.88rem; }
+  .portfolio-root .p-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .portfolio-root .p-footer-to-top { display: none; background: transparent; border: 0; padding: 0; color: #fff; font-weight: 600; cursor: pointer; opacity: 0.6; transition: opacity .2s ease; }
+  .portfolio-root .p-footer-to-top:hover { opacity: 1; }
+  @media (min-width: 701px) { .portfolio-root .p-footer-to-top { display: block; } }
+  @media (max-width: 700px) { .portfolio-root .p-footer-inner { flex-direction: column; text-align: center; } }
   .portfolio-root .p-lang-pill { position: fixed; bottom: 20px; right: 20px; z-index: 95; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 100px; background: rgba(255,255,255,0.55); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); border: 1px solid rgba(255,255,255,0.45); box-shadow: 0 4px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   .portfolio-root .p-lang-pill button { background: transparent; border: 0; padding: 2px 4px; font-family: inherit; font-size: 0.78rem; font-weight: 500; letter-spacing: 1px; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease, transform .2s ease; }
   .portfolio-root .p-lang-pill button:hover { opacity: 0.85; }
