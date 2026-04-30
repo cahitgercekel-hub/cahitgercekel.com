@@ -4,7 +4,7 @@ import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 
-const fontLink = "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap";
+const fontLink = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
 
 export default function SiteRenderer() {
   const { data: sections } = useSections(false);
@@ -48,9 +48,9 @@ export default function SiteRenderer() {
       </Helmet>
       <div style={styleVars} className="portfolio-root">
         <style>{`
-          .portfolio-root { font-family: 'DM Sans', sans-serif; background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
+          .portfolio-root { font-family: 'Inter', sans-serif; background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
           .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: 20px; display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-          .portfolio-root .p-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.15rem; }
+          .portfolio-root .p-logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; }
           .portfolio-root .p-logo span { color: var(--p-accent); }
           .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
           .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
@@ -59,10 +59,10 @@ export default function SiteRenderer() {
           .portfolio-root .p-section.alt { background: #fff; }
           .portfolio-root .p-inner { max-width: 960px; margin: 0 auto; }
           .portfolio-root .p-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 10px; }
-          .portfolio-root .p-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -1.5px; margin-bottom: 40px; line-height: 1.1; }
+          .portfolio-root .p-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -1.5px; margin-bottom: 40px; line-height: 1.1; }
           .portfolio-root .p-hero { min-height: 100vh; display: flex; align-items: center; background: var(--p-hero); padding: 120px 40px 80px; }
           .portfolio-root .p-hero-tag { display: inline-block; background: rgba(255,255,255,0.25); color: #fff; border-radius: 100px; padding: 6px 16px; font-size: 0.85rem; font-weight: 500; margin-bottom: 24px; backdrop-filter: blur(4px); }
-          .portfolio-root .p-hero-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
+          .portfolio-root .p-hero-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
           .portfolio-root .p-hero-title .dot { color: var(--p-accent3); }
           .portfolio-root .p-hero-sub { font-size: 1.25rem; color: rgba(255,255,255,0.85); max-width: 480px; line-height: 1.6; margin-bottom: 36px; }
           .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; }
@@ -82,7 +82,7 @@ export default function SiteRenderer() {
           .portfolio-root .p-card-thumb img { width:100%; height:100%; object-fit:cover; }
           .portfolio-root .p-card-body { padding: 20px; }
           .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
-          .portfolio-root .p-card h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin: 0 0 8px; }
+          .portfolio-root .p-card h3 { font-family: 'Inter', sans-serif; font-size: 1.1rem; margin: 0 0 8px; }
           .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
           .portfolio-root .p-card a { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
           .portfolio-root .p-timeline { position: relative; padding-left: 28px; }
@@ -90,7 +90,7 @@ export default function SiteRenderer() {
           .portfolio-root .p-tl-item { position: relative; margin-bottom: 44px; }
           .portfolio-root .p-tl-dot { position: absolute; left: -28px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--p-accent); }
           .portfolio-root .p-tl-period { font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--p-muted); margin-bottom: 4px; }
-          .portfolio-root .p-tl-role { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; }
+          .portfolio-root .p-tl-role { font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 700; }
           .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; margin-bottom: 8px; }
           .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
           .portfolio-root .p-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
