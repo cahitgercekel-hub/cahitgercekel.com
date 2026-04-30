@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
@@ -12,6 +13,10 @@ export default function ProjectDetail() {
   const { data: sections, isLoading } = useSections(false);
   const { data: settings } = useSiteSettings();
   const { lang } = useLang();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [slug]);
 
   if (RESERVED_SLUGS.has(slug.toLowerCase())) {
     return <NotFound />;
