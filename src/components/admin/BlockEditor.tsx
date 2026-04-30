@@ -382,6 +382,18 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               <Field label="Proximity (px)">
                 <Input type="number" min={0} value={data.dotBg?.proximity ?? 120} onChange={(e) => setNested(["dotBg", "proximity"], Number(e.target.value))} />
               </Field>
+              <Field label="Shock radius (px)">
+                <Input type="number" min={0} value={data.dotBg?.shockRadius ?? 250} onChange={(e) => setNested(["dotBg", "shockRadius"], Number(e.target.value))} />
+              </Field>
+              <Field label="Shock strength">
+                <Input type="number" min={0} step={0.1} value={data.dotBg?.shockStrength ?? 5} onChange={(e) => setNested(["dotBg", "shockStrength"], Number(e.target.value))} />
+              </Field>
+              <Field label="Resistance">
+                <Input type="number" min={0} value={data.dotBg?.resistance ?? 750} onChange={(e) => setNested(["dotBg", "resistance"], Number(e.target.value))} />
+              </Field>
+              <Field label="Return duration (s)">
+                <Input type="number" min={0} step={0.1} value={data.dotBg?.returnDuration ?? 1.5} onChange={(e) => setNested(["dotBg", "returnDuration"], Number(e.target.value))} />
+              </Field>
             </div>
           </div>
         </div>
