@@ -98,7 +98,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-item { display: inline-flex; align-items: center; justify-content: center; filter: grayscale(100%); opacity: 0.55; transition: filter .35s ease, opacity .35s ease, transform .35s ease; }
   .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
   .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
-  .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px 40px 40px 16px; font-size: 0.88rem; }
+  .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; font-size: 0.88rem; }
   .portfolio-root .p-footer-inner { position: relative; display: flex; align-items: center; justify-content: flex-start; gap: 20px; text-align: left; }
   .portfolio-root .p-footer-inner > p { margin: 0; }
   .portfolio-root .p-footer-to-top { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: transparent; border: 0; padding: 0; color: #fff; font-weight: 600; cursor: pointer; opacity: 0.6; transition: opacity .2s ease; }
