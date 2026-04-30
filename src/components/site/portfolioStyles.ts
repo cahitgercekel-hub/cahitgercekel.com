@@ -80,7 +80,10 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-tl-dot { position: absolute; left: -28px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--p-accent); }
   .portfolio-root .p-tl-period { font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--p-muted); margin-bottom: 4px; }
   .portfolio-root .p-tl-role { font-family: var(--p-font); font-size: 1.15rem; font-weight: 700; }
-  .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; margin-bottom: 8px; }
+  .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; text-decoration: none; }
+  .portfolio-root a.p-tl-company:hover { text-decoration: underline; }
+  .portfolio-root .p-tl-company-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .portfolio-root .p-tl-logo { width: 22px; height: 22px; border-radius: 6px; object-fit: cover; background: rgba(0,0,0,0.04); }
   .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
   .portfolio-root .p-contact-info p { font-size: 1.05rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
   .portfolio-root .p-contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }

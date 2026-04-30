@@ -259,7 +259,14 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                   <div className="p-tl-dot" />
                   <div className="p-tl-period">{it.period}</div>
                   <div className="p-tl-role">{it.role}</div>
-                  <div className="p-tl-company">{it.company}</div>
+                  <div className="p-tl-company-row">
+                    {it.logo && <img className="p-tl-logo" src={it.logo} alt="" />}
+                    {it.companyHref ? (
+                      <a className="p-tl-company" href={it.companyHref} target="_blank" rel="noreferrer">{it.company}</a>
+                    ) : (
+                      <span className="p-tl-company">{it.company}</span>
+                    )}
+                  </div>
                   <div className="p-tl-desc">{it.description}</div>
                 </div>
               ))}

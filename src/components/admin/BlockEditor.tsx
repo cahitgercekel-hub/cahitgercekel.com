@@ -527,9 +527,11 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "period", label: "Period" },
               { key: "role", label: "Role" },
               { key: "company", label: "Company" },
+              { key: "logo", label: "Company logo (upload or URL)", type: "image", folder: "logos" },
+              { key: "companyHref", label: "Company link (optional)" },
               { key: "description", label: "Description", type: "textarea" },
             ]}
-            factory={() => ({ period: "", role: "", company: "", description: "" })}
+            factory={() => ({ period: "", role: "", company: "", logo: "", companyHref: "", description: "" })}
           />
         </div>
       );
