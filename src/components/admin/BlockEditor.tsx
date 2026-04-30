@@ -337,6 +337,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             value={data.src ?? ""}
             onChange={(v) => set("src", v)}
             folder="images"
+            focal={data.focal}
+            onFocalChange={(v) => set("focal", v)}
           />
           <Field label="Alt text"><Input value={data.alt ?? ""} onChange={(e) => set("alt", e.target.value)} /></Field>
           <Field label="Caption"><Input value={data.caption ?? ""} onChange={(e) => set("caption", e.target.value)} /></Field>
