@@ -153,7 +153,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             <ul className="p-mobile-menu">
               {navItems.map((it, i) => (
                 <li key={i}>
-                  <a href={it.href.startsWith("#") ? `/${it.href}` : it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
+                  <a href={it.href.startsWith("#") ? `/${it.href}` : it.href} onClick={(e) => handleNavClick(e, it.href)}>{it.label}</a>
                 </li>
               ))}
             </ul>
