@@ -80,6 +80,14 @@ export const BLOCK_DEFAULTS: Record<BlockType, any> = {
     paragraphs: ["First paragraph...", "Second paragraph..."],
     skills: ["Skill 1", "Skill 2"],
     portrait: "",
+    rotatingPills: {
+      texts: ["Designer", "Builder", "Maker"],
+      bg: "#db0000",
+      fg: "#ffffff",
+      intervalMs: 2000,
+      staggerDuration: 0.025,
+      staggerFrom: "last",
+    },
   },
   stats: {
     id: "stats",
