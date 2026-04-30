@@ -177,6 +177,7 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-logo-item img { max-height: 40px; max-width: 100px; }
     .portfolio-root .p-footer { padding: 28px 20px; }
     .portfolio-root .p-lang-pill { display: none; }
+    .portfolio-root .p-to-top { display: flex; }
     .portfolio-root .p-lang-mobile { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px 0 4px; margin-top: 8px; border-top: 1px solid var(--p-border); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .portfolio-root .p-lang-mobile button { background: transparent; border: 0; padding: 4px 6px; font-family: inherit; font-size: 0.72rem; letter-spacing: 1px; font-weight: 500; color: var(--p-fg); opacity: 0.55; cursor: pointer; transition: opacity .2s ease, color .2s ease; }
     .portfolio-root .p-lang-mobile button.active { opacity: 1; color: var(--p-accent); font-weight: 700; }
