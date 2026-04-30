@@ -161,14 +161,14 @@ const DotGrid: React.FC<DotGridProps> = ({
   }, [buildGrid]);
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const now = performance.now();
       const pr = pointerRef.current;
       const dt = pr.lastTime ? now - pr.lastTime : 16;
-      const dx = e.clientX - pr.lastX;
-      const dy = e.clientY - pr.lastY;
+      const dx = clientX - pr.lastX;
+      const dy = clientY - pr.lastY;
       let vx = (dx / dt) * 1000;
       let vy = (dy / dt) * 1000;
       let speed = Math.hypot(vx, vy);
@@ -176,15 +176,21 @@ const DotGrid: React.FC<DotGridProps> = ({
         const scale = maxSpeed / speed;
         vx *= scale; vy *= scale; speed = maxSpeed;
       }
-      pr.lastTime = now; pr.lastX = e.clientX; pr.lastY = e.clientY;
+      pr.lastTime = now; pr.lastX = clientX; pr.lastY = clientY;
       pr.vx = vx; pr.vy = vy; pr.speed = speed;
       const rect = canvas.getBoundingClientRect();
-      pr.x = e.clientX - rect.left;
-      pr.y = e.clientY - rect.top;
+      pr.x = clientX - rect.left;
+      pr.y = clientY - rect.top;
+
+      // Skip if pointer is outside the canvas (keeps page scroll-friendly)
+      if (pr.x < 0 || pr.y < 0 || pr.x > rect.width || pr.y > rect.height) return;
+
+      // On touch, ignore the speed gate so even a slow drag pushes dots
+      const effectiveTrigger = isTouchRef.current ? 0 : speedTrigger;
 
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - pr.x, dot.cy - pr.y);
-        if (speed > speedTrigger && dist < proximity && !dot._inertiaApplied) {
+        if (speed >= effectiveTrigger && dist < proximity && !dot._inertiaApplied) {
           dot._inertiaApplied = true;
           gsap.killTweensOf(dot);
           const pushX = (dot.cx - pr.x) * 0.3 + vx * 0.003;
@@ -202,12 +208,13 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     };
 
-    const onClick = (e: MouseEvent) => {
+    const handleShock = (clientX: number, clientY: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const cx = e.clientX - rect.left;
-      const cy = e.clientY - rect.top;
+      const cx = clientX - rect.left;
+      const cy = clientY - rect.top;
+      if (cx < 0 || cy < 0 || cx > rect.width || cy > rect.height) return;
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
         if (dist < shockRadius && !dot._inertiaApplied) {
@@ -229,12 +236,35 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     };
 
-    const throttledMove = throttle(onMove, 50);
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onClick = (e: MouseEvent) => handleShock(e.clientX, e.clientY);
+    const onTouchStart = (e: TouchEvent) => {
+      isTouchRef.current = true;
+      const t = e.touches[0];
+      if (!t) return;
+      const pr = pointerRef.current;
+      pr.lastTime = performance.now();
+      pr.lastX = t.clientX;
+      pr.lastY = t.clientY;
+      handleShock(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      handleMove(t.clientX, t.clientY);
+    };
+
+    const throttledMove = throttle(onMouseMove, 50);
+    const throttledTouchMove = throttle(onTouchMove, 30);
     window.addEventListener('mousemove', throttledMove, { passive: true });
     window.addEventListener('click', onClick);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', throttledTouchMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', throttledMove);
       window.removeEventListener('click', onClick);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', throttledTouchMove);
     };
   }, [maxSpeed, speedTrigger, proximity, resistance, returnDuration, shockRadius, shockStrength]);
 
