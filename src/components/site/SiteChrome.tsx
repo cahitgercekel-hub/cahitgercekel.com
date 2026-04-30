@@ -143,8 +143,8 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
 
       {children}
 
-      <footer className="p-footer mx-0 text-center">
-        <div className="p-inner p-footer-inner px-0 mx-0 text-center">
+      <footer className="p-footer">
+        <div className="p-inner p-footer-inner">
           <p>{translateString(settings?.footer_text, settings?.i18n, lang, "footer_text")}</p>
           <button
             type="button"
