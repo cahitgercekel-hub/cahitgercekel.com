@@ -28,7 +28,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
   .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
   .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
-  .portfolio-root .p-section { padding: 100px 40px; }
+  .portfolio-root .p-section { padding: 100px 20px; }
   .portfolio-root .p-section.alt { background: #fff; }
   .portfolio-root .p-inner { max-width: 960px; margin: 0 auto; }
   .portfolio-root .p-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 10px; }
@@ -169,7 +169,7 @@ export const PORTFOLIO_CSS = `
     .portfolio-root nav.p-nav { width: calc(100% - 24px); padding: 10px 16px; top: 12px; }
     .portfolio-root .p-nav-links { display: none; }
     .portfolio-root .p-nav-burger { display: inline-flex; }
-    .portfolio-root .p-section { padding: 60px 20px; }
+    .portfolio-root .p-section { padding: 60px 12px; }
     .portfolio-root .p-title { font-size: clamp(1.7rem, 7vw, 2.2rem); margin-bottom: 28px; }
     .portfolio-root .p-hero { padding: 100px 20px 60px; min-height: auto; }
     .portfolio-root .p-hero-grid,
@@ -207,7 +207,7 @@ export const PORTFOLIO_CSS = `
   }
   @media (max-width: 420px) {
     .portfolio-root nav.p-nav { padding: 8px 14px; }
-    .portfolio-root .p-section { padding: 50px 16px; }
+    .portfolio-root .p-section { padding: 50px 10px; }
     .portfolio-root .p-hero { padding: 90px 16px 50px; }
     .portfolio-root .p-hero-title { font-size: clamp(2rem, 11vw, 2.8rem); }
     .portfolio-root .p-hero-photo { max-width: 180px !important; }
