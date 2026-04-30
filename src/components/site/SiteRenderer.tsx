@@ -236,7 +236,7 @@ export default function SiteRenderer() {
           <div className="p-nav-row">
             <div className="p-logo">
               {(() => {
-                const text = settings?.logo_text ?? "Portfolio";
+                const text = translateString(settings?.logo_text, settings?.i18n, lang, "logo_text") || "Portfolio";
                 const words = text.trim().split(/\s+/);
                 return words.map((w, i) => {
                   const first = w.charAt(0);
@@ -252,7 +252,7 @@ export default function SiteRenderer() {
               <span className="p-logo-dot">.</span>
             </div>
             <ul className="p-nav-links">
-              {(settings?.nav_items ?? []).map((it, i) => (
+              {translateNavItems(settings?.nav_items, settings?.i18n, lang).map((it, i) => (
                 <li key={i}><a href={it.href}>{it.label}</a></li>
               ))}
             </ul>
@@ -267,21 +267,53 @@ export default function SiteRenderer() {
             </button>
           </div>
           {menuOpen && (
-            <ul className="p-mobile-menu">
-              {(settings?.nav_items ?? []).map((it, i) => (
-                <li key={i}>
-                  <a href={it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="p-mobile-menu">
+                {translateNavItems(settings?.nav_items, settings?.i18n, lang).map((it, i) => (
+                  <li key={i}>
+                    <a href={it.href} onClick={() => setMenuOpen(false)}>{it.label}</a>
+                  </li>
+                ))}
+              </ul>
+              <div className="p-lang-mobile" role="group" aria-label="Language">
+                {LANGS.map((l, i) => (
+                  <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                    {i > 0 && <span className="p-lang-sep">|</span>}
+                    <button
+                      type="button"
+                      className={lang === l ? "active" : ""}
+                      onClick={() => setLang(l)}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </>
           )}
         </nav>
 
         {(sections ?? []).map((s, i) => (
-          <RenderBlock key={s.id} section={s} alt={i % 2 === 1} settings={settings} />
+          <RenderBlock key={s.id} section={s} alt={i % 2 === 1} settings={settings} lang={lang} />
         ))}
 
-        <footer className="p-footer">{settings?.footer_text}</footer>
+        <footer className="p-footer">{translateString(settings?.footer_text, settings?.i18n, lang, "footer_text")}</footer>
+
+        <div className="p-lang-pill" role="group" aria-label="Language">
+          {LANGS.map((l, i) => (
+            <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              {i > 0 && <span className="p-lang-sep">|</span>}
+              <button
+                type="button"
+                className={lang === l ? "active" : ""}
+                onClick={() => setLang(l)}
+                aria-pressed={lang === l}
+              >
+                {l.toUpperCase()}
+              </button>
+            </span>
+          ))}
+        </div>
       </div>
     </>
   );
