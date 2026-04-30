@@ -168,6 +168,12 @@ export default function SiteRenderer() {
           .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 14px 18px; border-radius: var(--p-radius); border: 1px solid var(--p-border); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease; }
           .portfolio-root .p-contact-link:hover { transform: translateY(-4px); background: var(--p-bg); border-color: var(--p-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.14); }
           .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
+          .portfolio-root .p-logos-section { padding: 60px 40px; }
+          .portfolio-root .p-logos-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 2px; color: var(--p-muted); text-align: center; margin-bottom: 28px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+          .portfolio-root .p-logos-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 48px; }
+          .portfolio-root .p-logo-item { display: inline-flex; align-items: center; justify-content: center; filter: grayscale(100%); opacity: 0.55; transition: filter .35s ease, opacity .35s ease, transform .35s ease; }
+          .portfolio-root .p-logo-item:hover { filter: grayscale(0%); opacity: 1; transform: translateY(-2px); }
+          .portfolio-root .p-logo-item img { max-height: 56px; max-width: 140px; width: auto; height: auto; object-fit: contain; display: block; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
           @media (max-width: 800px) {
             .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr; }
@@ -197,6 +203,9 @@ export default function SiteRenderer() {
             .portfolio-root .p-tl-role { font-size: 1.05rem; }
             .portfolio-root .p-contact-grid { grid-template-columns: 1fr; }
             .portfolio-root .p-stat-label, .portfolio-root .p-lang-row { font-size: 0.88rem; }
+            .portfolio-root .p-logos-section { padding: 40px 20px; }
+            .portfolio-root .p-logos-row { gap: 28px; }
+            .portfolio-root .p-logo-item img { max-height: 40px; max-width: 100px; }
             .portfolio-root .p-footer { padding: 28px 20px; }
           }
           @media (max-width: 420px) {
@@ -488,6 +497,27 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
                   </a>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+      );
+    case "logos":
+      return (
+        <section id={sectionId} className="p-logos-section" style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
+            {d.label && <div className="p-logos-label">{d.label}</div>}
+            {d.title && <h2 className="p-title" style={{ textAlign: "center", marginBottom: 28 }}>{d.title}</h2>}
+            <div className="p-logos-row">
+              {(d.items ?? []).map((it: any, i: number) => {
+                const content = it.logo
+                  ? <img src={it.logo} alt={it.name || ""} />
+                  : <span style={{ fontWeight: 700, color: "var(--p-muted)" }}>{it.name}</span>;
+                return it.href ? (
+                  <a key={i} className="p-logo-item" href={it.href} target="_blank" rel="noreferrer" aria-label={it.name}>{content}</a>
+                ) : (
+                  <span key={i} className="p-logo-item" aria-label={it.name}>{content}</span>
+                );
+              })}
             </div>
           </div>
         </section>
