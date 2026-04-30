@@ -218,7 +218,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
         ? { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" }
         : {};
       const photo = d.image && !isBackground && (
-        <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax }} />
+        <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax, objectPosition: d.imageFocal || "50% 50%" }} />
       );
       const text = (
         <div>
@@ -237,7 +237,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
         </div>
       );
       const heroSectionStyle: React.CSSProperties = isBackground && d.image
-        ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: "center" }
+        ? { ...heroBg, backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("${d.image}")`, backgroundSize: "cover", backgroundPosition: d.imageFocal || "center" }
         : heroBg;
       return (
         <section id={sectionId} className="p-hero" style={heroSectionStyle}>
@@ -257,7 +257,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
         ? { gridTemplateColumns: "1fr" }
         : { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" };
       const portrait = d.portrait && (
-        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax }} />
+        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax, objectPosition: d.portraitFocal || "50% 50%" }} />
       );
       const text = (
         <div className="p-about-text">
@@ -340,7 +340,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             <div className="p-projects">
               {(d.items ?? []).map((it: any, i: number) => (
                 <div key={i} className={`p-card${it.featured ? " featured" : ""}`}>
-                  <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} /> : it.emoji || "✨"}</div>
+                  <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} /> : it.emoji || "✨"}</div>
                   <div className="p-card-body">
                     {it.tag && <div className="p-card-tag">{it.tag}</div>}
                     <h3>{it.title}</h3>
@@ -397,7 +397,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" style={{ textAlign: layout.textAlign || d.align || "center", ...innerStyle }}>
-            {d.src && <img src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16 }} />}
+            {d.src && <img src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16, objectFit: "cover", objectPosition: d.focal || "50% 50%" }} />}
             {d.caption && <p style={{ color: "var(--p-muted)", marginTop: 12, fontSize: ".9rem" }}>{d.caption}</p>}
           </div>
         </section>

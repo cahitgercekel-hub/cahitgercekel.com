@@ -65,10 +65,12 @@ export default function AdminEditor() {
     const newIdx = sections.findIndex((s) => s.id === e.over!.id);
     const reordered = arrayMove(sections, oldIdx, newIdx);
     const updates = reordered.map((s, i) => ({ id: s.id, position: (i + 1) * 10 }));
-    qc.setQueryData(["sections", true], reordered.map((s, i) => ({ ...s, position: (i + 1) * 10 })));
-    for (const u of updates) {
-      await supabase.from("sections").update({ position: u.position }).eq("id", u.id);
-    }
+    const optimistic = reordered.map((s, i) => ({ ...s, position: (i + 1) * 10 }));
+    qc.setQueryData(["sections", true], optimistic);
+    qc.setQueryData(["sections", false], optimistic.filter((s) => s.visible));
+    await Promise.all(
+      updates.map((u) => supabase.from("sections").update({ position: u.position }).eq("id", u.id))
+    );
     refresh();
   };
 

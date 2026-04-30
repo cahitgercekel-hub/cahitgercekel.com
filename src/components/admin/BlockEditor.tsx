@@ -37,6 +37,8 @@ type SchemaField = {
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
+  /** For image fields: companion key on the same item that stores focal point ("x% y%"). */
+  focalKey?: string;
 };
 
 function ListEditor({
@@ -95,6 +97,8 @@ function ListEditor({
                   folder={s.folder || field}
                   accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
                   preview={s.type === "image" ? "image" : "file"}
+                  focal={s.focalKey ? it[s.focalKey] : undefined}
+                  onFocalChange={s.focalKey ? (v) => update(i, s.focalKey!, v) : undefined}
                 />
               );
             }
@@ -161,12 +165,14 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Name"><Input value={data.name ?? ""} onChange={(e) => set("name", e.target.value)} /></Field>
           <Field label="Subtitle"><Input value={data.subtitle ?? ""} onChange={(e) => set("subtitle", e.target.value)} /></Field>
           <FileUploadField
-            label="Profile picture (right side)"
+            label="Profile picture"
             value={data.image ?? ""}
             onChange={(v) => set("image", v)}
             folder="hero"
             accept="image/*"
             preview="image"
+            focal={data.imageFocal}
+            onFocalChange={(v) => set("imageFocal", v)}
           />
           <FileUploadField
             label="CV / Resume (PDF)"
@@ -202,6 +208,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             value={data.portrait ?? ""}
             onChange={(v) => set("portrait", v)}
             folder="about"
+            focal={data.portraitFocal}
+            onFocalChange={(v) => set("portraitFocal", v)}
           />
         </div>
       );
@@ -271,7 +279,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "tag", label: "Tag" },
               { key: "title", label: "Title" },
               { key: "description", label: "Description", type: "textarea" },
-              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects" },
+              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
               { key: "link", label: "Link" },
               { key: "featured", label: "Featured (highlight)", type: "checkbox" },
@@ -329,6 +337,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             value={data.src ?? ""}
             onChange={(v) => set("src", v)}
             folder="images"
+            focal={data.focal}
+            onFocalChange={(v) => set("focal", v)}
           />
           <Field label="Alt text"><Input value={data.alt ?? ""} onChange={(e) => set("alt", e.target.value)} /></Field>
           <Field label="Caption"><Input value={data.caption ?? ""} onChange={(e) => set("caption", e.target.value)} /></Field>
