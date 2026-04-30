@@ -381,6 +381,10 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Eyebrow"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <p className="text-[11px] text-muted-foreground">
+            Each project becomes its own page at <code>/&lt;slug&gt;</code>. Leave “Open external link instead” checked
+            to keep the card linking out to <em>Link</em> instead.
+          </p>
           <ListEditor
             data={data}
             onChange={onChange}
@@ -388,13 +392,82 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             schema={[
               { key: "tag", label: "Tag" },
               { key: "title", label: "Title" },
-              { key: "description", label: "Description", type: "textarea" },
-              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
+              { key: "description", label: "Short description (card)", type: "textarea" },
+              { key: "image", label: "Cover image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
-              { key: "link", label: "Link" },
+              { key: "link", label: "External link (optional)" },
+              { key: "openExternal", label: "Open external link instead of detail page", type: "checkbox" },
               { key: "featured", label: "Featured (highlight)", type: "checkbox" },
+              {
+                key: "_detail", label: "Detail page", type: "group", defaultOpen: false,
+                fields: [
+                  { key: "slug", label: "URL slug (auto from title if empty) — opens at /<slug>" },
+                  { key: "subtitle", label: "Subtitle / one-liner" },
+                  { key: "iconUrl", label: "Icon / logo (square)", type: "image", folder: "projects" },
+                  { key: "role", label: "Your role" },
+                  { key: "client", label: "Client" },
+                  { key: "year", label: "Year / period" },
+                  { key: "tech", label: "Tech & tools (comma separated)", type: "csv" },
+                  { key: "longDescription", label: "Long description (separate paragraphs with blank line)", type: "textarea" },
+                  {
+                    key: "links", label: "Extra links", type: "subList",
+                    subSchema: [
+                      { key: "label", label: "Label" },
+                      { key: "href", label: "URL" },
+                    ],
+                    subFactory: () => ({ label: "", href: "" }),
+                  },
+                  {
+                    key: "gallery", label: "Gallery images", type: "subList",
+                    subSchema: [
+                      { key: "src", label: "Image", type: "image", folder: "projects", focalKey: "focal" },
+                      { key: "alt", label: "Alt text" },
+                      { key: "caption", label: "Caption" },
+                    ],
+                    subFactory: () => ({ src: "", alt: "", caption: "", focal: "" }),
+                  },
+                  {
+                    key: "metrics", label: "Metrics / KPIs", type: "subList",
+                    subSchema: [
+                      { key: "value", label: "Value (e.g. “+38%”)" },
+                      { key: "label", label: "Label" },
+                    ],
+                    subFactory: () => ({ value: "", label: "" }),
+                  },
+                ],
+              },
+              {
+                key: "_caseStudy", label: "Case study", type: "group", defaultOpen: false,
+                fields: [
+                  {
+                    key: "caseStudy", label: "", type: "subList",
+                    // Reuse subList for the inner sections + a checkbox would
+                    // need a deeper editor; keep it simple with a flat helper.
+                    subSchema: [],
+                    subFactory: () => ({}),
+                  },
+                ],
+              },
+              {
+                key: "_contact", label: "Custom contact section (optional)", type: "group", defaultOpen: false,
+                fields: [
+                  {
+                    key: "contactOverride", label: "", type: "subList",
+                    subSchema: [],
+                    subFactory: () => ({}),
+                  },
+                ],
+              },
             ]}
-            factory={() => ({ tag: "", title: "", description: "", image: "", emoji: "✨", link: "", featured: false })}
+            factory={() => ({
+              tag: "", title: "", description: "", image: "", emoji: "✨", link: "",
+              openExternal: false, featured: false, slug: "",
+              subtitle: "", role: "", client: "", year: "", iconUrl: "",
+              tech: [], longDescription: "",
+              links: [], gallery: [], metrics: [],
+              caseStudy: { enabled: false, sections: [] },
+              contactOverride: { enabled: false, intro: "", links: [] },
+            })}
           />
         </div>
       );
