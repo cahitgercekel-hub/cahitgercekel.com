@@ -64,7 +64,7 @@ function CsvInput({ value, onChange }: { value: string[]; onChange: (next: strin
 type SchemaField = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group";
+  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group" | "caseStudy" | "contactOverride";
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
@@ -438,25 +438,11 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               },
               {
                 key: "_caseStudy", label: "Case study", type: "group", defaultOpen: false,
-                fields: [
-                  {
-                    key: "caseStudy", label: "", type: "subList",
-                    // Reuse subList for the inner sections + a checkbox would
-                    // need a deeper editor; keep it simple with a flat helper.
-                    subSchema: [],
-                    subFactory: () => ({}),
-                  },
-                ],
+                fields: [{ key: "caseStudy", label: "Case study", type: "caseStudy" }],
               },
               {
                 key: "_contact", label: "Custom contact section (optional)", type: "group", defaultOpen: false,
-                fields: [
-                  {
-                    key: "contactOverride", label: "", type: "subList",
-                    subSchema: [],
-                    subFactory: () => ({}),
-                  },
-                ],
+                fields: [{ key: "contactOverride", label: "Contact override", type: "contactOverride" }],
               },
             ]}
             factory={() => ({
