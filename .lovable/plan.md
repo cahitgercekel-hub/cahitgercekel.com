@@ -1,85 +1,57 @@
-## Goal
+# Project status toggle + live-dot fix
 
-Each project on the home grid becomes a clickable card that opens its own page at `/<slug>`, showing extended content (description, gallery, links, optional case study), and ending with a contact section.
+## Problem
+1. The blinking red "Live" dot has a radiating box-shadow ring that visually leaks above the button, overlapping the "Web App" pill sitting directly above it.
+2. There's no way to mark a project as "in progress" or to show a custom status label instead of a Live link button.
 
-## Routing
+## Changes
 
-- New route `/:slug` in `src/App.tsx` → new page `src/pages/ProjectDetail.tsx`. Placed **after** the existing fixed routes (`/`, `/admin`, `/admin/login`) so they always win.
-- Reserved slugs (`admin`, `auth`, `login`, etc.) are blocked in the editor with a validation message and skipped at runtime (falls through to `NotFound`).
-- Slug source: a new `slug` field on each project item in the `projects` block. If empty, auto-derive from `title` (kebab-case, deduped). The page looks up the project by matching `slug` (or derived slug) across all `projects` blocks in `sections`.
-- Unknown slug → existing `NotFound` page.
+### 1. Project item schema (`src/components/admin/BlockEditor.tsx`)
+In the `projects` block items schema, add two new fields right after the existing `openExternal` checkbox:
 
-## Project item data model (extends current schema)
+- `status` — select with options:
+  - `live` — Live (red blinking dot + opens `link`)
+  - `in_progress` — In Progress (🚧 emoji, no button)
+  - `none` — None (shows `statusText`, no button)
+- `statusText` — text input, used only when `status = none`
 
-Backwards-compatible additions to each project item:
+Update the item factory to default `status: "live"` and `statusText: ""`.
 
-- `slug` — URL slug (auto-derived from title if blank)
-- `subtitle` / `client` — short line under title
-- `role`, `year`
-- `tech[]` — chips/tags shown on the detail page
-- `longDescription` — paragraphs (split on blank lines)
-- `gallery[]` — `{ src, alt, caption, focal }`
-- `iconUrl` — square icon for the detail header
-- `links[]` — `{ label, href }` (Live site, Repo, Figma, …)
-- `caseStudy` — `{ enabled, sections: [{ heading, body, image? }] }`
-- `metrics[]` — `{ label, value }` KPI cards
-- `contactOverride` — optional `{ enabled, intro, links[] }`. If disabled, the page reuses the site's `contact` section.
-- `openExternal` — when true and `link` set, the home card links out instead of opening the detail page.
+The existing `link` field stays — it's still used as the Live button target and as the card's external link when `openExternal` is on.
 
-The home grid keeps its current fields/look.
+### 2. Detail page rendering (`src/pages/ProjectDetail.tsx`)
+Replace the current Live anchor block with status-driven rendering:
 
-## Home grid behavior
+```text
+status = live          -> <a> red blinking dot + "Live" (current behavior, unchanged markup)
+status = in_progress   -> <span class="p-pd-status">🚧 In Progress</span>  (no link)
+status = none          -> <span class="p-pd-status">{statusText}</span>     (only if statusText set)
+default (legacy items) -> behave as "live" if item.link exists, otherwise nothing
+```
 
-In `SiteRenderer.tsx` `case "projects"`:
+Extra ghost links from `item.links[]` keep rendering as before.
 
-- Wrap each card in `<Link to={\`/${slug}\`}>` unless `openExternal && link`, in which case it stays an `<a href>`.
-- Relabel the affordance to "Open case study →" when `caseStudy.enabled`, otherwise "View →".
+### 3. Live-dot pulse fix (`src/components/site/portfolioStyles.ts`)
+The current `@keyframes p-pd-live-blink` animates `box-shadow: 0 0 0 6px rgba(239,68,68,0)` — that 6px ring radiates outward and visually crosses into the Web App pill above. Replace with a pure opacity blink (no box-shadow ring):
 
-## ProjectDetail page
+```css
+.p-pd-live-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; animation: p-pd-live-blink 1.2s ease-in-out infinite; }
+@keyframes p-pd-live-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+```
 
-Reuses the same theme tokens, fonts, header, hamburger, language pill and footer as the home page. Implementation: extract a `<SiteChrome>` wrapper from `SiteRenderer.tsx` (header + footer + language pill + injected `<style>` block) and have both `Index` and `ProjectDetail` use it.
+Add a small style for the non-link status pill so it visually matches the row:
 
-Sections, in order:
+```css
+.p-pd-status { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: var(--p-radius); background: rgba(255,255,255,0.18); color: #fff; font-weight: 700; font-size: 0.92rem; backdrop-filter: blur(4px); }
+```
 
-1. **Hero** — back link ("← Projects" → `/#projects`), eyebrow (`tag`), `iconUrl` + `title`, `subtitle`, meta row (`role` · `client` · `year`), primary `links` as buttons.
-2. **Cover image** — main `image`, large, rounded, respects `focal`.
-3. **Overview** — `longDescription` paragraphs + `tech[]` chips.
-4. **Metrics** — KPI grid (only if `metrics` provided).
-5. **Gallery** — responsive image grid with captions.
-6. **Case study** — only when `caseStudy.enabled`; alternating text/image rows.
-7. **Contact** — `contactOverride` if enabled, else the site's existing `contact` section data.
+### 4. i18n (`src/lib/i18n.ts`)
+Add `items[].statusText` to the translatable per-item project paths so the custom "None" label can be auto-translated alongside subtitle/role/etc.
 
-All text fields go through `mergeI18n` / `translateString` so TR/DE keep working.
+## Files touched
+- `src/components/admin/BlockEditor.tsx` — schema + factory
+- `src/pages/ProjectDetail.tsx` — render switch on `item.status`
+- `src/components/site/portfolioStyles.ts` — calmer dot animation + `.p-pd-status` pill
+- `src/lib/i18n.ts` — add `statusText` to translatable fields
 
-## Admin editor changes (`BlockEditor.tsx`, `projects` case)
-
-Extend the `ListEditor` schema with the new fields, grouped behind a collapsible "Detail page" panel per item to keep the form manageable:
-
-- Basic (current): tag, title, description, image, emoji, link, featured, plus new `openExternal` checkbox.
-- Detail page (new): slug (with reserved-slug validation), subtitle, role, client, year, iconUrl, tech (string list), longDescription (textarea), links (sub-list), gallery (sub-list), metrics (sub-list), caseStudy.enabled + caseStudy.sections (sub-list), contactOverride.enabled + intro + links.
-
-Add a minimal nested-list capability to `ListEditor` if not already present (used for gallery / links / metrics / case-study sections).
-
-Translations panel: add new translatable paths (`items[].subtitle`, `items[].longDescription`, `items[].role`, `items[].client`, `items[].tech[]`, `items[].links[].label`, `items[].gallery[].caption`, `items[].metrics[].label`, `items[].caseStudy.sections[].heading`, `items[].caseStudy.sections[].body`, `items[].contactOverride.intro`, `items[].contactOverride.links[].label`) to `TRANSLATABLE_FIELDS` in `src/lib/i18n.ts` so auto-translate covers them.
-
-## SEO
-
-`ProjectDetail` sets `<Helmet>` with `title = "<project title> — <site title>"`, `meta description = subtitle || description`, and `og:image = image`.
-
-## Files to change
-
-- `src/App.tsx` — add `/:slug` route at the end.
-- `src/pages/ProjectDetail.tsx` — new page.
-- `src/components/site/SiteChrome.tsx` — shared header/footer/lang pill + global styles.
-- `src/components/site/SiteRenderer.tsx` — wrap project cards in `<Link>`, use shared chrome.
-- `src/lib/blocks.ts` — extend `BLOCK_DEFAULTS.projects.items[0]` with new optional fields + reserved-slug list.
-- `src/components/admin/BlockEditor.tsx` — extended editor for projects.
-- `src/components/admin/TranslationsPanel.tsx` & `src/lib/i18n.ts` — add new translatable paths.
-
-No DB migration required — everything fits inside the existing `sections.data` JSONB.
-
-## Out of scope
-
-- Per-project URL aliases beyond `slug`.
-- Comments / likes / view counts.
-- Admin reordering of detail-page sections (fixed order above).
+No DB migration needed — everything stores in the existing `sections.data` JSONB.
