@@ -136,8 +136,9 @@ export default function SiteRenderer() {
           .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; margin-bottom: 8px; }
           .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
           .portfolio-root .p-contact-info p { font-size: 1.05rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
-          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 12px 16px; border-radius: var(--p-radius); border: 1px solid var(--p-border); margin-bottom: 12px; }
-          .portfolio-root .p-contact-link:hover { background: var(--p-bg); border-color: var(--p-accent); }
+          .portfolio-root .p-contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 14px 18px; border-radius: var(--p-radius); border: 1px solid var(--p-border); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease; }
+          .portfolio-root .p-contact-link:hover { transform: translateY(-4px); background: var(--p-bg); border-color: var(--p-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.14); }
           .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
           @media (max-width: 800px) {
