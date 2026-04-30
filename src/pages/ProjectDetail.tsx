@@ -120,7 +120,7 @@ export default function ProjectDetail() {
           <section className="p-section">
             <div className="p-inner">
               <div className="p-pd-overview">
-                <div className="p-pd-prose">
+                <div className="p-pd-prose text-left">
                   {longParas.length > 0
                     ? longParas.map((p, i) => <p key={i}>{p}</p>)
                     : item.description && <p>{item.description}</p>}
