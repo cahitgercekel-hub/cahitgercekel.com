@@ -107,7 +107,17 @@ export const BLOCK_DEFAULTS: Record<BlockType, any> = {
     label: "What I've built",
     title: "Selected Projects",
     items: [
-      { tag: "Web", title: "Project", description: "Description.", image: "", link: "#", emoji: "🚀", featured: false },
+      {
+        tag: "Web", title: "Project", description: "Description.",
+        image: "", link: "", emoji: "🚀", featured: false,
+        slug: "", openExternal: false,
+        // Detail page (all optional, backwards-compatible)
+        subtitle: "", role: "", client: "", year: "",
+        iconUrl: "", tech: [], longDescription: "",
+        links: [], gallery: [], metrics: [],
+        caseStudy: { enabled: false, sections: [] },
+        contactOverride: { enabled: false, intro: "", links: [] },
+      },
     ],
   },
   experience: {

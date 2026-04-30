@@ -64,12 +64,20 @@ function CsvInput({ value, onChange }: { value: string[]; onChange: (next: strin
 type SchemaField = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox";
+  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group" | "caseStudy" | "contactOverride";
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
   /** For image fields: companion key on the same item that stores focal point ("x% y%"). */
   focalKey?: string;
+  /** For "subList": schema of each child item. */
+  subSchema?: SchemaField[];
+  /** For "subList": factory for new child items. */
+  subFactory?: () => any;
+  /** For "group": fields rendered inside a collapsible group. Defaults to collapsed. */
+  fields?: SchemaField[];
+  /** For "group": initially open. */
+  defaultOpen?: boolean;
 };
 
 function ListEditor({
@@ -87,11 +95,6 @@ function ListEditor({
 }) {
   const items: any[] = data[field] ?? [];
   const setField = (next: any[]) => onChange({ ...data, [field]: next });
-  const update = (idx: number, key: string, val: any) => {
-    const next = [...items];
-    next[idx] = { ...next[idx], [key]: val };
-    setField(next);
-  };
 
   return (
     <div className="space-y-3">
@@ -103,74 +106,206 @@ function ListEditor({
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
-          {schema.map((s) => {
-            if (s.type === "textarea") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <Textarea value={it[s.key] ?? ""} onChange={(e) => update(i, s.key, e.target.value)} />
-                </Field>
-              );
-            }
-            if (s.type === "number") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <Input type="number" value={it[s.key] ?? 0} onChange={(e) => update(i, s.key, Number(e.target.value))} />
-                </Field>
-              );
-            }
-            if (s.type === "image" || s.type === "file") {
-              return (
-                <FileUploadField
-                  key={s.key}
-                  label={s.label}
-                  value={it[s.key] ?? ""}
-                  onChange={(v) => update(i, s.key, v)}
-                  folder={s.folder || field}
-                  accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
-                  preview={s.type === "image" ? "image" : "file"}
-                  focal={s.focalKey ? it[s.focalKey] : undefined}
-                  onFocalChange={s.focalKey ? (v) => update(i, s.focalKey!, v) : undefined}
-                />
-              );
-            }
-            if (s.type === "select") {
-              return (
-                <Field key={s.key} label={s.label}>
-                  <select
-                    className="w-full border rounded h-9 px-2 text-sm bg-background"
-                    value={it[s.key] ?? ""}
-                    onChange={(e) => update(i, s.key, e.target.value)}
-                  >
-                    {(s.options ?? []).map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
-                </Field>
-              );
-            }
-            if (s.type === "checkbox") {
-              return (
-                <label key={s.key} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={!!it[s.key]}
-                    onChange={(e) => update(i, s.key, e.target.checked)}
-                  />
-                  {s.label}
-                </label>
-              );
-            }
-            return (
-              <Field key={s.key} label={s.label}>
-                <Input value={it[s.key] ?? ""} onChange={(e) => update(i, s.key, e.target.value)} />
-              </Field>
-            );
-          })}
+          {schema.map((s) => (
+            <RenderField
+              key={s.key}
+              field={s}
+              parentKey={field}
+              value={it}
+              onValueChange={(next) => {
+                const arr = [...items];
+                arr[i] = next;
+                setField(arr);
+              }}
+            />
+          ))}
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={() => setField([...items, factory()])}>
         <Plus className="w-3 h-3 mr-1" /> Add item
       </Button>
+    </div>
+  );
+}
+
+/**
+ * Renders a single schema field for one row of data. Handles all primitive
+ * field types plus nested sub-lists and collapsible groups.
+ */
+function RenderField({
+  field: s,
+  parentKey,
+  value,
+  onValueChange,
+}: {
+  field: SchemaField;
+  parentKey: string;
+  value: any;
+  onValueChange: (next: any) => void;
+}) {
+  const update = (key: string, val: any) => onValueChange({ ...value, [key]: val });
+
+  if (s.type === "group") {
+    return (
+      <CollapsibleGroup label={s.label} defaultOpen={!!s.defaultOpen}>
+        {(s.fields ?? []).map((f) => (
+          <RenderField key={f.key} field={f} parentKey={parentKey} value={value} onValueChange={onValueChange} />
+        ))}
+      </CollapsibleGroup>
+    );
+  }
+  if (s.type === "subList") {
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs">{s.label}</Label>
+        <ListEditor
+          data={value}
+          onChange={onValueChange}
+          field={s.key}
+          schema={s.subSchema ?? []}
+          factory={s.subFactory ?? (() => ({}))}
+        />
+      </div>
+    );
+  }
+  if (s.type === "csv") {
+    return (
+      <Field label={s.label}>
+        <CsvInput value={value[s.key] ?? []} onChange={(v) => update(s.key, v)} />
+      </Field>
+    );
+  }
+  if (s.type === "textarea") {
+    return (
+      <Field label={s.label}>
+        <Textarea value={value[s.key] ?? ""} onChange={(e) => update(s.key, e.target.value)} />
+      </Field>
+    );
+  }
+  if (s.type === "number") {
+    return (
+      <Field label={s.label}>
+        <Input type="number" value={value[s.key] ?? 0} onChange={(e) => update(s.key, Number(e.target.value))} />
+      </Field>
+    );
+  }
+  if (s.type === "image" || s.type === "file") {
+    return (
+      <FileUploadField
+        label={s.label}
+        value={value[s.key] ?? ""}
+        onChange={(v) => update(s.key, v)}
+        folder={s.folder || parentKey}
+        accept={s.accept || (s.type === "image" ? "image/*" : "*/*")}
+        preview={s.type === "image" ? "image" : "file"}
+        focal={s.focalKey ? value[s.focalKey] : undefined}
+        onFocalChange={s.focalKey ? (v) => update(s.focalKey!, v) : undefined}
+      />
+    );
+  }
+  if (s.type === "select") {
+    return (
+      <Field label={s.label}>
+        <select
+          className="w-full border rounded h-9 px-2 text-sm bg-background"
+          value={value[s.key] ?? ""}
+          onChange={(e) => update(s.key, e.target.value)}
+        >
+          {(s.options ?? []).map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+      </Field>
+    );
+  }
+  if (s.type === "checkbox") {
+    return (
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={!!value[s.key]}
+          onChange={(e) => update(s.key, e.target.checked)}
+        />
+        {s.label}
+      </label>
+    );
+  }
+  if (s.type === "caseStudy") {
+    const cs = value[s.key] ?? { enabled: false, sections: [] };
+    const setCs = (next: any) => update(s.key, next);
+    return (
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={!!cs.enabled} onChange={(e) => setCs({ ...cs, enabled: e.target.checked })} />
+          Enable case study section on the project page
+        </label>
+        {cs.enabled && (
+          <ListEditor
+            data={cs}
+            onChange={setCs}
+            field="sections"
+            schema={[
+              { key: "heading", label: "Heading" },
+              { key: "body", label: "Body", type: "textarea" },
+              { key: "image", label: "Image (optional)", type: "image", folder: "projects" },
+            ]}
+            factory={() => ({ heading: "", body: "", image: "" })}
+          />
+        )}
+      </div>
+    );
+  }
+  if (s.type === "contactOverride") {
+    const co = value[s.key] ?? { enabled: false, intro: "", links: [] };
+    const setCo = (next: any) => update(s.key, next);
+    return (
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={!!co.enabled} onChange={(e) => setCo({ ...co, enabled: e.target.checked })} />
+          Use a custom contact section on this project page (otherwise reuses the site contact)
+        </label>
+        {co.enabled && (
+          <>
+            <Field label="Intro text">
+              <Textarea value={co.intro ?? ""} onChange={(e) => setCo({ ...co, intro: e.target.value })} />
+            </Field>
+            <ListEditor
+              data={co}
+              onChange={setCo}
+              field="links"
+              schema={[
+                { key: "icon", label: "Icon (emoji)" },
+                { key: "iconUrl", label: "Icon image", type: "image", folder: "icons" },
+                { key: "label", label: "Label" },
+                { key: "href", label: "URL" },
+              ]}
+              factory={() => ({ icon: "🔗", iconUrl: "", label: "", href: "" })}
+            />
+          </>
+        )}
+      </div>
+    );
+  }
+  return (
+    <Field label={s.label}>
+      <Input value={value[s.key] ?? ""} onChange={(e) => update(s.key, e.target.value)} />
+    </Field>
+  );
+}
+
+function CollapsibleGroup({ label, defaultOpen, children }: { label: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <div className="border rounded-md bg-background/40">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full text-left px-2 py-1.5 text-xs font-semibold text-muted-foreground flex items-center gap-1.5"
+      >
+        <span style={{ display: "inline-block", width: 10 }}>{open ? "▾" : "▸"}</span>
+        {label}
+      </button>
+      {open && <div className="p-2 pt-0 space-y-2">{children}</div>}
     </div>
   );
 }
@@ -302,6 +437,10 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Eyebrow"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <p className="text-[11px] text-muted-foreground">
+            Each project becomes its own page at <code>/&lt;slug&gt;</code>. Leave “Open external link instead” checked
+            to keep the card linking out to <em>Link</em> instead.
+          </p>
           <ListEditor
             data={data}
             onChange={onChange}
@@ -309,13 +448,68 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             schema={[
               { key: "tag", label: "Tag" },
               { key: "title", label: "Title" },
-              { key: "description", label: "Description", type: "textarea" },
-              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
+              { key: "description", label: "Short description (card)", type: "textarea" },
+              { key: "image", label: "Cover image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
-              { key: "link", label: "Link" },
+              { key: "link", label: "External link (optional)" },
+              { key: "openExternal", label: "Open external link instead of detail page", type: "checkbox" },
               { key: "featured", label: "Featured (highlight)", type: "checkbox" },
+              {
+                key: "_detail", label: "Detail page", type: "group", defaultOpen: false,
+                fields: [
+                  { key: "slug", label: "URL slug (auto from title if empty) — opens at /<slug>" },
+                  { key: "subtitle", label: "Subtitle / one-liner" },
+                  { key: "iconUrl", label: "Icon / logo (square)", type: "image", folder: "projects" },
+                  { key: "role", label: "Your role" },
+                  { key: "client", label: "Client" },
+                  { key: "year", label: "Year / period" },
+                  { key: "tech", label: "Tech & tools (comma separated)", type: "csv" },
+                  { key: "longDescription", label: "Long description (separate paragraphs with blank line)", type: "textarea" },
+                  {
+                    key: "links", label: "Extra links", type: "subList",
+                    subSchema: [
+                      { key: "label", label: "Label" },
+                      { key: "href", label: "URL" },
+                    ],
+                    subFactory: () => ({ label: "", href: "" }),
+                  },
+                  {
+                    key: "gallery", label: "Gallery images", type: "subList",
+                    subSchema: [
+                      { key: "src", label: "Image", type: "image", folder: "projects", focalKey: "focal" },
+                      { key: "alt", label: "Alt text" },
+                      { key: "caption", label: "Caption" },
+                    ],
+                    subFactory: () => ({ src: "", alt: "", caption: "", focal: "" }),
+                  },
+                  {
+                    key: "metrics", label: "Metrics / KPIs", type: "subList",
+                    subSchema: [
+                      { key: "value", label: "Value (e.g. “+38%”)" },
+                      { key: "label", label: "Label" },
+                    ],
+                    subFactory: () => ({ value: "", label: "" }),
+                  },
+                ],
+              },
+              {
+                key: "_caseStudy", label: "Case study", type: "group", defaultOpen: false,
+                fields: [{ key: "caseStudy", label: "Case study", type: "caseStudy" }],
+              },
+              {
+                key: "_contact", label: "Custom contact section (optional)", type: "group", defaultOpen: false,
+                fields: [{ key: "contactOverride", label: "Contact override", type: "contactOverride" }],
+              },
             ]}
-            factory={() => ({ tag: "", title: "", description: "", image: "", emoji: "✨", link: "", featured: false })}
+            factory={() => ({
+              tag: "", title: "", description: "", image: "", emoji: "✨", link: "",
+              openExternal: false, featured: false, slug: "",
+              subtitle: "", role: "", client: "", year: "", iconUrl: "",
+              tech: [], longDescription: "",
+              links: [], gallery: [], metrics: [],
+              caseStudy: { enabled: false, sections: [] },
+              contactOverride: { enabled: false, intro: "", links: [] },
+            })}
           />
         </div>
       );

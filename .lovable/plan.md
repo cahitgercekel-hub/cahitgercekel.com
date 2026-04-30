@@ -1,61 +1,85 @@
 ## Goal
 
-Add an "Auto-translate" button next to every translatable field (and one master button per language tab) in the admin editor. Clicking it sends the English value(s) to a new edge function that calls Lovable AI Gateway (Gemini 2.5 Flash) and fills the TR / DE inputs automatically. The user can still edit the result before saving.
+Each project on the home grid becomes a clickable card that opens its own page at `/<slug>`, showing extended content (description, gallery, links, optional case study), and ending with a contact section.
 
-## What you'll see in the admin
+## Routing
 
-- Inside the existing "Translations (TR / DE)" panel on each block, every translation field (title, paragraph, button label, project description, etc.) gets a small ✨ icon button on the right.
-  - Click it → that single field is translated from EN to the active tab's language and dropped into the input.
-  - While running it shows a spinner and is disabled.
-- At the top of each language tab there's a primary "Auto-translate all empty fields" button.
-  - Only fills fields that are currently empty (so user edits aren't overwritten).
-  - One batched request per click — fast and uses fewer credits than per-field clicks.
-- Same buttons added to the Navigation editor (logo + nav link labels) and Theme editor (footer text).
-- A toast confirms success or surfaces rate-limit / credit errors clearly.
+- New route `/:slug` in `src/App.tsx` → new page `src/pages/ProjectDetail.tsx`. Placed **after** the existing fixed routes (`/`, `/admin`, `/admin/login`) so they always win.
+- Reserved slugs (`admin`, `auth`, `login`, etc.) are blocked in the editor with a validation message and skipped at runtime (falls through to `NotFound`).
+- Slug source: a new `slug` field on each project item in the `projects` block. If empty, auto-derive from `title` (kebab-case, deduped). The page looks up the project by matching `slug` (or derived slug) across all `projects` blocks in `sections`.
+- Unknown slug → existing `NotFound` page.
 
-## What runs on the backend
+## Project item data model (extends current schema)
 
-A new edge function `supabase/functions/translate/index.ts`:
+Backwards-compatible additions to each project item:
 
-- POST body: `{ texts: string | string[], target: "tr"|"de", source?: "en" }`
-- Calls Lovable AI Gateway: `https://ai.gateway.lovable.dev/v1/chat/completions`, model `google/gemini-2.5-flash`, with `response_format: { type: "json_object" }` so we get a strict `{ translations: [...] }` back.
-- Uses the auto-injected `LOVABLE_API_KEY` env var — no user secret needed.
-- System prompt forbids translating proper nouns (people, brands like ABB, ITU, TUM), preserves emoji/punctuation/HTML, returns array in original order.
-- Empty strings are preserved as empty (skipped from the model call).
-- Handles 429 (rate limit) and 402 (credits depleted) with friendly messages.
-- `verify_jwt = false` not needed because admin routes already require auth — but the function itself doesn't check the user is an admin. Since calling it just costs gateway credits and only authenticated users with the URL would hit it from the admin UI, that's acceptable. If we want stricter, we can add `verify_jwt = true` (default) and pass the session token from the client. **Default behavior**: keep verify_jwt on (default), client invokes via `supabase.functions.invoke` which already includes the auth header.
+- `slug` — URL slug (auto-derived from title if blank)
+- `subtitle` / `client` — short line under title
+- `role`, `year`
+- `tech[]` — chips/tags shown on the detail page
+- `longDescription` — paragraphs (split on blank lines)
+- `gallery[]` — `{ src, alt, caption, focal }`
+- `iconUrl` — square icon for the detail header
+- `links[]` — `{ label, href }` (Live site, Repo, Figma, …)
+- `caseStudy` — `{ enabled, sections: [{ heading, body, image? }] }`
+- `metrics[]` — `{ label, value }` KPI cards
+- `contactOverride` — optional `{ enabled, intro, links[] }`. If disabled, the page reuses the site's `contact` section.
+- `openExternal` — when true and `link` set, the home card links out instead of opening the detail page.
 
-## Frontend wiring
+The home grid keeps its current fields/look.
 
-New helper `src/lib/translate.ts`:
+## Home grid behavior
 
-```ts
-export async function translateTexts(texts: string[], target: "tr"|"de"): Promise<string[]>
-```
+In `SiteRenderer.tsx` `case "projects"`:
 
-Wraps `supabase.functions.invoke("translate", { body: { texts, target } })` and returns the translations array (or throws with the toast-friendly message).
+- Wrap each card in `<Link to={\`/${slug}\`}>` unless `openExternal && link`, in which case it stays an `<a href>`.
+- Relabel the affordance to "Open case study →" when `caseStudy.enabled`, otherwise "View →".
 
-Updated files:
+## ProjectDetail page
 
-- `src/components/admin/TranslationsPanel.tsx`
-  - Header gets an "Auto-translate empty fields" button per tab. It walks `TRANSLATABLE_FIELDS[type]`, collects every English value whose current TR/DE counterpart is empty, sends them in one request, and writes results back into the same paths.
-  - Each `<SpecField>` gets a small `<TranslateButton>` (Sparkles icon) that translates just that one value. For string-array specs (paragraphs, items[].description, etc.), every row gets its own button.
-- `src/pages/AdminEditor.tsx`
-  - `NavEditor`: Sparkles button next to each TR / DE input (logo and per-link label) plus a "Translate all" button.
-  - `ThemeEditor`: Sparkles button on the TR / DE footer inputs.
+Reuses the same theme tokens, fonts, header, hamburger, language pill and footer as the home page. Implementation: extract a `<SiteChrome>` wrapper from `SiteRenderer.tsx` (header + footer + language pill + injected `<style>` block) and have both `Index` and `ProjectDetail` use it.
 
-## Files to add / edit
+Sections, in order:
 
-- **new** `supabase/functions/translate/index.ts` — the edge function
-- **new** `src/lib/translate.ts` — typed client helper
-- **edit** `src/components/admin/TranslationsPanel.tsx` — per-field + bulk buttons
-- **edit** `src/pages/AdminEditor.tsx` — buttons in `NavEditor` and `ThemeEditor`
+1. **Hero** — back link ("← Projects" → `/#projects`), eyebrow (`tag`), `iconUrl` + `title`, `subtitle`, meta row (`role` · `client` · `year`), primary `links` as buttons.
+2. **Cover image** — main `image`, large, rounded, respects `focal`.
+3. **Overview** — `longDescription` paragraphs + `tech[]` chips.
+4. **Metrics** — KPI grid (only if `metrics` provided).
+5. **Gallery** — responsive image grid with captions.
+6. **Case study** — only when `caseStudy.enabled`; alternating text/image rows.
+7. **Contact** — `contactOverride` if enabled, else the site's existing `contact` section data.
 
-No database migrations. No new secrets — `LOVABLE_API_KEY` is already configured. Edge function deploys automatically.
+All text fields go through `mergeI18n` / `translateString` so TR/DE keep working.
+
+## Admin editor changes (`BlockEditor.tsx`, `projects` case)
+
+Extend the `ListEditor` schema with the new fields, grouped behind a collapsible "Detail page" panel per item to keep the form manageable:
+
+- Basic (current): tag, title, description, image, emoji, link, featured, plus new `openExternal` checkbox.
+- Detail page (new): slug (with reserved-slug validation), subtitle, role, client, year, iconUrl, tech (string list), longDescription (textarea), links (sub-list), gallery (sub-list), metrics (sub-list), caseStudy.enabled + caseStudy.sections (sub-list), contactOverride.enabled + intro + links.
+
+Add a minimal nested-list capability to `ListEditor` if not already present (used for gallery / links / metrics / case-study sections).
+
+Translations panel: add new translatable paths (`items[].subtitle`, `items[].longDescription`, `items[].role`, `items[].client`, `items[].tech[]`, `items[].links[].label`, `items[].gallery[].caption`, `items[].metrics[].label`, `items[].caseStudy.sections[].heading`, `items[].caseStudy.sections[].body`, `items[].contactOverride.intro`, `items[].contactOverride.links[].label`) to `TRANSLATABLE_FIELDS` in `src/lib/i18n.ts` so auto-translate covers them.
+
+## SEO
+
+`ProjectDetail` sets `<Helmet>` with `title = "<project title> — <site title>"`, `meta description = subtitle || description`, and `og:image = image`.
+
+## Files to change
+
+- `src/App.tsx` — add `/:slug` route at the end.
+- `src/pages/ProjectDetail.tsx` — new page.
+- `src/components/site/SiteChrome.tsx` — shared header/footer/lang pill + global styles.
+- `src/components/site/SiteRenderer.tsx` — wrap project cards in `<Link>`, use shared chrome.
+- `src/lib/blocks.ts` — extend `BLOCK_DEFAULTS.projects.items[0]` with new optional fields + reserved-slug list.
+- `src/components/admin/BlockEditor.tsx` — extended editor for projects.
+- `src/components/admin/TranslationsPanel.tsx` & `src/lib/i18n.ts` — add new translatable paths.
+
+No DB migration required — everything fits inside the existing `sections.data` JSONB.
 
 ## Out of scope
 
-- Translating images, URLs, anchor IDs, colors, focal points, numeric stat values.
-- Detecting the source language automatically (we always assume EN as source — matches the current admin convention).
-- Caching translations between sessions.
-- Auto-translating on save (it stays a manual button so the admin reviews output).
+- Per-project URL aliases beyond `slug`.
+- Comments / likes / view counts.
+- Admin reordering of detail-page sections (fixed order above).

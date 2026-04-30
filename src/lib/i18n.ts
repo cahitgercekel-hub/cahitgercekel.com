@@ -18,7 +18,16 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
   stats: ["label", "title", "items[].label"],
   skills: ["label", "title", "groups[].name", "groups[].items[]"],
   languages: ["label", "title", "items[].name", "items[].level"],
-  projects: ["label", "title", "items[].tag", "items[].title", "items[].description"],
+  // Note: deeply-nested per-item arrays (items[].links[].label,
+  // items[].gallery[].caption, items[].caseStudy.sections[].*, etc.) are not
+  // yet supported by the i18n merge/translation parser, so they're omitted
+  // here. Add them once the parser handles 3+ levels of nesting.
+  projects: [
+    "label", "title",
+    "items[].tag", "items[].title", "items[].description",
+    "items[].subtitle", "items[].role", "items[].client",
+    "items[].longDescription", "items[].tech[]",
+  ],
   experience: ["label", "title", "items[].period", "items[].role", "items[].company", "items[].description"],
   contact: ["label", "title", "intro", "links[].label"],
   logos: ["label", "title", "items[].name"],
