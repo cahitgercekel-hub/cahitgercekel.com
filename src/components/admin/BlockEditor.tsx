@@ -37,6 +37,8 @@ type SchemaField = {
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
+  /** For image fields: companion key on the same item that stores focal point ("x% y%"). */
+  focalKey?: string;
 };
 
 function ListEditor({
