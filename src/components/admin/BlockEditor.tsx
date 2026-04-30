@@ -356,6 +356,25 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           />
         </div>
       );
+    case "logos":
+      return (
+        <div className="space-y-4">
+          <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
+          <Field label="Eyebrow label (e.g. 'previously at')"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
+          <Field label="Title (optional)"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <ListEditor
+            data={data}
+            onChange={onChange}
+            field="items"
+            schema={[
+              { key: "name", label: "Name (alt text)" },
+              { key: "logo", label: "Logo image", type: "image", folder: "logos" },
+              { key: "href", label: "Link URL (optional)" },
+            ]}
+            factory={() => ({ name: "", logo: "", href: "" })}
+          />
+        </div>
+      );
     case "image":
       return (
         <div className="space-y-4">
