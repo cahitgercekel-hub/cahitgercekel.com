@@ -64,12 +64,20 @@ function CsvInput({ value, onChange }: { value: string[]; onChange: (next: strin
 type SchemaField = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox";
+  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group";
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
   /** For image fields: companion key on the same item that stores focal point ("x% y%"). */
   focalKey?: string;
+  /** For "subList": schema of each child item. */
+  subSchema?: SchemaField[];
+  /** For "subList": factory for new child items. */
+  subFactory?: () => any;
+  /** For "group": fields rendered inside a collapsible group. Defaults to collapsed. */
+  fields?: SchemaField[];
+  /** For "group": initially open. */
+  defaultOpen?: boolean;
 };
 
 function ListEditor({
