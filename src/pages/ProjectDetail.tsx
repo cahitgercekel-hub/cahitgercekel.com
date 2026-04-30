@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { useLang } from "@/contexts/LanguageContext";
@@ -198,5 +198,3 @@ export default function ProjectDetail() {
   );
 }
 
-// Silence unused-import warning when build strips Navigate.
-export const __keep = Navigate;
