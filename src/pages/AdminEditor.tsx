@@ -22,6 +22,9 @@ import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } 
 import { CSS } from "@dnd-kit/utilities";
 import { BLOCK_DEFAULTS, BLOCK_LABELS, BlockType, SectionRow } from "@/lib/blocks";
 import BlockEditor from "@/components/admin/BlockEditor";
+import FileUploadField from "@/components/admin/FileUploadField";
+
+const FONT_CHOICES = ["Inter", "Poppins", "Manrope", "Space Grotesk", "Playfair", "Syne", "DM Sans"];
 
 export default function AdminEditor() {
   const { session, loading } = useAuth();
@@ -89,6 +92,7 @@ export default function AdminEditor() {
             <TabsTrigger value="sections">Sections</TabsTrigger>
             <TabsTrigger value="theme">Theme</TabsTrigger>
             <TabsTrigger value="navigation">Navigation</TabsTrigger>
+            <TabsTrigger value="site">Site</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sections" className="space-y-4">
@@ -123,6 +127,10 @@ export default function AdminEditor() {
 
           <TabsContent value="navigation">
             {settings && <NavEditor settings={settings} onSaved={refresh} />}
+          </TabsContent>
+
+          <TabsContent value="site">
+            {settings && <SiteMetaEditor settings={settings} onSaved={refresh} />}
           </TabsContent>
         </Tabs>
       </main>
@@ -203,11 +211,16 @@ function EditDialog({ section, onClose, onSaved }: { section: SectionRow; onClos
 function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void }) {
   const [theme, setTheme] = useState(settings.theme);
   const [footer, setFooter] = useState(settings.footer_text);
+  const [font, setFont] = useState(settings.font_family || "Inter");
+  const [radius, setRadius] = useState<number>(settings.radius ?? 14);
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
     setBusy(true);
-    const { error } = await supabase.from("site_settings").update({ theme, footer_text: footer }).eq("id", settings.id);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ theme, footer_text: footer, font_family: font, radius })
+      .eq("id", settings.id);
     setBusy(false);
     if (error) toast.error(error.message); else { toast.success("Saved"); onSaved(); }
   };
@@ -222,7 +235,7 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
   );
   return (
     <Card>
-      <CardHeader><CardTitle className="text-base">Theme & Footer</CardTitle></CardHeader>
+      <CardHeader><CardTitle className="text-base">Theme & Typography</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           {colorRow("accent", "Accent")}
@@ -230,6 +243,18 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
           {colorRow("accent3", "Accent 3")}
           {colorRow("bg", "Background")}
           {colorRow("fg", "Foreground")}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Font family</Label>
+            <select className="w-full border rounded h-9 px-2 text-sm bg-background" value={font} onChange={(e) => setFont(e.target.value)}>
+              {FONT_CHOICES.map((f) => <option key={f} value={f}>{f}</option>)}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Corner roundness ({radius}px)</Label>
+            <input type="range" min={0} max={32} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="w-full" />
+          </div>
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs">Hero gradient (CSS)</Label>
@@ -239,6 +264,43 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
           <Label className="text-xs">Footer text</Label>
           <Input value={footer} onChange={(e) => setFooter(e.target.value)} />
         </div>
+        <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SiteMetaEditor({ settings, onSaved }: { settings: any; onSaved: () => void }) {
+  const [siteTitle, setSiteTitle] = useState(settings.site_title || "");
+  const [metaDesc, setMetaDesc] = useState(settings.meta_description || "");
+  const [favicon, setFavicon] = useState(settings.favicon_url || "");
+  const [og, setOg] = useState(settings.og_image_url || "");
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    setBusy(true);
+    const { error } = await supabase.from("site_settings").update({
+      site_title: siteTitle || null,
+      meta_description: metaDesc || null,
+      favicon_url: favicon || null,
+      og_image_url: og || null,
+    }).eq("id", settings.id);
+    setBusy(false);
+    if (error) toast.error(error.message); else { toast.success("Saved"); onSaved(); }
+  };
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-base">Site metadata & SEO</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Browser tab title</Label>
+          <Input value={siteTitle} onChange={(e) => setSiteTitle(e.target.value)} placeholder="Cahit Gercekel — Product Manager" />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Meta description (under 160 chars)</Label>
+          <Textarea value={metaDesc} onChange={(e) => setMetaDesc(e.target.value)} rows={3} maxLength={160} />
+        </div>
+        <FileUploadField label="Favicon" value={favicon} onChange={setFavicon} folder="meta" accept="image/*" />
+        <FileUploadField label="Social share image (Open Graph)" value={og} onChange={setOg} folder="meta" accept="image/*" />
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
       </CardContent>
     </Card>
