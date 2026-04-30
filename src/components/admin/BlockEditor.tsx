@@ -418,6 +418,26 @@ export default function BlockEditor({ type, data, onChange }: Props) {
             focal={data.portraitFocal}
             onFocalChange={(v) => set("portraitFocal", v)}
           />
+          <div className="rounded-md border p-3 space-y-3">
+            <Label className="text-xs font-semibold">Rotating pill (next to title)</Label>
+            <Field label="Rotating words (comma separated, leave empty to hide)">
+              <CsvInput value={data.rotatingPills?.texts ?? []} onChange={(v) => setNested(["rotatingPills", "texts"], v)} />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Pill background">
+                <Input type="color" value={data.rotatingPills?.bg ?? "#db0000"} onChange={(e) => setNested(["rotatingPills", "bg"], e.target.value)} />
+              </Field>
+              <Field label="Pill text color">
+                <Input type="color" value={data.rotatingPills?.fg ?? "#ffffff"} onChange={(e) => setNested(["rotatingPills", "fg"], e.target.value)} />
+              </Field>
+              <Field label="Rotation interval (ms)">
+                <Input type="number" min={500} step={100} value={data.rotatingPills?.intervalMs ?? 2000} onChange={(e) => setNested(["rotatingPills", "intervalMs"], Number(e.target.value))} />
+              </Field>
+              <Field label="Stagger duration (s)">
+                <Input type="number" min={0} step={0.005} value={data.rotatingPills?.staggerDuration ?? 0.025} onChange={(e) => setNested(["rotatingPills", "staggerDuration"], Number(e.target.value))} />
+              </Field>
+            </div>
+          </div>
         </div>
       );
     case "stats":
