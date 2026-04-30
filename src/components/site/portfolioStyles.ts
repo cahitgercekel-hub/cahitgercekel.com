@@ -28,7 +28,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
   .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
   .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
-  .portfolio-root .p-section { padding: 100px 40px; }
+  .portfolio-root .p-section { padding: 100px 20px; }
   .portfolio-root .p-section.alt { background: #fff; }
   .portfolio-root .p-inner { max-width: 960px; margin: 0 auto; }
   .portfolio-root .p-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 10px; }
