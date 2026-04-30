@@ -1,85 +1,61 @@
 ## Goal
 
-Add a floating EN / TR / DE language switcher pill (frosted-glass to match the navbar) and let the admin store TR + DE translations for each text field on every block. The site renders the picked language and falls back to EN.
+Add an "Auto-translate" button next to every translatable field (and one master button per language tab) in the admin editor. Clicking it sends the English value(s) to a new edge function that calls Lovable AI Gateway (Gemini 2.5 Flash) and fills the TR / DE inputs automatically. The user can still edit the result before saving.
 
-## What you'll see on the site
+## What you'll see in the admin
 
-- A pill fixed at the bottom-right of the viewport, always visible while scrolling.
-- Three buttons inside it: `EN` `|` `TR` `|` `DE`. Active one is bold + accent color, dividers are subtle vertical lines.
-- Same blurred glass background, border, and shadow as the navbar pill — feels like part of the same UI family.
-- On mobile (≤700px): the floating pill is hidden, and the same switcher is rendered centered at the bottom of the hamburger menu in a slightly smaller font.
-- The chosen language persists in `localStorage` so it sticks across reloads.
+- Inside the existing "Translations (TR / DE)" panel on each block, every translation field (title, paragraph, button label, project description, etc.) gets a small ✨ icon button on the right.
+  - Click it → that single field is translated from EN to the active tab's language and dropped into the input.
+  - While running it shows a spinner and is disabled.
+- At the top of each language tab there's a primary "Auto-translate all empty fields" button.
+  - Only fills fields that are currently empty (so user edits aren't overwritten).
+  - One batched request per click — fast and uses fewer credits than per-field clicks.
+- Same buttons added to the Navigation editor (logo + nav link labels) and Theme editor (footer text).
+- A toast confirms success or surfaces rate-limit / credit errors clearly.
 
-## What changes in the admin
+## What runs on the backend
 
-- A new "Translations" panel inside every block's edit dialog (collapsible, below the existing fields).
-- For each translatable field on that block (title, label, paragraphs, button labels, project descriptions, contact labels, intro, footer, hero name/subtitle/tag, etc.), we show a TR input and a DE input. EN is the existing field — no duplication.
-- Translations are stored on the same `sections.data` row under `data.i18n = { tr: {...}, de: {...} }`. No DB schema change needed (it's already `jsonb`).
-- Site settings (logo text, footer text, nav item labels) get the same TR/DE inputs in the Navigation and Theme tabs.
-- Empty translation = falls back to EN automatically.
+A new edge function `supabase/functions/translate/index.ts`:
 
-## Technical implementation
+- POST body: `{ texts: string | string[], target: "tr"|"de", source?: "en" }`
+- Calls Lovable AI Gateway: `https://ai.gateway.lovable.dev/v1/chat/completions`, model `google/gemini-2.5-flash`, with `response_format: { type: "json_object" }` so we get a strict `{ translations: [...] }` back.
+- Uses the auto-injected `LOVABLE_API_KEY` env var — no user secret needed.
+- System prompt forbids translating proper nouns (people, brands like ABB, ITU, TUM), preserves emoji/punctuation/HTML, returns array in original order.
+- Empty strings are preserved as empty (skipped from the model call).
+- Handles 429 (rate limit) and 402 (credits depleted) with friendly messages.
+- `verify_jwt = false` not needed because admin routes already require auth — but the function itself doesn't check the user is an admin. Since calling it just costs gateway credits and only authenticated users with the URL would hit it from the admin UI, that's acceptable. If we want stricter, we can add `verify_jwt = true` (default) and pass the session token from the client. **Default behavior**: keep verify_jwt on (default), client invokes via `supabase.functions.invoke` which already includes the auth header.
 
-### 1. Language context
+## Frontend wiring
 
-New file `src/contexts/LanguageContext.tsx` exporting:
-- `LanguageProvider` (wraps `<App />`, reads from `localStorage.lang`, defaults to `"en"`).
-- `useLang()` returning `{ lang, setLang }`.
-- Helper `tr(value, i18n, lang)` that returns `i18n?.[lang]?.[key]` if non-empty, else `value`. We'll use a slightly different shape — `pickI18n(data, lang)` returns a shallow-merged object so the renderer keeps using `d.title` etc. without per-field branching.
+New helper `src/lib/translate.ts`:
 
-### 2. Renderer changes (`src/components/site/SiteRenderer.tsx`)
-
-- Inside `RenderBlock`, build `const d = mergeI18n(section.data, lang);` so all existing reads (`d.title`, `d.paragraphs`, `d.items[i].title`, etc.) automatically use the translated value when present. For arrays (paragraphs, items, links, languages, stats, skills, groups), we merge index-by-index — if `i18n.tr.items[2].title` exists, only that field overrides; otherwise EN value stays.
-- Add the floating pill JSX at the end of the root div: `<div className="p-lang-pill">…</div>`. Hidden on mobile via the existing `@media (max-width: 700px)` block.
-- Inside the mobile menu (`.p-mobile-menu`), append a centered `<div className="p-lang-mobile">EN | TR | DE</div>` after the nav links.
-- Translate `settings.logo_text`, `settings.footer_text`, and `settings.nav_items[i].label` the same way (read from `settings.i18n`).
-
-### 3. Block defaults & schema (`src/lib/blocks.ts`)
-
-- Extend `SiteSettings` and `SectionRow.data` types with optional `i18n?: { tr?: any; de?: any }`. No default values needed — absent = falls back to EN.
-- No new BlockType.
-
-### 4. Admin editor (`src/components/admin/BlockEditor.tsx`)
-
-- Add a `<TranslationsPanel type={type} data={data} onChange={onChange} />` rendered by `withLayout` below the existing `LayoutEditor`.
-- The panel has a `Tabs` (TR / DE). For each language it renders the same form fields as EN but bound to `data.i18n[lang]`. To avoid duplicating every block's schema, we declare a small `TRANSLATABLE_FIELDS: Record<BlockType, FieldSpec[]>` map listing which keys are translatable per block (e.g. hero → `tag, name, subtitle, cvLabel, primaryBtn.label, secondaryBtn.label`; projects → `label, title, items[].tag/title/description`; etc.). Non-text fields (images, URLs, colors, numbers, focal points, layout) are NEVER translated.
-- Empty TR/DE field stores `""` which the merger treats as missing → EN fallback.
-
-### 5. Settings translations (`src/pages/AdminEditor.tsx`)
-
-- In `NavEditor`: under each nav link, two small TR / DE inputs for the label. Logo text gets TR / DE inputs too.
-- In `ThemeEditor`: footer text gets TR / DE inputs.
-- All saved into `site_settings.i18n` (jsonb on existing `theme` row is wrong — we'll write to a new top-level key in the same row by extending the update payload; since `site_settings` already accepts arbitrary jsonb on `theme` we'll instead store `site_settings.theme.i18n` to avoid a schema migration). Actually cleaner: add a new `i18n jsonb` column via migration.
-
-### 6. Database migration
-
-```sql
-ALTER TABLE public.site_settings
-  ADD COLUMN IF NOT EXISTS i18n jsonb NOT NULL DEFAULT '{}'::jsonb;
+```ts
+export async function translateTexts(texts: string[], target: "tr"|"de"): Promise<string[]>
 ```
 
-`sections.data` is already `jsonb` so block translations need no migration.
+Wraps `supabase.functions.invoke("translate", { body: { texts, target } })` and returns the translations array (or throws with the toast-friendly message).
 
-### 7. Styling (added to existing `<style>` block in SiteRenderer)
+Updated files:
 
-- `.p-lang-pill`: `position: fixed; bottom: 20px; right: 20px; z-index: 95;` + same `backdrop-filter`, border, and shadow recipe as `nav.p-nav`. Padding `8px 14px`, rounded full.
-- Buttons: small uppercase mono font, `var(--p-fg)` with 0.55 opacity; active = full opacity + `var(--p-accent)` + bold.
-- Dividers: thin `|` spans at 0.3 opacity.
-- Mobile: `.p-lang-pill { display: none; }` and `.p-lang-mobile { display: flex; justify-content: center; gap: 10px; padding: 14px 0 4px; font-size: 0.78rem; }`.
+- `src/components/admin/TranslationsPanel.tsx`
+  - Header gets an "Auto-translate empty fields" button per tab. It walks `TRANSLATABLE_FIELDS[type]`, collects every English value whose current TR/DE counterpart is empty, sends them in one request, and writes results back into the same paths.
+  - Each `<SpecField>` gets a small `<TranslateButton>` (Sparkles icon) that translates just that one value. For string-array specs (paragraphs, items[].description, etc.), every row gets its own button.
+- `src/pages/AdminEditor.tsx`
+  - `NavEditor`: Sparkles button next to each TR / DE input (logo and per-link label) plus a "Translate all" button.
+  - `ThemeEditor`: Sparkles button on the TR / DE footer inputs.
 
-## Files to edit / create
+## Files to add / edit
 
-- `src/contexts/LanguageContext.tsx` (new)
-- `src/App.tsx` — wrap routes in `<LanguageProvider>`
-- `src/lib/blocks.ts` — extend types, add `TRANSLATABLE_FIELDS` map + `mergeI18n` helper (or place helper in a small `src/lib/i18n.ts`)
-- `src/components/site/SiteRenderer.tsx` — merge translations, render pill + mobile switcher, CSS
-- `src/components/admin/BlockEditor.tsx` — translations panel
-- `src/pages/AdminEditor.tsx` — translation inputs in NavEditor and ThemeEditor
-- Migration: add `i18n` column to `site_settings`
+- **new** `supabase/functions/translate/index.ts` — the edge function
+- **new** `src/lib/translate.ts` — typed client helper
+- **edit** `src/components/admin/TranslationsPanel.tsx` — per-field + bulk buttons
+- **edit** `src/pages/AdminEditor.tsx` — buttons in `NavEditor` and `ThemeEditor`
+
+No database migrations. No new secrets — `LOVABLE_API_KEY` is already configured. Edge function deploys automatically.
 
 ## Out of scope
 
-- Auto-translating existing content (admin fills TR/DE manually).
-- Translating block IDs, anchor links, image alt text, or URLs.
-- RTL languages.
-- Browser-language auto-detection (always defaults to EN; user picks once and it sticks).
+- Translating images, URLs, anchor IDs, colors, focal points, numeric stat values.
+- Detecting the source language automatically (we always assume EN as source — matches the current admin convention).
+- Caching translations between sessions.
+- Auto-translating on save (it stays a manual button so the admin reviews output).

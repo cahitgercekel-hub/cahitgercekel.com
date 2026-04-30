@@ -2,13 +2,16 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ChevronDown, ChevronRight, Languages } from "lucide-react";
+import { ChevronDown, ChevronRight, Languages, Sparkles, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import type { BlockType } from "@/lib/blocks";
 import { TRANSLATABLE_FIELDS } from "@/lib/i18n";
+import { translateOne, translateTexts, type TargetLang } from "@/lib/translate";
 
 type Props = { type: BlockType; data: any; onChange: (d: any) => void };
-type LangCode = "tr" | "de";
+type LangCode = TargetLang;
 const LANGS: { code: LangCode; label: string }[] = [
   { code: "tr", label: "Türkçe (TR)" },
   { code: "de", label: "Deutsch (DE)" },
@@ -22,21 +25,27 @@ const LANGS: { code: LangCode; label: string }[] = [
  *   "items[].sub"     -> string field on each object array entry
  *   "groups[].items[]" -> string array nested in object array
  */
-function parseSpec(spec: string): { kind: "string" | "stringArr" | "nested" | "itemField" | "itemStringArr"; path: string[] } {
+type ParsedSpec =
+  | { kind: "string"; key: string }
+  | { kind: "nested"; key: string; sub: string }
+  | { kind: "stringArr"; key: string }
+  | { kind: "itemField"; key: string; sub: string }
+  | { kind: "itemStringArr"; key: string; sub: string };
+
+function parseSpec(spec: string): ParsedSpec {
   if (spec.includes("[].")) {
     const [arrKey, rest] = spec.split("[].", 2);
     if (rest.endsWith("[]")) {
-      return { kind: "itemStringArr", path: [arrKey, rest.slice(0, -2)] };
+      return { kind: "itemStringArr", key: arrKey, sub: rest.slice(0, -2) };
     }
-    return { kind: "itemField", path: [arrKey, rest] };
+    return { kind: "itemField", key: arrKey, sub: rest };
   }
-  if (spec.endsWith("[]")) {
-    return { kind: "stringArr", path: [spec.slice(0, -2)] };
-  }
+  if (spec.endsWith("[]")) return { kind: "stringArr", key: spec.slice(0, -2) };
   if (spec.includes(".")) {
-    return { kind: "nested", path: spec.split(".") };
+    const [k, sk] = spec.split(".");
+    return { kind: "nested", key: k, sub: sk };
   }
-  return { kind: "string", path: [spec] };
+  return { kind: "string", key: spec };
 }
 
 function fieldLabel(spec: string): string {
@@ -48,13 +57,119 @@ function fieldLabel(spec: string): string {
     .trim();
 }
 
+// --- Path-based read/write so we can batch ---
+type Path =
+  | { kind: "string"; key: string }
+  | { kind: "nested"; key: string; sub: string }
+  | { kind: "stringArr"; key: string; index: number }
+  | { kind: "itemField"; key: string; sub: string; index: number }
+  | { kind: "itemStringArr"; key: string; sub: string; index: number; inner: number };
+
+function readPathFromEn(enData: any, p: Path): string {
+  switch (p.kind) {
+    case "string": return String(enData?.[p.key] ?? "");
+    case "nested": return String(enData?.[p.key]?.[p.sub] ?? "");
+    case "stringArr": return String(enData?.[p.key]?.[p.index] ?? "");
+    case "itemField": return String(enData?.[p.key]?.[p.index]?.[p.sub] ?? "");
+    case "itemStringArr": return String(enData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
+  }
+}
+
+function readPathFromTr(trData: any, p: Path): string {
+  switch (p.kind) {
+    case "string": return String(trData?.[p.key] ?? "");
+    case "nested": return String(trData?.[p.key]?.[p.sub] ?? "");
+    case "stringArr": return String(trData?.[p.key]?.[p.index] ?? "");
+    case "itemField": return String(trData?.[p.key]?.[p.index]?.[p.sub] ?? "");
+    case "itemStringArr": return String(trData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
+  }
+}
+
+function writePathToTr(trData: any, p: Path, value: string): any {
+  const next = { ...(trData ?? {}) };
+  switch (p.kind) {
+    case "string": {
+      next[p.key] = value;
+      return next;
+    }
+    case "nested": {
+      next[p.key] = { ...(next[p.key] ?? {}), [p.sub]: value };
+      return next;
+    }
+    case "stringArr": {
+      const arr = [...(next[p.key] ?? [])];
+      arr[p.index] = value;
+      next[p.key] = arr;
+      return next;
+    }
+    case "itemField": {
+      const arr = [...(next[p.key] ?? [])];
+      arr[p.index] = { ...(arr[p.index] ?? {}), [p.sub]: value };
+      next[p.key] = arr;
+      return next;
+    }
+    case "itemStringArr": {
+      const outer = [...(next[p.key] ?? [])];
+      const inner = [...((outer[p.index]?.[p.sub]) ?? [])];
+      inner[p.inner] = value;
+      outer[p.index] = { ...(outer[p.index] ?? {}), [p.sub]: inner };
+      next[p.key] = outer;
+      return next;
+    }
+  }
+}
+
+/** Enumerate every translatable path that has a non-empty EN value. */
+function collectAllPaths(type: BlockType, enData: any): Path[] {
+  const paths: Path[] = [];
+  for (const spec of TRANSLATABLE_FIELDS[type] ?? []) {
+    const p = parseSpec(spec);
+    switch (p.kind) {
+      case "string": {
+        if (String(enData?.[p.key] ?? "").trim()) paths.push({ kind: "string", key: p.key });
+        break;
+      }
+      case "nested": {
+        if (String(enData?.[p.key]?.[p.sub] ?? "").trim()) paths.push({ kind: "nested", key: p.key, sub: p.sub });
+        break;
+      }
+      case "stringArr": {
+        const arr: string[] = enData?.[p.key] ?? [];
+        arr.forEach((v, i) => {
+          if (String(v ?? "").trim()) paths.push({ kind: "stringArr", key: p.key, index: i });
+        });
+        break;
+      }
+      case "itemField": {
+        const arr: any[] = enData?.[p.key] ?? [];
+        arr.forEach((it, i) => {
+          if (String(it?.[p.sub] ?? "").trim()) paths.push({ kind: "itemField", key: p.key, sub: p.sub, index: i });
+        });
+        break;
+      }
+      case "itemStringArr": {
+        const arr: any[] = enData?.[p.key] ?? [];
+        arr.forEach((it, i) => {
+          const inner: string[] = it?.[p.sub] ?? [];
+          inner.forEach((v, j) => {
+            if (String(v ?? "").trim()) paths.push({ kind: "itemStringArr", key: p.key, sub: p.sub, index: i, inner: j });
+          });
+        });
+        break;
+      }
+    }
+  }
+  return paths;
+}
+
 export default function TranslationsPanel({ type, data, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const fields = TRANSLATABLE_FIELDS[type] ?? [];
   const i18n = data.i18n ?? {};
 
   const setForLang = (lang: LangCode, updater: (cur: any) => any) => {
-    const next = { ...data, i18n: { ...i18n, [lang]: updater(i18n[lang] ?? {}) } };
+    const cur = data.i18n?.[lang] ?? {};
+    const next = { ...data, i18n: { ...(data.i18n ?? {}), [lang]: updater(cur) } };
     onChange(next);
   };
 
@@ -83,10 +198,17 @@ export default function TranslationsPanel({ type, data, onChange }: Props) {
             </TabsList>
             {LANGS.map((l) => (
               <TabsContent key={l.code} value={l.code} className="space-y-3">
+                <BulkTranslateBar
+                  type={type}
+                  data={data}
+                  lang={l.code}
+                  onApply={(nextTr) => setForLang(l.code, () => nextTr)}
+                />
                 {fields.map((spec) => (
                   <SpecField
                     key={spec}
                     spec={spec}
+                    lang={l.code}
                     enData={data}
                     trData={i18n[l.code] ?? {}}
                     setTr={(updater) => setForLang(l.code, updater)}
@@ -101,13 +223,114 @@ export default function TranslationsPanel({ type, data, onChange }: Props) {
   );
 }
 
+function BulkTranslateBar({
+  type,
+  data,
+  lang,
+  onApply,
+}: {
+  type: BlockType;
+  data: any;
+  lang: LangCode;
+  onApply: (nextTr: any) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const trData = data.i18n?.[lang] ?? {};
+  const allPaths = collectAllPaths(type, data);
+  const emptyPaths = allPaths.filter((p) => !readPathFromTr(trData, p).trim());
+
+  const run = async (mode: "empty" | "all") => {
+    const paths = mode === "empty" ? emptyPaths : allPaths;
+    if (paths.length === 0) {
+      toast.info("Nothing to translate");
+      return;
+    }
+    setBusy(true);
+    try {
+      const inputs = paths.map((p) => readPathFromEn(data, p));
+      const results = await translateTexts(inputs, lang);
+      let next = trData;
+      paths.forEach((p, i) => {
+        const v = results[i] ?? "";
+        if (v) next = writePathToTr(next, p, v);
+      });
+      onApply(next);
+      toast.success(`Translated ${paths.length} field${paths.length === 1 ? "" : "s"} to ${lang.toUpperCase()}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Translation failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2 p-2 rounded-md bg-background/60 border">
+      <Sparkles className="w-4 h-4 text-primary" />
+      <span className="text-xs text-muted-foreground flex-1">
+        Auto-translate with AI · {emptyPaths.length} empty / {allPaths.length} total
+      </span>
+      <Button size="sm" variant="outline" disabled={busy || allPaths.length === 0} onClick={() => run("all")}>
+        {busy ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+        Translate all
+      </Button>
+      <Button size="sm" disabled={busy || emptyPaths.length === 0} onClick={() => run("empty")}>
+        {busy ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+        Fill empty
+      </Button>
+    </div>
+  );
+}
+
+/** Small ✨ button that translates one EN string and writes the result. */
+function TranslateBtn({
+  enValue,
+  lang,
+  onResult,
+  disabled,
+}: {
+  enValue: string;
+  lang: LangCode;
+  onResult: (text: string) => void;
+  disabled?: boolean;
+}) {
+  const [busy, setBusy] = useState(false);
+  const empty = !enValue || !enValue.trim();
+  const run = async () => {
+    if (empty) return;
+    setBusy(true);
+    try {
+      const out = await translateOne(enValue, lang);
+      onResult(out);
+    } catch (e: any) {
+      toast.error(e?.message || "Translation failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Button
+      type="button"
+      size="icon"
+      variant="ghost"
+      className="h-7 w-7 shrink-0"
+      onClick={run}
+      disabled={busy || empty || disabled}
+      title={empty ? "Nothing to translate" : `Auto-translate to ${lang.toUpperCase()}`}
+    >
+      {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+    </Button>
+  );
+}
+
 function SpecField({
   spec,
+  lang,
   enData,
   trData,
   setTr,
 }: {
   spec: string;
+  lang: LangCode;
   enData: any;
   trData: any;
   setTr: (updater: (cur: any) => any) => void;
@@ -116,37 +339,59 @@ function SpecField({
   const label = fieldLabel(spec);
 
   if (parsed.kind === "string") {
-    const k = parsed.path[0];
-    const enVal = enData?.[k] ?? "";
+    const k = parsed.key;
+    const enVal = String(enData?.[k] ?? "");
     return (
-      <Field label={label} en={String(enVal)}>
+      <Field
+        label={label}
+        en={enVal}
+        action={
+          <TranslateBtn
+            enValue={enVal}
+            lang={lang}
+            onResult={(v) => setTr((cur) => ({ ...cur, [k]: v }))}
+          />
+        }
+      >
         <Input
           value={trData?.[k] ?? ""}
           onChange={(e) => setTr((cur) => ({ ...cur, [k]: e.target.value }))}
-          placeholder={String(enVal)}
+          placeholder={enVal}
         />
       </Field>
     );
   }
 
   if (parsed.kind === "nested") {
-    const [k, sk] = parsed.path;
-    const enVal = enData?.[k]?.[sk] ?? "";
+    const { key: k, sub: sk } = parsed;
+    const enVal = String(enData?.[k]?.[sk] ?? "");
     return (
-      <Field label={label} en={String(enVal)}>
+      <Field
+        label={label}
+        en={enVal}
+        action={
+          <TranslateBtn
+            enValue={enVal}
+            lang={lang}
+            onResult={(v) =>
+              setTr((cur) => ({ ...cur, [k]: { ...(cur?.[k] ?? {}), [sk]: v } }))
+            }
+          />
+        }
+      >
         <Input
           value={trData?.[k]?.[sk] ?? ""}
           onChange={(e) =>
             setTr((cur) => ({ ...cur, [k]: { ...(cur?.[k] ?? {}), [sk]: e.target.value } }))
           }
-          placeholder={String(enVal)}
+          placeholder={enVal}
         />
       </Field>
     );
   }
 
   if (parsed.kind === "stringArr") {
-    const k = parsed.path[0];
+    const k = parsed.key;
     const enArr: string[] = enData?.[k] ?? [];
     const trArr: string[] = trData?.[k] ?? [];
     if (enArr.length === 0) return null;
@@ -154,7 +399,22 @@ function SpecField({
       <div className="space-y-2">
         <Label className="text-xs font-semibold">{label}</Label>
         {enArr.map((enItem, i) => (
-          <Field key={i} label={`#${i + 1}`} en={enItem}>
+          <Field
+            key={i}
+            label={`#${i + 1}`}
+            en={enItem}
+            action={
+              <TranslateBtn
+                enValue={enItem}
+                lang={lang}
+                onResult={(v) => setTr((cur) => {
+                  const arr = [...(cur?.[k] ?? [])];
+                  arr[i] = v;
+                  return { ...cur, [k]: arr };
+                })}
+              />
+            }
+          >
             {enItem.length > 80 ? (
               <Textarea
                 rows={3}
@@ -184,7 +444,7 @@ function SpecField({
   }
 
   if (parsed.kind === "itemField") {
-    const [k, sk] = parsed.path;
+    const { key: k, sub: sk } = parsed;
     const enArr: any[] = enData?.[k] ?? [];
     const trArr: any[] = trData?.[k] ?? [];
     if (enArr.length === 0) return null;
@@ -192,12 +452,27 @@ function SpecField({
       <div className="space-y-2">
         <Label className="text-xs font-semibold">{label}</Label>
         {enArr.map((enItem, i) => {
-          const enVal = enItem?.[sk] ?? "";
-          if (enVal === "" || enVal == null) return null;
+          const enVal = String(enItem?.[sk] ?? "");
+          if (!enVal) return null;
           const trVal = trArr[i]?.[sk] ?? "";
-          const useTextarea = String(enVal).length > 80;
+          const useTextarea = enVal.length > 80;
           return (
-            <Field key={i} label={`#${i + 1}`} en={String(enVal)}>
+            <Field
+              key={i}
+              label={`#${i + 1}`}
+              en={enVal}
+              action={
+                <TranslateBtn
+                  enValue={enVal}
+                  lang={lang}
+                  onResult={(v) => setTr((cur) => {
+                    const arr = [...(cur?.[k] ?? [])];
+                    arr[i] = { ...(arr[i] ?? {}), [sk]: v };
+                    return { ...cur, [k]: arr };
+                  })}
+                />
+              }
+            >
               {useTextarea ? (
                 <Textarea
                   rows={3}
@@ -207,7 +482,7 @@ function SpecField({
                     arr[i] = { ...(arr[i] ?? {}), [sk]: e.target.value };
                     return { ...cur, [k]: arr };
                   })}
-                  placeholder={String(enVal)}
+                  placeholder={enVal}
                 />
               ) : (
                 <Input
@@ -217,7 +492,7 @@ function SpecField({
                     arr[i] = { ...(arr[i] ?? {}), [sk]: e.target.value };
                     return { ...cur, [k]: arr };
                   })}
-                  placeholder={String(enVal)}
+                  placeholder={enVal}
                 />
               )}
             </Field>
@@ -228,7 +503,7 @@ function SpecField({
   }
 
   if (parsed.kind === "itemStringArr") {
-    const [k, sk] = parsed.path;
+    const { key: k, sub: sk } = parsed;
     const enArr: any[] = enData?.[k] ?? [];
     const trArr: any[] = trData?.[k] ?? [];
     if (enArr.length === 0) return null;
@@ -243,7 +518,24 @@ function SpecField({
             <div key={i} className="border rounded p-2 space-y-1.5 bg-background/40">
               <div className="text-[11px] text-muted-foreground">Group #{i + 1}</div>
               {enList.map((enS, j) => (
-                <Field key={j} label={`#${j + 1}`} en={enS}>
+                <Field
+                  key={j}
+                  label={`#${j + 1}`}
+                  en={enS}
+                  action={
+                    <TranslateBtn
+                      enValue={enS}
+                      lang={lang}
+                      onResult={(v) => setTr((cur) => {
+                        const outer = [...(cur?.[k] ?? [])];
+                        const inner = [...((outer[i]?.[sk]) ?? [])];
+                        inner[j] = v;
+                        outer[i] = { ...(outer[i] ?? {}), [sk]: inner };
+                        return { ...cur, [k]: outer };
+                      })}
+                    />
+                  }
+                >
                   <Input
                     value={trList[j] ?? ""}
                     onChange={(e) => setTr((cur) => {
@@ -267,7 +559,17 @@ function SpecField({
   return null;
 }
 
-function Field({ label, en, children }: { label: string; en: string; children: React.ReactNode }) {
+function Field({
+  label,
+  en,
+  action,
+  children,
+}: {
+  label: string;
+  en: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <div className="flex items-baseline justify-between gap-2">
@@ -278,7 +580,10 @@ function Field({ label, en, children }: { label: string; en: string; children: R
           </span>
         )}
       </div>
-      {children}
+      <div className="flex items-start gap-1.5">
+        <div className="flex-1 min-w-0">{children}</div>
+        {action}
+      </div>
     </div>
   );
 }
