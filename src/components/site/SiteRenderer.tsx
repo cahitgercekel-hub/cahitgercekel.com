@@ -203,6 +203,9 @@ export default function SiteRenderer() {
             .portfolio-root .p-tl-role { font-size: 1.05rem; }
             .portfolio-root .p-contact-grid { grid-template-columns: 1fr; }
             .portfolio-root .p-stat-label, .portfolio-root .p-lang-row { font-size: 0.88rem; }
+            .portfolio-root .p-logos-section { padding: 40px 20px; }
+            .portfolio-root .p-logos-row { gap: 28px; }
+            .portfolio-root .p-logo-item img { max-height: 40px; max-width: 100px; }
             .portfolio-root .p-footer { padding: 28px 20px; }
           }
           @media (max-width: 420px) {
@@ -494,6 +497,27 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
                   </a>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+      );
+    case "logos":
+      return (
+        <section id={sectionId} className="p-logos-section" style={sectionStyle}>
+          <div className="p-inner" style={innerStyle}>
+            {d.label && <div className="p-logos-label">{d.label}</div>}
+            {d.title && <h2 className="p-title" style={{ textAlign: "center", marginBottom: 28 }}>{d.title}</h2>}
+            <div className="p-logos-row">
+              {(d.items ?? []).map((it: any, i: number) => {
+                const content = it.logo
+                  ? <img src={it.logo} alt={it.name || ""} />
+                  : <span style={{ fontWeight: 700, color: "var(--p-muted)" }}>{it.name}</span>;
+                return it.href ? (
+                  <a key={i} className="p-logo-item" href={it.href} target="_blank" rel="noreferrer" aria-label={it.name}>{content}</a>
+                ) : (
+                  <span key={i} className="p-logo-item" aria-label={it.name}>{content}</span>
+                );
+              })}
             </div>
           </div>
         </section>
