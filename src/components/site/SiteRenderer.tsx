@@ -340,7 +340,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             <div className="p-projects">
               {(d.items ?? []).map((it: any, i: number) => (
                 <div key={i} className={`p-card${it.featured ? " featured" : ""}`}>
-                  <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} /> : it.emoji || "✨"}</div>
+                  <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} /> : it.emoji || "✨"}</div>
                   <div className="p-card-body">
                     {it.tag && <div className="p-card-tag">{it.tag}</div>}
                     <h3>{it.title}</h3>
