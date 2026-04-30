@@ -279,7 +279,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "tag", label: "Tag" },
               { key: "title", label: "Title" },
               { key: "description", label: "Description", type: "textarea" },
-              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects" },
+              { key: "image", label: "Image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
               { key: "link", label: "Link" },
               { key: "featured", label: "Featured (highlight)", type: "checkbox" },
