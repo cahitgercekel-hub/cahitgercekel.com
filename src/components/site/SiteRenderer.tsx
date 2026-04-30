@@ -3,6 +3,8 @@ import DOMPurify from "dompurify";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
+import { useLang, LANGS, type Lang } from "@/contexts/LanguageContext";
+import { mergeI18n, translateNavItems, translateString } from "@/lib/i18n";
 
 const FONT_MAP: Record<string, string> = {
   Inter: "Inter:wght@300;400;500;600;700;800",
@@ -20,6 +22,7 @@ export default function SiteRenderer() {
   const isLoading = sectionsLoading || settingsLoading;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { lang, setLang } = useLang();
 
   useEffect(() => {
     const onScroll = () => {
