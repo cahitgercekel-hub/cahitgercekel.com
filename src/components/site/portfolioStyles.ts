@@ -207,7 +207,7 @@ export const PORTFOLIO_CSS = `
   }
   @media (max-width: 420px) {
     .portfolio-root nav.p-nav { padding: 8px 14px; }
-    .portfolio-root .p-section { padding: 50px 16px; }
+    .portfolio-root .p-section { padding: 50px 10px; }
     .portfolio-root .p-hero { padding: 90px 16px 50px; }
     .portfolio-root .p-hero-title { font-size: clamp(2rem, 11vw, 2.8rem); }
     .portfolio-root .p-hero-photo { max-width: 180px !important; }
