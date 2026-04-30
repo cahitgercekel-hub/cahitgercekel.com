@@ -227,6 +227,13 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                       {it.tag && <div className="p-card-tag">{it.tag}</div>}
                       <h3>{it.title}</h3>
                       <p>{it.description}</p>
+                      {Array.isArray(it.pills) && it.pills.length > 0 && (
+                        <div className="p-card-pills">
+                          {it.pills.map((p: string, idx: number) => (
+                            <span key={idx} className="p-card-pill">{p}</span>
+                          ))}
+                        </div>
+                      )}
                       {hasDetail
                         ? <span className="p-card-cta">{ctaLabel}</span>
                         : it.link && <a className="p-card-cta" href={it.link} target="_blank" rel="noreferrer">{ctaLabel}</a>}

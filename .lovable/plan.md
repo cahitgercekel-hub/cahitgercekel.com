@@ -1,57 +1,48 @@
-# Project status toggle + live-dot fix
-
-## Problem
-1. The blinking red "Live" dot has a radiating box-shadow ring that visually leaks above the button, overlapping the "Web App" pill sitting directly above it.
-2. There's no way to mark a project as "in progress" or to show a custom status label instead of a Live link button.
+# Project card pills + 2-up grid
 
 ## Changes
 
-### 1. Project item schema (`src/components/admin/BlockEditor.tsx`)
-In the `projects` block items schema, add two new fields right after the existing `openExternal` checkbox:
+### 1. Card pills (admin)
+`src/components/admin/BlockEditor.tsx` — in the `projects` block items schema, add a new CSV field right after `description`:
+- `pills` — "Card pills (comma separated, shown under description)" — type `csv`
 
-- `status` — select with options:
-  - `live` — Live (red blinking dot + opens `link`)
-  - `in_progress` — In Progress (🚧 emoji, no button)
-  - `none` — None (shows `statusText`, no button)
-- `statusText` — text input, used only when `status = none`
+Update the item factory to include `pills: []`.
 
-Update the item factory to default `status: "live"` and `statusText: ""`.
+### 2. Render pills on the card
+`src/components/site/SiteRenderer.tsx` — inside the project card, after `<p>{it.description}</p>` and before the CTA, render:
 
-The existing `link` field stays — it's still used as the Live button target and as the card's external link when `openExternal` is on.
-
-### 2. Detail page rendering (`src/pages/ProjectDetail.tsx`)
-Replace the current Live anchor block with status-driven rendering:
-
-```text
-status = live          -> <a> red blinking dot + "Live" (current behavior, unchanged markup)
-status = in_progress   -> <span class="p-pd-status">🚧 In Progress</span>  (no link)
-status = none          -> <span class="p-pd-status">{statusText}</span>     (only if statusText set)
-default (legacy items) -> behave as "live" if item.link exists, otherwise nothing
+```tsx
+{Array.isArray(it.pills) && it.pills.length > 0 && (
+  <div className="p-card-pills">
+    {it.pills.map((p, idx) => <span key={idx} className="p-card-pill">{p}</span>)}
+  </div>
+)}
 ```
 
-Extra ghost links from `item.links[]` keep rendering as before.
-
-### 3. Live-dot pulse fix (`src/components/site/portfolioStyles.ts`)
-The current `@keyframes p-pd-live-blink` animates `box-shadow: 0 0 0 6px rgba(239,68,68,0)` — that 6px ring radiates outward and visually crosses into the Web App pill above. Replace with a pure opacity blink (no box-shadow ring):
+### 3. Grid: at least 2 cards, max 2 per row
+`src/components/site/portfolioStyles.ts` — change the projects grid so it always shows 2 columns on desktop/tablet and scales the cards accordingly. Replace the `auto-fill, minmax(280px, 1fr)` rule with a fixed 2-column grid:
 
 ```css
-.p-pd-live-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; animation: p-pd-live-blink 1.2s ease-in-out infinite; }
-@keyframes p-pd-live-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+.p-projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
 ```
 
-Add a small style for the non-link status pill so it visually matches the row:
+The existing mobile rule (`grid-template-columns: 1fr` at ≤700px) keeps single-column on phones.
 
+Add styles for the new pills:
 ```css
-.p-pd-status { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: var(--p-radius); background: rgba(255,255,255,0.18); color: #fff; font-weight: 700; font-size: 0.92rem; backdrop-filter: blur(4px); }
+.p-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.p-card-pill { display: inline-block; padding: 4px 10px; border-radius: 100px; background: rgba(0,0,0,0.06); color: var(--p-fg); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2px; }
 ```
 
-### 4. i18n (`src/lib/i18n.ts`)
-Add `items[].statusText` to the translatable per-item project paths so the custom "None" label can be auto-translated alongside subtitle/role/etc.
+Card thumb height may want a small bump now that cards are wider — leave it as-is unless it looks off.
+
+### 4. i18n
+`src/lib/i18n.ts` — add `items[].pills[]` to the projects translatable paths so pills auto-translate alongside description.
 
 ## Files touched
-- `src/components/admin/BlockEditor.tsx` — schema + factory
-- `src/pages/ProjectDetail.tsx` — render switch on `item.status`
-- `src/components/site/portfolioStyles.ts` — calmer dot animation + `.p-pd-status` pill
-- `src/lib/i18n.ts` — add `statusText` to translatable fields
+- `src/components/admin/BlockEditor.tsx`
+- `src/components/site/SiteRenderer.tsx`
+- `src/components/site/portfolioStyles.ts`
+- `src/lib/i18n.ts`
 
-No DB migration needed — everything stores in the existing `sections.data` JSONB.
+No DB migration — stored in existing `sections.data` JSONB.

@@ -61,7 +61,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-stat-fill { height: 100%; border-radius: 6px; background: var(--p-accent); }
   .portfolio-root .p-lang-row { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
   .portfolio-root .p-lang-level { color: var(--p-muted); font-weight: 500; font-size: 0.85rem; }
-  .portfolio-root .p-projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+  .portfolio-root .p-projects { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .portfolio-root .p-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+  .portfolio-root .p-card-pill { display: inline-block; padding: 4px 10px; border-radius: 100px; background: rgba(0,0,0,0.06); color: var(--p-fg); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2px; }
   .portfolio-root .p-card { background: var(--p-bg); border-radius: calc(var(--p-radius) + 6px); overflow: hidden; border: 1px solid var(--p-border); transition: transform .25s; display: flex; flex-direction: column; }
   .portfolio-root .p-card:hover { transform: translateY(-6px); }
   .portfolio-root .p-card.featured { border-color: var(--p-accent); box-shadow: 0 8px 24px hsl(from var(--p-accent) h s l / 0.2); }

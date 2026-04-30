@@ -24,7 +24,7 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
   // here. Add them once the parser handles 3+ levels of nesting.
   projects: [
     "label", "title",
-    "items[].tag", "items[].title", "items[].description",
+    "items[].tag", "items[].title", "items[].description", "items[].pills[]",
     "items[].subtitle", "items[].role", "items[].client",
     "items[].longDescription", "items[].tech[]", "items[].statusText",
   ],
