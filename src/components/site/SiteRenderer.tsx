@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
@@ -18,6 +18,14 @@ export default function SiteRenderer() {
   const { data: sections, isLoading: sectionsLoading } = useSections(false);
   const { data: settings, isLoading: settingsLoading } = useSiteSettings();
   const isLoading = sectionsLoading || settingsLoading;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const fontFamily = settings?.font_family || "Inter";
   const fontSpec = FONT_MAP[fontFamily] || FONT_MAP.Inter;
@@ -75,9 +83,15 @@ export default function SiteRenderer() {
       <div style={styleVars} className="portfolio-root">
         <style>{`
           .portfolio-root { font-family: var(--p-font); background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
-          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: calc(var(--p-radius) + 6px); display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-          .portfolio-root .p-logo { font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; }
-          .portfolio-root .p-logo span { color: var(--p-accent); }
+          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: calc(var(--p-radius) + 6px); display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); transition: top .4s ease, max-width .4s ease, padding .4s ease, box-shadow .4s ease, background .4s ease; }
+          .portfolio-root nav.p-nav.scrolled { top: 8px; max-width: 720px; padding: 8px 20px; box-shadow: 0 8px 28px rgba(0,0,0,0.1); background: rgba(255,255,255,0.96); }
+          .portfolio-root .p-logo { font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: baseline; white-space: nowrap; }
+          .portfolio-root .p-logo-word { display: inline-flex; align-items: baseline; }
+          .portfolio-root .p-logo-word + .p-logo-word { margin-left: 0.28em; }
+          .portfolio-root .p-logo-rest { display: inline-block; max-width: 10ch; overflow: hidden; opacity: 1; transition: max-width .45s ease, opacity .35s ease; }
+          .portfolio-root nav.p-nav.scrolled .p-logo-word + .p-logo-word { margin-left: 0; }
+          .portfolio-root nav.p-nav.scrolled .p-logo-rest { max-width: 0; opacity: 0; }
+          .portfolio-root .p-logo-dot { color: var(--p-accent); }
           .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
           .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
           .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
@@ -153,8 +167,24 @@ export default function SiteRenderer() {
           }
         `}</style>
 
-        <nav className="p-nav">
-          <div className="p-logo">{settings?.logo_text ?? "Portfolio"}<span>.</span></div>
+        <nav className={`p-nav${scrolled ? " scrolled" : ""}`}>
+          <div className="p-logo">
+            {(() => {
+              const text = settings?.logo_text ?? "Portfolio";
+              const words = text.trim().split(/\s+/);
+              return words.map((w, i) => {
+                const first = w.charAt(0);
+                const rest = w.slice(1);
+                return (
+                  <span key={i} className="p-logo-word">
+                    {first}
+                    <span className="p-logo-rest">{rest}</span>
+                  </span>
+                );
+              });
+            })()}
+            <span className="p-logo-dot">.</span>
+          </div>
           <ul className="p-nav-links">
             {(settings?.nav_items ?? []).map((it, i) => (
               <li key={i}><a href={it.href}>{it.label}</a></li>
