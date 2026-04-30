@@ -396,7 +396,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
     case "image":
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
-          <div className="p-inner" style={{ textAlign: d.align || "center" }}>
+          <div className="p-inner" style={{ textAlign: layout.textAlign || d.align || "center", ...innerStyle }}>
             {d.src && <img src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16 }} />}
             {d.caption && <p style={{ color: "var(--p-muted)", marginTop: 12, fontSize: ".9rem" }}>{d.caption}</p>}
           </div>
