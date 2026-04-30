@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSite";
 import { useLang, LANGS } from "@/contexts/LanguageContext";
 import { translateNavItems, translateString } from "@/lib/i18n";
