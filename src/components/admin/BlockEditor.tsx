@@ -230,6 +230,62 @@ function RenderField({
       </label>
     );
   }
+  if (s.type === "caseStudy") {
+    const cs = value[s.key] ?? { enabled: false, sections: [] };
+    const setCs = (next: any) => update(s.key, next);
+    return (
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={!!cs.enabled} onChange={(e) => setCs({ ...cs, enabled: e.target.checked })} />
+          Enable case study section on the project page
+        </label>
+        {cs.enabled && (
+          <ListEditor
+            data={cs}
+            onChange={setCs}
+            field="sections"
+            schema={[
+              { key: "heading", label: "Heading" },
+              { key: "body", label: "Body", type: "textarea" },
+              { key: "image", label: "Image (optional)", type: "image", folder: "projects" },
+            ]}
+            factory={() => ({ heading: "", body: "", image: "" })}
+          />
+        )}
+      </div>
+    );
+  }
+  if (s.type === "contactOverride") {
+    const co = value[s.key] ?? { enabled: false, intro: "", links: [] };
+    const setCo = (next: any) => update(s.key, next);
+    return (
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={!!co.enabled} onChange={(e) => setCo({ ...co, enabled: e.target.checked })} />
+          Use a custom contact section on this project page (otherwise reuses the site contact)
+        </label>
+        {co.enabled && (
+          <>
+            <Field label="Intro text">
+              <Textarea value={co.intro ?? ""} onChange={(e) => setCo({ ...co, intro: e.target.value })} />
+            </Field>
+            <ListEditor
+              data={co}
+              onChange={setCo}
+              field="links"
+              schema={[
+                { key: "icon", label: "Icon (emoji)" },
+                { key: "iconUrl", label: "Icon image", type: "image", folder: "icons" },
+                { key: "label", label: "Label" },
+                { key: "href", label: "URL" },
+              ]}
+              factory={() => ({ icon: "🔗", iconUrl: "", label: "", href: "" })}
+            />
+          </>
+        )}
+      </div>
+    );
+  }
   return (
     <Field label={s.label}>
       <Input value={value[s.key] ?? ""} onChange={(e) => update(s.key, e.target.value)} />
