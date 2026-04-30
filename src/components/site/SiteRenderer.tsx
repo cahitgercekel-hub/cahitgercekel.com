@@ -94,10 +94,11 @@ export default function SiteRenderer() {
           .portfolio-root .p-hero-title .dot { color: var(--p-accent3); }
           .portfolio-root .p-hero-sub { font-size: 1.25rem; color: rgba(255,255,255,0.85); max-width: 480px; line-height: 1.6; margin-bottom: 36px; }
           .portfolio-root .p-hero-photo { width: 100%; aspect-ratio: 1 / 1; max-width: 360px; justify-self: center; border-radius: calc(var(--p-radius) * 2); object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 4px solid rgba(255,255,255,0.4); }
-          .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: none; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; display:inline-block; }
-          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; display:inline-block; }
-          .portfolio-root .p-btn-cv { background: var(--p-fg); color: #fff; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+          .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; align-items: stretch; }
+          .portfolio-root .p-btns > a { min-height: 52px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
+          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: none; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; }
+          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; }
+          .portfolio-root .p-btn-cv { background: var(--p-fg); color: #fff; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; text-decoration: none; gap: 8px; }
           .portfolio-root .p-about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
           .portfolio-root .p-about-text p { font-size: 1.05rem; line-height: 1.75; color: #444; margin-bottom: 16px; }
           .portfolio-root .p-about-portrait { width: 100%; border-radius: calc(var(--p-radius) * 1.5); object-fit: cover; }
