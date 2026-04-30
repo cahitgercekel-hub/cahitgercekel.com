@@ -353,7 +353,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
       return <Field label="Footer text"><Input value={data.text ?? ""} onChange={(e) => set("text", e.target.value)} /></Field>;
     default:
       return null;
-  }
+  } })();
+  return withLayout(type, data, onChange, inner);
 }
 
 function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
