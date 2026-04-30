@@ -4,21 +4,35 @@ import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 
-const fontLink = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap";
+const FONT_MAP: Record<string, string> = {
+  Inter: "Inter:wght@300;400;500;600;700;800",
+  Poppins: "Poppins:wght@300;400;500;600;700;800",
+  Manrope: "Manrope:wght@300;400;500;600;700;800",
+  "Space Grotesk": "Space+Grotesk:wght@300;400;500;600;700",
+  Playfair: "Playfair+Display:wght@400;500;600;700;800;900",
+  Syne: "Syne:wght@400;500;600;700;800",
+  "DM Sans": "DM+Sans:wght@300;400;500;700",
+};
 
 export default function SiteRenderer() {
   const { data: sections } = useSections(false);
   const { data: settings } = useSiteSettings();
 
+  const fontFamily = settings?.font_family || "Inter";
+  const fontSpec = FONT_MAP[fontFamily] || FONT_MAP.Inter;
+  const fontHref = `https://fonts.googleapis.com/css2?family=${fontSpec}&display=swap`;
+
   useEffect(() => {
-    if (!document.getElementById("portfolio-fonts")) {
+    const existing = document.getElementById("portfolio-fonts") as HTMLLinkElement | null;
+    if (existing) existing.href = fontHref;
+    else {
       const l = document.createElement("link");
       l.id = "portfolio-fonts";
       l.rel = "stylesheet";
-      l.href = fontLink;
+      l.href = fontHref;
       document.head.appendChild(l);
     }
-  }, []);
+  }, [fontHref]);
 
   const t = settings?.theme ?? {
     accent: "#6c47ff",
@@ -29,6 +43,8 @@ export default function SiteRenderer() {
     heroGradient: "linear-gradient(135deg, #7b5fff 0%, #5b8fff 40%, #00d9a5 100%)",
   };
 
+  const radius = settings?.radius ?? 14;
+
   const styleVars = {
     "--p-bg": t.bg,
     "--p-fg": t.fg,
@@ -38,19 +54,24 @@ export default function SiteRenderer() {
     "--p-hero": t.heroGradient,
     "--p-border": "#e0ddd7",
     "--p-muted": "#888",
+    "--p-radius": `${radius}px`,
+    "--p-font": `'${fontFamily}', sans-serif`,
   } as React.CSSProperties;
 
   return (
     <>
       <Helmet>
-        <title>{settings?.logo_text ?? "Portfolio"}</title>
-        <meta name="description" content="Personal portfolio." />
+        <title>{settings?.site_title || settings?.logo_text || "Portfolio"}</title>
+        <meta name="description" content={settings?.meta_description || "Personal portfolio."} />
+        {settings?.favicon_url && <link rel="icon" href={settings.favicon_url} />}
+        {settings?.og_image_url && <meta property="og:image" content={settings.og_image_url} />}
+        {settings?.site_title && <meta property="og:title" content={settings.site_title} />}
       </Helmet>
       <div style={styleVars} className="portfolio-root">
         <style>{`
-          .portfolio-root { font-family: 'Inter', sans-serif; background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
-          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: 20px; display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
-          .portfolio-root .p-logo { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; }
+          .portfolio-root { font-family: var(--p-font); background: var(--p-bg); color: var(--p-fg); min-height: 100vh; }
+          .portfolio-root nav.p-nav { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 960px; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid var(--p-border); border-radius: calc(var(--p-radius) + 6px); display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+          .portfolio-root .p-logo { font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; }
           .portfolio-root .p-logo span { color: var(--p-accent); }
           .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
           .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
@@ -59,30 +80,42 @@ export default function SiteRenderer() {
           .portfolio-root .p-section.alt { background: #fff; }
           .portfolio-root .p-inner { max-width: 960px; margin: 0 auto; }
           .portfolio-root .p-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 10px; }
-          .portfolio-root .p-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -1.5px; margin-bottom: 40px; line-height: 1.1; }
+          .portfolio-root .p-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -1.5px; margin-bottom: 40px; line-height: 1.1; }
           .portfolio-root .p-hero { min-height: 100vh; display: flex; align-items: center; background: var(--p-hero); padding: 120px 40px 80px; }
+          .portfolio-root .p-hero-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; width: 100%; }
+          .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1.2fr 1fr; }
           .portfolio-root .p-hero-tag { display: inline-block; background: rgba(255,255,255,0.25); color: #fff; border-radius: 100px; padding: 6px 16px; font-size: 0.85rem; font-weight: 500; margin-bottom: 24px; backdrop-filter: blur(4px); }
-          .portfolio-root .p-hero-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
+          .portfolio-root .p-hero-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1.05; color: #fff; letter-spacing: -2px; margin-bottom: 20px; }
           .portfolio-root .p-hero-title .dot { color: var(--p-accent3); }
           .portfolio-root .p-hero-sub { font-size: 1.25rem; color: rgba(255,255,255,0.85); max-width: 480px; line-height: 1.6; margin-bottom: 36px; }
+          .portfolio-root .p-hero-photo { width: 100%; aspect-ratio: 1 / 1; max-width: 360px; justify-self: center; border-radius: calc(var(--p-radius) * 2); object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.25); border: 4px solid rgba(255,255,255,0.4); }
           .portfolio-root .p-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: none; border-radius: 14px; padding: 14px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; display:inline-block; }
-          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: 14px; padding: 12px 26px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; display:inline-block; }
+          .portfolio-root .p-btn-primary { background: #fff; color: var(--p-accent); border: none; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration:none; display:inline-block; }
+          .portfolio-root .p-btn-ghost { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.6); border-radius: var(--p-radius); padding: 12px 26px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration:none; display:inline-block; }
+          .portfolio-root .p-btn-cv { background: var(--p-fg); color: #fff; border-radius: var(--p-radius); padding: 14px 28px; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
           .portfolio-root .p-about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
           .portfolio-root .p-about-text p { font-size: 1.05rem; line-height: 1.75; color: #444; margin-bottom: 16px; }
+          .portfolio-root .p-about-portrait { width: 100%; border-radius: calc(var(--p-radius) * 1.5); object-fit: cover; }
           .portfolio-root .p-skills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
           .portfolio-root .p-skill { background: var(--p-fg); color: #fff; padding: 6px 14px; border-radius: 100px; font-size: 0.82rem; font-weight: 600; }
+          .portfolio-root .p-skill-group { margin-bottom: 28px; }
+          .portfolio-root .p-skill-group h4 { font-family: var(--p-font); font-size: 0.95rem; font-weight: 700; margin: 0 0 10px; color: var(--p-fg); }
+          .portfolio-root .p-skill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+          .portfolio-root .p-pill { background: #fff; border: 1px solid var(--p-border); color: var(--p-fg); padding: 8px 16px; border-radius: 100px; font-size: 0.85rem; font-weight: 500; }
           .portfolio-root .p-stat-label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
           .portfolio-root .p-stat-track { background: var(--p-border); border-radius: 6px; height: 8px; overflow: hidden; margin-bottom: 18px; }
           .portfolio-root .p-stat-fill { height: 100%; border-radius: 6px; background: var(--p-accent); }
+          .portfolio-root .p-lang-row { display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+          .portfolio-root .p-lang-level { color: var(--p-muted); font-weight: 500; font-size: 0.85rem; }
           .portfolio-root .p-projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-          .portfolio-root .p-card { background: var(--p-bg); border-radius: 20px; overflow: hidden; border: 1px solid var(--p-border); transition: transform .25s; }
+          .portfolio-root .p-card { background: var(--p-bg); border-radius: calc(var(--p-radius) + 6px); overflow: hidden; border: 1px solid var(--p-border); transition: transform .25s; }
           .portfolio-root .p-card:hover { transform: translateY(-6px); }
+          .portfolio-root .p-card.featured { border-color: var(--p-accent); box-shadow: 0 8px 24px hsl(from var(--p-accent) h s l / 0.2); }
           .portfolio-root .p-card-thumb { height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); color:#fff; }
           .portfolio-root .p-card-thumb img { width:100%; height:100%; object-fit:cover; }
           .portfolio-root .p-card-body { padding: 20px; }
           .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
-          .portfolio-root .p-card h3 { font-family: 'Inter', sans-serif; font-size: 1.1rem; margin: 0 0 8px; }
+          .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; margin: 0 0 8px; }
           .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
           .portfolio-root .p-card a { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
           .portfolio-root .p-timeline { position: relative; padding-left: 28px; }
@@ -90,16 +123,20 @@ export default function SiteRenderer() {
           .portfolio-root .p-tl-item { position: relative; margin-bottom: 44px; }
           .portfolio-root .p-tl-dot { position: absolute; left: -28px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-accent); border: 2px solid #fff; box-shadow: 0 0 0 3px var(--p-accent); }
           .portfolio-root .p-tl-period { font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--p-muted); margin-bottom: 4px; }
-          .portfolio-root .p-tl-role { font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 700; }
+          .portfolio-root .p-tl-role { font-family: var(--p-font); font-size: 1.15rem; font-weight: 700; }
           .portfolio-root .p-tl-company { font-size: 0.95rem; color: var(--p-accent); font-weight: 600; margin-bottom: 8px; }
           .portfolio-root .p-tl-desc { font-size: 0.92rem; color: #555; line-height: 1.65; }
-          .portfolio-root .p-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
           .portfolio-root .p-contact-info p { font-size: 1.05rem; color: #555; line-height: 1.7; margin-bottom: 24px; }
-          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--p-border); margin-bottom: 12px; }
+          .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 12px 16px; border-radius: var(--p-radius); border: 1px solid var(--p-border); margin-bottom: 12px; }
           .portfolio-root .p-contact-link:hover { background: var(--p-bg); border-color: var(--p-accent); }
+          .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
           .portfolio-root .p-footer { background: var(--p-fg); color: rgba(255,255,255,0.7); padding: 40px; text-align:center; font-size: 0.88rem; }
+          @media (max-width: 800px) {
+            .portfolio-root .p-hero-grid.has-image { grid-template-columns: 1fr; }
+            .portfolio-root .p-hero-photo { max-width: 240px; }
+          }
           @media (max-width: 700px) {
-            .portfolio-root .p-about-grid, .portfolio-root .p-contact-grid { grid-template-columns: 1fr; }
+            .portfolio-root .p-about-grid { grid-template-columns: 1fr; }
             .portfolio-root .p-nav-links { display: none; }
             .portfolio-root .p-section { padding: 70px 24px; }
             .portfolio-root .p-hero { padding: 110px 24px 70px; }
@@ -134,12 +171,24 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
       return (
         <section id={sectionId} className="p-hero">
           <div className="p-inner" style={{ width: "100%" }}>
-            {d.tag && <div className="p-hero-tag">{d.tag}</div>}
-            <h1 className="p-hero-title">Hello<span className="dot">.</span><br />I'm {d.name}<span className="dot">.</span></h1>
-            <p className="p-hero-sub">{d.subtitle}</p>
-            <div className="p-btns">
-              {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
-              {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
+            <div className={`p-hero-grid${d.image ? " has-image" : ""}`}>
+              <div>
+                {d.tag && <div className="p-hero-tag">{d.tag}</div>}
+                <h1 className="p-hero-title">Hello<span className="dot">.</span><br />I'm {d.name}<span className="dot">.</span></h1>
+                <p className="p-hero-sub">{d.subtitle}</p>
+                <div className="p-btns">
+                  {d.primaryBtn?.label && <a className="p-btn-primary" href={d.primaryBtn.href}>{d.primaryBtn.label}</a>}
+                  {d.secondaryBtn?.label && <a className="p-btn-ghost" href={d.secondaryBtn.href}>{d.secondaryBtn.label}</a>}
+                  {d.cvUrl && (
+                    <a className="p-btn-cv" href={d.cvUrl} download target="_blank" rel="noreferrer">
+                      ⬇ {d.cvLabel || "Download CV"}
+                    </a>
+                  )}
+                </div>
+              </div>
+              {d.image && (
+                <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} />
+              )}
             </div>
           </div>
         </section>
@@ -150,13 +199,16 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
           <div className="p-inner">
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
-            <div className="p-about-text">
-              {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{p}</p>)}
-              {(d.skills ?? []).length > 0 && (
-                <div className="p-skills">
-                  {d.skills.map((s: string, i: number) => <span key={i} className="p-skill">{s}</span>)}
-                </div>
-              )}
+            <div className="p-about-grid" style={!d.portrait ? { gridTemplateColumns: "1fr" } : undefined}>
+              <div className="p-about-text">
+                {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{p}</p>)}
+                {(d.skills ?? []).length > 0 && (
+                  <div className="p-skills">
+                    {d.skills.map((s: string, i: number) => <span key={i} className="p-skill">{s}</span>)}
+                  </div>
+                )}
+              </div>
+              {d.portrait && <img className="p-about-portrait" src={d.portrait} alt="" />}
             </div>
           </div>
         </section>
@@ -176,6 +228,41 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
           </div>
         </section>
       );
+    case "skills":
+      return (
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
+          <div className="p-inner">
+            {d.label && <div className="p-label">{d.label}</div>}
+            {d.title && <h2 className="p-title">{d.title}</h2>}
+            {(d.groups ?? []).map((g: any, i: number) => (
+              <div key={i} className="p-skill-group">
+                {g.name && <h4>{g.name}</h4>}
+                <div className="p-skill-row">
+                  {(g.items ?? []).map((s: string, j: number) => <span key={j} className="p-pill">{s}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    case "languages":
+      return (
+        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
+          <div className="p-inner">
+            {d.label && <div className="p-label">{d.label}</div>}
+            {d.title && <h2 className="p-title">{d.title}</h2>}
+            {(d.items ?? []).map((it: any, i: number) => (
+              <div key={i}>
+                <div className="p-lang-row">
+                  <span>{it.name}</span>
+                  <span className="p-lang-level">{it.level}</span>
+                </div>
+                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value ?? 100}%` }} /></div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
     case "projects":
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`}>
@@ -184,7 +271,7 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-projects">
               {(d.items ?? []).map((it: any, i: number) => (
-                <div key={i} className="p-card">
+                <div key={i} className={`p-card${it.featured ? " featured" : ""}`}>
                   <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} /> : it.emoji || "✨"}</div>
                   <div className="p-card-body">
                     {it.tag && <div className="p-card-tag">{it.tag}</div>}
@@ -228,7 +315,10 @@ function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boo
               {d.intro && <p>{d.intro}</p>}
               {(d.links ?? []).map((l: any, i: number) => (
                 <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
-                  <span>{l.icon}</span><span>{l.label}</span>
+                  {l.iconUrl
+                    ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
+                    : <span>{l.icon}</span>}
+                  <span>{l.label}</span>
                 </a>
               ))}
             </div>
