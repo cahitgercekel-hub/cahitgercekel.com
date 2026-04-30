@@ -14,7 +14,7 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
     "tag", "greeting", "intro", "name", "nameLine", "subtitle", "cvLabel",
     "primaryBtn.label", "secondaryBtn.label",
   ],
-  about: ["label", "title", "paragraphs[]", "skills[]"],
+  about: ["label", "title", "paragraphs[]", "skills[]", "rotatingPills.texts[]"],
   stats: ["label", "title", "items[].label"],
   skills: ["label", "title", "groups[].name", "groups[].items[]"],
   languages: ["label", "title", "items[].name", "items[].level"],
@@ -87,11 +87,17 @@ export function mergeI18n<T extends Record<string, any>>(data: T, lang: Lang): T
       continue;
     }
 
-    // Nested object (primaryBtn, secondaryBtn)
+    // Nested object (primaryBtn, secondaryBtn, rotatingPills)
     if (enVal && typeof enVal === "object" && !Array.isArray(enVal) && trVal && typeof trVal === "object") {
       const merged: any = { ...enVal };
       for (const ik of Object.keys(trVal)) {
-        if (isFilled(trVal[ik])) merged[ik] = trVal[ik];
+        const innerTr = trVal[ik];
+        // nested string array inside object (e.g. rotatingPills.texts)
+        if (Array.isArray(merged[ik]) && Array.isArray(innerTr)) {
+          merged[ik] = merged[ik].map((s: any, j: number) => isFilled(innerTr[j]) ? innerTr[j] : s);
+        } else if (isFilled(innerTr)) {
+          merged[ik] = innerTr;
+        }
       }
       out[key] = merged;
       continue;
