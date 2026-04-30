@@ -97,7 +97,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       const heroLine2 = `${d.nameLine || `${d.intro || "I'm"} ${d.name || ""}`.trim()}.`;
       const text = (
         <div>
-          {d.tag && <div className="p-hero-tag">{d.tag}</div>}
+          {d.tag && <div className="p-hero-tag text-center">{d.tag}</div>}
           <h1 className="p-hero-title" style={{ display: "block" }}>
             <SplitText
               tag="span"
