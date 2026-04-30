@@ -31,6 +31,7 @@ export default function AdminEditor() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const [editing, setEditing] = useState<SectionRow | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   if (loading || isAdmin === null) return <div className="p-8">Loading...</div>;
   if (!session) return <Navigate to="/admin/login" replace />;
@@ -54,7 +55,6 @@ export default function AdminEditor() {
     if (error) toast.error(error.message); else { toast.success("Block added"); refresh(); }
   };
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const onDragEnd = async (e: DragEndEvent) => {
     if (!e.over || e.active.id === e.over.id || !sections) return;
