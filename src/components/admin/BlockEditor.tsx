@@ -449,6 +449,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "tag", label: "Tag" },
               { key: "title", label: "Title" },
               { key: "description", label: "Short description (card)", type: "textarea" },
+              { key: "pills", label: "Card pills (comma separated, shown under description)", type: "csv" },
               { key: "image", label: "Cover image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
               { key: "link", label: "External link (used by Live button & card external link)" },
