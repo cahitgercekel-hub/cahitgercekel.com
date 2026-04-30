@@ -25,6 +25,33 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { lang, setLang } = useLang();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const NAV_OFFSET = 80;
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    window.scrollTo({ top, behavior: "smooth" });
+    try { window.history.replaceState(null, "", `#${id}`); } catch {}
+  };
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    // Extract anchor id from "#x" or "/#x"
+    const hashIdx = href.indexOf("#");
+    if (hashIdx === -1) return; // not a hash link, let it navigate normally
+    const id = href.slice(hashIdx + 1);
+    if (!id) return;
+    e.preventDefault();
+    setMenuOpen(false);
+    if (location.pathname !== "/") {
+      navigate("/");
+      // Wait for the home page to render, then scroll.
+      setTimeout(() => scrollToId(id), 80);
+    } else {
+      scrollToId(id);
+    }
+  };
 
   const [showTop, setShowTop] = useState(false);
 
