@@ -22,6 +22,9 @@ import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } 
 import { CSS } from "@dnd-kit/utilities";
 import { BLOCK_DEFAULTS, BLOCK_LABELS, BlockType, SectionRow } from "@/lib/blocks";
 import BlockEditor from "@/components/admin/BlockEditor";
+import FileUploadField from "@/components/admin/FileUploadField";
+
+const FONT_CHOICES = ["Inter", "Poppins", "Manrope", "Space Grotesk", "Playfair", "Syne", "DM Sans"];
 
 export default function AdminEditor() {
   const { session, loading } = useAuth();
