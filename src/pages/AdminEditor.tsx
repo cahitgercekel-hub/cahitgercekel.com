@@ -92,6 +92,7 @@ export default function AdminEditor() {
             <TabsTrigger value="sections">Sections</TabsTrigger>
             <TabsTrigger value="theme">Theme</TabsTrigger>
             <TabsTrigger value="navigation">Navigation</TabsTrigger>
+            <TabsTrigger value="site">Site</TabsTrigger>
           </TabsList>
 
           <TabsContent value="sections" className="space-y-4">
