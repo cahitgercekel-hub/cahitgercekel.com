@@ -1,84 +1,64 @@
-# Portfolio Admin Upgrade Plan
+## Goal
 
-## 1. Fix the "refresh on every keystroke" bug (highest priority)
+Make the public site fully usable on mobile (≤700px) without changing anything visible at desktop widths. All work is scoped to `src/components/site/SiteRenderer.tsx` inside `@media (max-width: 700px)` (and a smaller-phone breakpoint at 420px). No desktop CSS rules are modified.
 
-**Cause:** In `src/components/admin/BlockEditor.tsx`, helper components like `ListEditor` and `Field` are **defined inside** the `BlockEditor` function body. Every keystroke triggers a re-render, which produces a brand-new component identity, so React unmounts and remounts every input → the input loses focus after each character.
+## Issues observed on mobile
 
-**Fix:** Move `Field` and `ListEditor` out of the component body into stable module-level components (passing `data`/`onChange` as props). This restores normal typing behavior across every block editor.
+1. Nav links (`About / Experience / Education / Projects / Contact`) are hidden via `display:none` with no replacement — there is no hamburger menu.
+2. Hero buttons (`View Projects`, `Contact Me`, `Download CV`) wrap to different widths because text length differs, making them look mismatched.
+3. Hero portrait floats next to the text awkwardly on small widths because the column collapses but the image still uses its desktop sizing.
+4. Section padding, titles, and the "About" portrait/text grid feel cramped on phones.
+5. Project cards, timeline, and contact grid don't always go single-column cleanly.
+6. The collapsing-logo animation works on mobile but the nav itself never opens the menu, so navigation is unreachable.
 
-## 2. File uploads (CV, profile photo, custom icons)
+## Plan
 
-Create a public Supabase storage bucket `site-assets` with policies:
-- Public `SELECT` (so visitors can view/download).
-- `INSERT` / `UPDATE` / `DELETE` restricted to authenticated users with the `admin` role (uses existing `has_role` function).
+### 1. Hamburger menu (mobile only)
 
-Add a small reusable `<FileUploadField />` component used inside `BlockEditor`:
-- "Upload" button → uploads to `site-assets/<folder>/<uuid>-<filename>`.
-- Shows current URL + preview (image preview for images, filename for PDFs).
-- Also accepts a manually pasted URL (so existing URL workflow keeps working).
+- Add a `menuOpen` React state in `SiteRenderer`.
+- Render a hamburger button (`button.p-nav-burger` with three `<span>` bars) inside the nav, hidden on desktop (`display:none`) and shown only at `max-width: 700px`.
+- When `menuOpen` is true, render a dropdown panel `div.p-mobile-menu` below the pill nav containing the same `nav_items` as a vertical list. Tapping a link sets `menuOpen=false`.
+- The desktop `ul.p-nav-links` becomes `display:none` on mobile (already is); the burger + dropdown replace it.
+- Clicking outside or scrolling closes the menu (simple `useEffect` listener).
+- Animate the panel with a short `fade-in / slide-down` transition.
+- Animate the burger bars into an "X" when open.
 
-## 3. Hero block additions
+### 2. Hero section on mobile
 
-Extend hero schema:
-- `image` (URL, with upload field) — shown on the right side of the hero on desktop, stacked on mobile.
-- `cvUrl` (PDF, with upload field) + `cvLabel` (default "Download CV") — renders a third button in the hero button row that downloads the file (`<a href download>`).
+Inside `@media (max-width: 700px)`:
+- Reduce hero padding (`90px 20px 60px`).
+- Stack content (already does at 800px); ensure image sits below the text and is centered with `max-width: 200px`.
+- Make all three buttons (`.p-btn-primary`, `.p-btn-ghost`, `.p-btn-cv`) full-width inside `.p-btns` (`flex-direction: column; align-items: stretch`) so they're identical width and visually aligned. Each keeps its existing height/shadow.
+- Reduce hero title to `clamp(2.4rem, 10vw, 3.2rem)` and sub text to `1.05rem`.
 
-Update `SiteRenderer` hero layout to a 2-column grid (text left, rounded image right) collapsing to 1 column under 800px.
+### 3. Sections / typography
 
-## 4. New "Skills" block (pills, side-by-side)
+- `.p-section` padding: `60px 20px` on mobile (already 70/24 — tighten and unify).
+- `.p-title` font-size clamp tuned for small screens.
+- `.p-about-grid` already collapses to one column; add `gap: 32px` and center the portrait with `max-width: 280px; margin: 0 auto`.
 
-Add a new block type `skills` to `src/lib/blocks.ts`:
-```
-{ id, label, title, groups: [{ name: "Design", items: ["Figma","Sketch"] }, ...] }
-```
-Renderer: each group shows a small heading and a wrapping row of pill-style chips (reuses existing `.p-skill` styling, with optional category headers).
+### 4. Cards / timeline / contact / languages
 
-Editor: group list with name + comma-separated items.
+- `.p-projects` already auto-fits; ensure `minmax(0,1fr)` fallback so cards never overflow horizontally.
+- `.p-timeline` left padding reduced to `20px` on mobile; dot offset adjusted.
+- `.p-contact-grid` set to `grid-template-columns: 1fr` on mobile so all contact buttons stack uniformly full-width.
+- `.p-lang-row` and `.p-stat-label` keep flex layout; just shrink font sizes.
 
-## 5. Re-purpose "Stat bars" → keep as-is, add a "Languages" block
+### 5. Smaller phones (≤420px)
 
-Rather than break existing stat bars (used elsewhere), add a dedicated `languages` block:
-```
-{ id, label, title, items: [{ name: "English", level: "Native", value: 100 }] }
-```
-Renderer: clean rows with language name, level label (Native/Fluent/Intermediate/Basic), and a thin progress bar. Editor uses the existing list editor with a level dropdown.
+Add a second breakpoint with extra-tight paddings (`50px 16px`), smaller hero title, and `.p-hero-photo { max-width: 170px }`.
 
-We will also relabel the existing "Stat bars" entry in the Add menu to "Skill bars" for clarity, but keep the type for backward compatibility with current data.
+### 6. Safety
 
-## 6. Contact block — icon URLs
+- All new rules live inside `@media (max-width: 700px)` and `@media (max-width: 420px)` so the desktop look is untouched.
+- No changes to `BlockEditor`, data shape, or admin UI.
 
-Update contact link schema: keep `icon` (emoji) but add `iconUrl` (image URL with upload field). Renderer prefers `iconUrl` if set (renders 20px image), otherwise falls back to emoji. This covers the LinkedIn / GitHub / mail icons from the uploaded screenshot.
+## Files to edit
 
-## 7. More admin power-ups
+- `src/components/site/SiteRenderer.tsx` — add `menuOpen` state, hamburger button + mobile dropdown JSX, and an expanded mobile media-query CSS block.
 
-- **Theme tab:** add font family dropdown (Inter, Poppins, Manrope, Space Grotesk, Playfair, Syne, DM Sans), border-radius slider (cards/buttons), nav style toggle (floating pill vs full-width).
-- **Site settings:** add `site_title`, `meta_description`, `favicon_url` (with upload), `og_image_url` (with upload). `SiteRenderer` Helmet uses them.
-- **Hero:** background type toggle — gradient (existing) or uploaded image with overlay opacity slider.
-- **About block:** optional portrait image (upload).
-- **Projects block:** add image upload per item (in addition to URL); add optional "Featured" toggle that highlights the card.
-- **Navigation:** drag-to-reorder nav items.
+## Out of scope
 
-## 8. Hide "Edit with Lovable" badge
-
-Toggle the project's badge visibility setting to hidden so the badge no longer appears on the published site.
-
----
-
-## Technical details
-
-**Files to change**
-- `src/components/admin/BlockEditor.tsx` — extract `Field`/`ListEditor` to module scope (focus fix); add upload fields; new editors for `skills`, `languages`; extend hero/contact/about/projects editors.
-- `src/components/admin/FileUploadField.tsx` — new reusable upload + URL input component.
-- `src/lib/blocks.ts` — add `skills` and `languages` block types, defaults, labels; extend hero/contact/about/projects defaults.
-- `src/components/site/SiteRenderer.tsx` — render new blocks, hero image+CV button, contact iconUrl, theme font/radius, meta from settings, hero background image option.
-- `src/pages/AdminEditor.tsx` — extend `ThemeEditor` (fonts, radius), add site meta editor (title/description/favicon/og), drag-to-reorder nav items.
-- `src/hooks/useSite.ts` / `SiteSettings` type — extend with new fields.
-
-**Database migrations**
-- `ALTER TABLE site_settings ADD COLUMN font_family text DEFAULT 'Inter', radius int DEFAULT 14, site_title text, meta_description text, favicon_url text, og_image_url text;`
-- Storage: create `site-assets` bucket (public), with admin-only write policies via `has_role(auth.uid(),'admin')`.
-
-**Lovable settings**
-- Set publish badge visibility to hidden.
-
-No breaking changes to existing data; all new fields are optional with sensible fallbacks.
+- Admin editor mobile polish.
+- Changing color theme or component structure.
+- Desktop layout tweaks.
