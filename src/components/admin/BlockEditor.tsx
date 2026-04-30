@@ -413,11 +413,11 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
             }} />
           </Field>
           <Field label="Skills (comma separated)">
-            <Input
-              value={(g.items ?? []).join(", ")}
-              onChange={(e) => {
+            <CsvInput
+              value={g.items ?? []}
+              onChange={(v) => {
                 const next = [...groups];
-                next[i] = { ...next[i], items: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) };
+                next[i] = { ...next[i], items: v };
                 setGroups(next);
               }}
             />
