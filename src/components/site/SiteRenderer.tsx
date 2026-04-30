@@ -348,8 +348,9 @@ const IMAGE_SIZE_MAP: Record<string, string> = {
   full: "100%",
 };
 
-function RenderBlock({ section, alt, settings }: { section: SectionRow; alt: boolean; settings: SiteSettings | null | undefined }) {
-  const d = section.data ?? {};
+function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; alt: boolean; settings: SiteSettings | null | undefined; lang: Lang }) {
+  const raw = section.data ?? {};
+  const d = mergeI18n(raw, lang);
   const sectionId = d.id || section.type;
   const layout = d.layout ?? {};
   const sectionStyle = getLayoutStyle(layout);
