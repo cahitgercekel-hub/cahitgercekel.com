@@ -459,7 +459,12 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           />
         </div>
       );
-    case "skills":
+    case "skills": {
+      const glow = data.glow ?? {};
+      const setGlow = (k: string, v: any) => set("glow", { ...glow, [k]: v });
+      const colorsStr = Array.isArray(glow.colors)
+        ? glow.colors.join(", ")
+        : (glow.colors ?? "#c084fc, #f472b6, #38bdf8");
       return (
         <div className="space-y-4">
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
@@ -467,8 +472,70 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
           <Label className="text-xs">Skill groups</Label>
           <SkillGroupsEditor data={data} onChange={onChange} />
+
+          <div className="border-t pt-4 mt-4 space-y-3">
+            <Label className="text-sm font-semibold">Pill border glow</Label>
+            <Field label="Enable glow effect">
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={glow.enabled !== false}
+                  onChange={(e) => setGlow("enabled", e.target.checked)}
+                />
+                <span>Show interactive border glow on pills</span>
+              </label>
+            </Field>
+            <Field label="Filled background (off = transparent pills)">
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={glow.filled === true}
+                  onChange={(e) => setGlow("filled", e.target.checked)}
+                />
+                <span>Use a colored background behind each pill</span>
+              </label>
+            </Field>
+            {glow.filled && (
+              <Field label="Pill background color">
+                <Input
+                  type="color"
+                  value={glow.fillColor ?? "#120F17"}
+                  onChange={(e) => setGlow("fillColor", e.target.value)}
+                />
+              </Field>
+            )}
+            <Field label="Border radius (px) — 999 for pill">
+              <Input
+                type="number"
+                value={glow.borderRadius ?? 999}
+                onChange={(e) => setGlow("borderRadius", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Glow radius (px) — outer halo size">
+              <Input
+                type="number"
+                value={glow.glowRadius ?? 20}
+                onChange={(e) => setGlow("glowRadius", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Glow intensity (0–2)">
+              <Input
+                type="number"
+                step="0.1"
+                value={glow.glowIntensity ?? 1}
+                onChange={(e) => setGlow("glowIntensity", Number(e.target.value))}
+              />
+            </Field>
+            <Field label="Glow colors (comma separated, e.g. #c084fc, #f472b6, #38bdf8)">
+              <Input
+                value={colorsStr}
+                onChange={(e) => setGlow("colors", e.target.value)}
+              />
+            </Field>
+          </div>
         </div>
       );
+    }
     case "languages":
       return (
         <div className="space-y-4">

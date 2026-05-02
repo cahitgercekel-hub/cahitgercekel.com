@@ -243,7 +243,20 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
           </div>
         </section>
       );
-    case "skills":
+    case "skills": {
+      const glow = d.glow ?? {};
+      const glowEnabled = glow.enabled !== false;
+      const glowFilled = glow.filled === true;
+      const colorsArr = (typeof glow.colors === "string" && glow.colors.trim())
+        ? glow.colors.split(",").map((c: string) => c.trim()).filter(Boolean)
+        : (Array.isArray(glow.colors) && glow.colors.length ? glow.colors : ['#c084fc', '#f472b6', '#38bdf8']);
+      const borderRadius = Number(glow.borderRadius ?? 999);
+      const glowRadius = Number(glow.glowRadius ?? 20);
+      const glowIntensity = Number(glow.glowIntensity ?? 1);
+      const edgeSensitivity = Number(glow.edgeSensitivity ?? 20);
+      const coneSpread = Number(glow.coneSpread ?? 30);
+      const glowColor = glow.glowColor || '40 80 80';
+      const bg = glowFilled ? (glow.fillColor || '#120F17') : 'transparent';
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" style={innerStyle}>
@@ -254,18 +267,23 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                 {g.name && <h4>{g.name}</h4>}
                 <div className="p-skill-row">
                   {(g.items ?? []).map((s: string, j: number) => (
-                    <BorderGlow
-                      key={j}
-                      borderRadius={999}
-                      glowRadius={20}
-                      edgeSensitivity={20}
-                      coneSpread={30}
-                      glowColor="40 80 80"
-                      backgroundColor="transparent"
-                      colors={['#c084fc', '#f472b6', '#38bdf8']}
-                    >
-                      <span className="p-pill">{s}</span>
-                    </BorderGlow>
+                    glowEnabled ? (
+                      <BorderGlow
+                        key={j}
+                        borderRadius={borderRadius}
+                        glowRadius={glowRadius}
+                        edgeSensitivity={edgeSensitivity}
+                        coneSpread={coneSpread}
+                        glowIntensity={glowIntensity}
+                        glowColor={glowColor}
+                        backgroundColor={bg}
+                        colors={colorsArr}
+                      >
+                        <span className="p-pill">{s}</span>
+                      </BorderGlow>
+                    ) : (
+                      <span key={j} className="p-pill">{s}</span>
+                    )
                   ))}
                 </div>
               </div>
@@ -273,6 +291,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
           </div>
         </section>
       );
+    }
     case "languages":
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
