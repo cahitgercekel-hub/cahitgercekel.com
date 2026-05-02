@@ -236,7 +236,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             {(d.items ?? []).map((it: any, i: number) => (
               <div key={i}>
                 <div className="p-stat-label"><span>{it.label}</span><span>{it.value}%</span></div>
-                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value}%` }} /></div>
+                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value}%`, ...(d.barColor ? { background: d.barColor } : {}) }} /></div>
               </div>
             ))}
           </div>
