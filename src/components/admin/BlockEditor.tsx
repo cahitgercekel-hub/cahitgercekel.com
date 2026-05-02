@@ -446,6 +446,10 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Eyebrow"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <Field label="Bar color (leave empty for theme accent)">
+            <Input type="color" value={data.barColor ?? "#000000"} onChange={(e) => set("barColor", e.target.value)} />
+            {data.barColor && <button type="button" className="text-xs underline mt-1" onClick={() => set("barColor", "")}>Clear</button>}
+          </Field>
           <ListEditor
             data={data}
             onChange={onChange}
@@ -471,6 +475,10 @@ export default function BlockEditor({ type, data, onChange }: Props) {
           <Field label="Section ID"><Input value={data.id ?? ""} onChange={(e) => set("id", e.target.value)} /></Field>
           <Field label="Eyebrow"><Input value={data.label ?? ""} onChange={(e) => set("label", e.target.value)} /></Field>
           <Field label="Title"><Input value={data.title ?? ""} onChange={(e) => set("title", e.target.value)} /></Field>
+          <Field label="Bar color (leave empty for theme accent)">
+            <Input type="color" value={data.barColor ?? "#000000"} onChange={(e) => set("barColor", e.target.value)} />
+            {data.barColor && <button type="button" className="text-xs underline mt-1" onClick={() => set("barColor", "")}>Clear</button>}
+          </Field>
           <ListEditor
             data={data}
             onChange={onChange}
