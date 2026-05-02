@@ -10,6 +10,7 @@ import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
 import { projectSlug } from "@/lib/projectSlug";
 import SiteChrome from "./SiteChrome";
+import BorderGlow from "./BorderGlow";
 
 export default function SiteRenderer() {
   const { data: sections, isLoading: sectionsLoading } = useSections(false);
@@ -252,7 +253,20 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
               <div key={i} className="p-skill-group">
                 {g.name && <h4>{g.name}</h4>}
                 <div className="p-skill-row">
-                  {(g.items ?? []).map((s: string, j: number) => <span key={j} className="p-pill">{s}</span>)}
+                  {(g.items ?? []).map((s: string, j: number) => (
+                    <BorderGlow
+                      key={j}
+                      borderRadius={999}
+                      glowRadius={20}
+                      edgeSensitivity={20}
+                      coneSpread={30}
+                      glowColor="40 80 80"
+                      backgroundColor="transparent"
+                      colors={['#c084fc', '#f472b6', '#38bdf8']}
+                    >
+                      <span className="p-pill">{s}</span>
+                    </BorderGlow>
+                  ))}
                 </div>
               </div>
             ))}
