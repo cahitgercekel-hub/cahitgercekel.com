@@ -271,7 +271,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                   <span>{it.name}</span>
                   <span className="p-lang-level">{it.level}</span>
                 </div>
-                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value ?? 100}%` }} /></div>
+                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value ?? 100}%`, ...(d.barColor ? { background: d.barColor } : {}) }} /></div>
               </div>
             ))}
           </div>
