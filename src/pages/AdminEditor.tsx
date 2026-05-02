@@ -199,10 +199,12 @@ function EditDialog({ section, onClose, onSaved }: { section: SectionRow; onClos
   };
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden flex flex-col gap-4">
         <DialogHeader><DialogTitle>Edit {BLOCK_LABELS[section.type as BlockType]}</DialogTitle></DialogHeader>
-        <BlockEditor type={section.type as BlockType} data={data} onChange={setData} />
-        <DialogFooter>
+        <div className="flex-1 min-w-0 overflow-x-hidden">
+          <BlockEditor type={section.type as BlockType} data={data} onChange={setData} />
+        </div>
+        <DialogFooter className="sticky bottom-0 bg-background pt-3 border-t">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
         </DialogFooter>
