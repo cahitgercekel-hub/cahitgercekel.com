@@ -78,7 +78,7 @@ export default function AdminEditor() {
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="bg-background border-b sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="font-semibold">Portfolio Admin</h1>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild><a href="/" target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> View site</a></Button>
@@ -89,7 +89,7 @@ export default function AdminEditor() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-4">
+      <main className="max-w-7xl mx-auto p-4">
         <Tabs defaultValue="sections">
           <TabsList>
             <TabsTrigger value="sections">Sections</TabsTrigger>
@@ -199,7 +199,7 @@ function EditDialog({ section, onClose, onSaved }: { section: SectionRow; onClos
   };
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader><DialogTitle>Edit {BLOCK_LABELS[section.type as BlockType]}</DialogTitle></DialogHeader>
         <BlockEditor type={section.type as BlockType} data={data} onChange={setData} />
         <DialogFooter>
