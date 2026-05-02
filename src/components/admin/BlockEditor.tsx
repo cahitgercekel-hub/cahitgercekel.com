@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, GripVertical } from "lucide-react";
 import type { BlockType } from "@/lib/blocks";
 import FileUploadField from "./FileUploadField";
 import LayoutEditor from "./LayoutEditor";
@@ -712,12 +712,43 @@ export default function BlockEditor({ type, data, onChange }: Props) {
 function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   const groups: { name: string; items: string[] }[] = data.groups ?? [];
   const setGroups = (next: any[]) => onChange({ ...data, groups: next });
+  const dragIndex = useRef<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+
+  const handleDrop = (toIdx: number) => {
+    const from = dragIndex.current;
+    dragIndex.current = null;
+    setOverIndex(null);
+    if (from == null || from === toIdx) return;
+    const next = [...groups];
+    const [moved] = next.splice(from, 1);
+    next.splice(toIdx, 0, moved);
+    setGroups(next);
+  };
+
   return (
     <div className="space-y-3">
       {groups.map((g, i) => (
-        <div key={i} className="border rounded-lg p-3 space-y-2 bg-muted/30">
+        <div
+          key={i}
+          className={`border rounded-lg p-3 space-y-2 bg-muted/30 transition-colors ${overIndex === i ? "border-primary bg-primary/5" : ""}`}
+          onDragOver={(e) => { e.preventDefault(); setOverIndex(i); }}
+          onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
+          onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
+        >
           <div className="flex justify-between items-center">
-            <span className="text-xs font-semibold text-muted-foreground">Group {i + 1}</span>
+            <div className="flex items-center gap-2">
+              <span
+                className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+                draggable
+                onDragStart={(e) => { dragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
+                onDragEnd={() => { dragIndex.current = null; setOverIndex(null); }}
+                title="Drag to reorder"
+              >
+                <GripVertical className="w-4 h-4" />
+              </span>
+              <span className="text-xs font-semibold text-muted-foreground">Group {i + 1}</span>
+            </div>
             <Button size="icon" variant="ghost" onClick={() => setGroups(groups.filter((_, x) => x !== i))}>
               <Trash2 className="w-4 h-4" />
             </Button>
