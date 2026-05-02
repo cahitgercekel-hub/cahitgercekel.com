@@ -712,8 +712,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
 function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
   const groups: { name: string; items: string[] }[] = data.groups ?? [];
   const setGroups = (next: any[]) => onChange({ ...data, groups: next });
-  const dragIndex = React.useRef<number | null>(null);
-  const [overIndex, setOverIndex] = React.useState<number | null>(null);
+  const dragIndex = useRef<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   const handleDrop = (toIdx: number) => {
     const from = dragIndex.current;
