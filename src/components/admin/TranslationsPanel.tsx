@@ -490,11 +490,20 @@ function SpecField({
               <TranslateBtn enValue={enItem} lang={lang} onResult={(v) => writeAt(i, v)} />
             }
           >
-            <Input
-              value={trArr[i] ?? ""}
-              onChange={(e) => writeAt(i, e.target.value)}
-              placeholder={enItem}
-            />
+            {enItem.length > 80 ? (
+              <Textarea
+                rows={3}
+                value={trArr[i] ?? ""}
+                onChange={(e) => writeAt(i, e.target.value)}
+                placeholder={enItem}
+              />
+            ) : (
+              <Input
+                value={trArr[i] ?? ""}
+                onChange={(e) => writeAt(i, e.target.value)}
+                placeholder={enItem}
+              />
+            )}
           </Field>
         ))}
       </div>
