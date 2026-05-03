@@ -21,37 +21,6 @@ export default function ProjectDetail() {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [slug]);
 
-  const match = findProjectBySlug(sections, slug);
-  const blockTranslated = mergeI18n(match?.blockData ?? {}, lang);
-  const gallery: any[] = blockTranslated.items?.[match?.item ? (match.blockData?.items ?? []).indexOf(match.item) : -1]?.gallery ?? (match?.item?.gallery ?? []);
-
-  const handleNext = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (gallery.length === 0) return;
-    const nextIdx = (currentIndex + 1) % gallery.length;
-    setCurrentIndex(nextIdx);
-    setSelectedImg(gallery[nextIdx].src);
-  };
-
-  const handlePrev = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    if (gallery.length === 0) return;
-    const prevIdx = (currentIndex - 1 + gallery.length) % gallery.length;
-    setCurrentIndex(prevIdx);
-    setSelectedImg(gallery[prevIdx].src);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedImg) return;
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setSelectedImg(null);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImg, currentIndex]);
-
   useEffect(() => {
     if (selectedImg) {
       document.body.style.overflow = "hidden";
@@ -79,6 +48,35 @@ export default function ProjectDetail() {
   const idx = rawItems.indexOf(match.item);
   const item = (idx >= 0 ? items[idx] : match.item) ?? match.item;
 
+  const gallery: any[] = item.gallery ?? [];
+
+  const handleNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (gallery.length === 0) return;
+    const nextIdx = (currentIndex + 1) % gallery.length;
+    setCurrentIndex(nextIdx);
+    setSelectedImg(gallery[nextIdx].src);
+  };
+
+  const handlePrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (gallery.length === 0) return;
+    const prevIdx = (currentIndex - 1 + gallery.length) % gallery.length;
+    setCurrentIndex(prevIdx);
+    setSelectedImg(gallery[prevIdx].src);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedImg) return;
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") setSelectedImg(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImg, currentIndex, gallery]);
+
   const useOverride = item.contactOverride?.enabled;
   const contactRaw = useOverride ? item.contactOverride : findContactSection(sections);
   const contactBlock = contactRaw ? mergeI18n({ ...contactRaw }, lang) : null;
@@ -93,7 +91,6 @@ export default function ProjectDetail() {
 
   const tech: string[] = item.tech ?? [];
   const links: { label: string; href: string }[] = (item.links ?? []).filter((l: any) => l?.href);
-  const gallery: any[] = item.gallery ?? [];
   const metrics: { label: string; value: string }[] = item.metrics ?? [];
   const csEnabled = item.caseStudy?.enabled;
   const csSections: any[] = item.caseStudy?.sections ?? [];
