@@ -8,13 +8,12 @@ Built on [Lovable](https://lovable.dev) with Vite + React + TypeScript and a man
 
 - **Site:** https://cahitgercekel.com
 - **Mirror:** https://admin-muse-kit.lovable.app
-- **Lovable project:** https://lovable.dev/projects/743e1031-77d7-40ac-a7b7-f31aa04d99c8
 
 ## Features
 
 - **Block-based content editor** — every section (hero, about, work experience, projects, skills, languages, contact, etc.) is rendered from data in the database and edited from `/admin`.
 - **Drag-and-drop** reordering for sections, work experience entries, projects, and list items.
-- **Multi-language site** — English, Turkish, and German, with one-click AI auto-translate powered by the Lovable AI Gateway (Gemini).
+- **Multi-language site** — English, Turkish, and German, with one-click AI auto-translate powered by Gemini API.
 - **Animated UI**
   - Scroll-triggered language proficiency bars (play once per page load)
   - `BorderGlow` skill pills with cursor-aware glow (perf-tuned for many pills)
@@ -28,7 +27,7 @@ Built on [Lovable](https://lovable.dev) with Vite + React + TypeScript and a man
 - **Frontend:** React 18, Vite 5, TypeScript 5, Tailwind CSS v3, shadcn/ui, TanStack Query, React Router, react-helmet-async
 - **Animation:** GSAP, Motion, OGL, dnd-kit
 - **Backend:** Lovable Cloud (managed Supabase) — Postgres + Row Level Security, Storage, Edge Functions
-- **AI:** Lovable AI Gateway (Google Gemini) for translation
+- **AI:** Lovable AI Gateway (Google Gemini API) for translation
 
 ## Project structure
 
@@ -114,7 +113,3 @@ Because the build output is a standard Vite SPA, the repo is portable — it can
 - The `.env` only contains the Supabase publishable anon key, which is meant to be public.
 - All write operations are protected by Postgres Row Level Security policies; admin-only writes are gated by `has_role(auth.uid(), 'admin')`.
 - Server-only secrets (AI gateway keys, etc.) live in Lovable Cloud's secret manager and are injected into edge functions at runtime.
-
-## License
-
-MIT — see `LICENSE` (or update to your preferred license).
