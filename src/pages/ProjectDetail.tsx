@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
@@ -7,16 +7,59 @@ import { mergeI18n } from "@/lib/i18n";
 import SiteChrome from "@/components/site/SiteChrome";
 import { findContactSection, findProjectBySlug, RESERVED_SLUGS } from "@/lib/projectSlug";
 import NotFound from "./NotFound";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ProjectDetail() {
   const { slug = "" } = useParams<{ slug: string }>();
   const { data: sections, isLoading } = useSections(false);
   const { data: settings } = useSiteSettings();
   const { lang } = useLang();
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [slug]);
+
+  const match = findProjectBySlug(sections, slug);
+  const blockTranslated = mergeI18n(match?.blockData ?? {}, lang);
+  const gallery: any[] = blockTranslated.items?.[match?.item ? (match.blockData?.items ?? []).indexOf(match.item) : -1]?.gallery ?? (match?.item?.gallery ?? []);
+
+  const handleNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (gallery.length === 0) return;
+    const nextIdx = (currentIndex + 1) % gallery.length;
+    setCurrentIndex(nextIdx);
+    setSelectedImg(gallery[nextIdx].src);
+  };
+
+  const handlePrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (gallery.length === 0) return;
+    const prevIdx = (currentIndex - 1 + gallery.length) % gallery.length;
+    setCurrentIndex(prevIdx);
+    setSelectedImg(gallery[prevIdx].src);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedImg) return;
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") setSelectedImg(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImg, currentIndex]);
+
+  useEffect(() => {
+    if (selectedImg) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => { document.body.style.overflow = "auto"; };
+  }, [selectedImg]);
 
   if (RESERVED_SLUGS.has(slug.toLowerCase())) {
     return <NotFound />;
@@ -108,13 +151,6 @@ export default function ProjectDetail() {
           </div>
         </section>
 
-        {/* Cover image */}
-        {item.image && (
-          <div className="p-pd-cover">
-            <img src={item.image} alt={item.title} style={{ objectPosition: item.focal || "50% 50%" }} />
-          </div>
-        )}
-
         {/* Overview */}
         {(longParas.length > 0 || tech.length > 0 || item.description) && (
           <section className="p-section">
@@ -161,7 +197,16 @@ export default function ProjectDetail() {
               <h2 className="p-title">Gallery</h2>
               <div className="p-pd-gallery">
                 {gallery.map((g, i) => (
-                  <figure key={i}>
+                  <figure
+                    key={i}
+                    onClick={() => {
+                      if (g.src) {
+                        setSelectedImg(g.src);
+                        setCurrentIndex(i);
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
                     {g.src && <img src={g.src} alt={g.alt || ""} style={{ objectPosition: g.focal || "50% 50%" }} />}
                     {g.caption && <figcaption>{g.caption}</figcaption>}
                   </figure>
@@ -213,8 +258,31 @@ export default function ProjectDetail() {
             </div>
           </section>
         )}
+
+        {/* Lightbox Modal */}
+        {selectedImg && (
+          <div className="p-pd-lightbox" onClick={() => setSelectedImg(null)}>
+            <button className="p-pd-lightbox-close" onClick={() => setSelectedImg(null)}>
+              <X className="w-8 h-8" />
+            </button>
+            
+            {gallery.length > 1 && (
+              <>
+                <button className="p-pd-lightbox-nav prev" onClick={handlePrev}>
+                  <ChevronLeft className="w-10 h-10" />
+                </button>
+                <button className="p-pd-lightbox-nav next" onClick={handleNext}>
+                  <ChevronRight className="w-10 h-10" />
+                </button>
+              </>
+            )}
+
+            <div className="p-pd-lightbox-content" onClick={(e) => e.stopPropagation()}>
+              <img src={selectedImg} alt="Gallery Preview" />
+            </div>
+          </div>
+        )}
       </SiteChrome>
     </>
   );
 }
-
