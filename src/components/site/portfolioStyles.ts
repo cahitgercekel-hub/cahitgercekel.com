@@ -314,6 +314,8 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-about-text p { font-size: 1rem; }
     .portfolio-root .p-projects { grid-template-columns: 1fr; gap: 18px; }
     .portfolio-root .p-card { min-width: 0; }
+    .portfolio-root .p-card-thumb { height: auto; aspect-ratio: 16 / 10; }
+    .portfolio-root .p-card-thumb img { width: 100%; height: 100%; object-fit: contain; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); }
     .portfolio-root .p-timeline { padding-left: 22px; }
     .portfolio-root .p-tl-dot { left: -22px; }
     .portfolio-root .p-tl-role { font-size: 1.05rem; }
