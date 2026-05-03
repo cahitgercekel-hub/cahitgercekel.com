@@ -128,24 +128,33 @@ export default function ProjectDetail() {
               const status: string = item.status ?? (item.link ? "live" : "");
               const hasGhost = links.length > 0;
               const showRow = status === "live" || status === "in_progress" || (status === "none" && item.statusText) || hasGhost;
-              if (!showRow) return null;
+              if (!showRow && tech.length === 0) return null;
               return (
-                <div className="p-pd-link-row">
-                  {status === "live" && item.link && (
-                    <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
-                      <span className="p-pd-live-dot" aria-hidden="true" />
-                      <span>Live</span>
-                    </a>
+                <div className="p-pd-hero-footer">
+                  {showRow && (
+                    <div className="p-pd-link-row">
+                      {status === "live" && item.link && (
+                        <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
+                          <span className="p-pd-live-dot" aria-hidden="true" />
+                          <span>Live</span>
+                        </a>
+                      )}
+                      {status === "in_progress" && (
+                        <span className="p-pd-status"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
+                      )}
+                      {status === "none" && item.statusText && (
+                        <span className="p-pd-status">{item.statusText}</span>
+                      )}
+                      {links.map((l, i) => (
+                        <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
+                      ))}
+                    </div>
                   )}
-                  {status === "in_progress" && (
-                    <span className="p-pd-status"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
+                  {tech.length > 0 && (
+                    <div className="p-pd-hero-tech">
+                      {tech.map((t, i) => <span key={i} className="p-pill">{t}</span>)}
+                    </div>
                   )}
-                  {status === "none" && item.statusText && (
-                    <span className="p-pd-status">{item.statusText}</span>
-                  )}
-                  {links.map((l, i) => (
-                    <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
-                  ))}
                 </div>
               );
             })()}
@@ -153,23 +162,15 @@ export default function ProjectDetail() {
         </section>
 
         {/* Overview */}
-        {(longParas.length > 0 || tech.length > 0 || item.description) && (
+        {(longParas.length > 0 || item.description) && (
           <section className="p-section">
             <div className="p-inner">
-              <div className="p-pd-overview">
+              <div className="p-pd-overview full-width">
                 <div className="p-pd-prose text-left">
                   {longParas.length > 0
                     ? longParas.map((p, i) => <p key={i}>{p}</p>)
                     : item.description && <p>{item.description}</p>}
                 </div>
-                {tech.length > 0 && (
-                  <aside className="p-pd-side">
-                    <h4>Tech & Tools</h4>
-                    <div className="p-pd-tech">
-                      {tech.map((t, i) => <span key={i} className="p-pill">{t}</span>)}
-                    </div>
-                  </aside>
-                )}
               </div>
             </div>
           </section>
