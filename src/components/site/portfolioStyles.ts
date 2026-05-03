@@ -181,9 +181,10 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-meta span + span::before { content: '·'; margin-right: 16px; opacity: 0.6; }
   .portfolio-root .p-pd-cover { padding: 40px 40px 0; }
   .portfolio-root .p-pd-cover img { width: 100%; max-width: 1100px; margin: 0 auto; display: block; border-radius: calc(var(--p-radius) + 8px); object-fit: cover; box-shadow: 0 20px 60px rgba(0,0,0,0.18); aspect-ratio: 16 / 9; }
-  .portfolio-root .p-pd-hero-footer { display: flex; flex-direction: column; gap: 24px; }
-  .portfolio-root .p-pd-hero-tech { display: flex; flex-wrap: wrap; gap: 8px; }
-  .portfolio-root .p-pd-hero-tech .p-pill { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); color: #fff; }
+  .portfolio-root .p-pd-hero-footer { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
+  .portfolio-root .p-pd-link-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .portfolio-root .p-pd-hero-tech { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; flex: 1; }
+  .portfolio-root .p-pd-hero-tech .p-pill { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); font-size: 0.78rem; padding: 6px 14px; }
   .portfolio-root .p-pd-overview { display: block; }
   .portfolio-root .p-pd-overview.full-width { max-width: 800px; margin: 0 auto; }
   .portfolio-root .p-pd-prose p { font-size: 1.1rem; line-height: 1.8; color: #444; margin-bottom: 20px; }
