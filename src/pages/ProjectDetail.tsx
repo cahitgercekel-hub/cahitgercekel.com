@@ -204,6 +204,7 @@ export default function ProjectDetail() {
                     }}
                     className="cursor-pointer"
                   >
+                    {g.alt && <div className="p-pd-gallery-label">{g.alt}</div>}
                     {g.src && <img src={g.src} alt={g.alt || ""} style={{ objectPosition: g.focal || "50% 50%" }} />}
                     {g.caption && <figcaption>{g.caption}</figcaption>}
                   </figure>
