@@ -317,7 +317,12 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                 const status = (it.status || "").toLowerCase() || (it.link ? "live" : "");
                 const inner = (
                   <>
-                    <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} /> : it.emoji || "✨"}</div>
+                    <div className="p-card-thumb">{it.image ? (
+                      <>
+                        <img className="p-card-thumb-bg" src={it.image} alt="" aria-hidden />
+                        <img className="p-card-thumb-img" src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} />
+                      </>
+                    ) : (it.emoji || "✨")}</div>
                     <div className="p-card-body" style={{ position: "relative" }}>
                       {it.tag && <div className="p-card-tag">{it.tag}</div>}
                       <h3>{it.title}</h3>
