@@ -117,8 +117,10 @@ export const PORTFOLIO_CSS = `
     background: #fff;
   }
   @keyframes p-card-live-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-  .portfolio-root .p-card-thumb { height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); color:#fff; }
+  .portfolio-root .p-card-thumb { position: relative; overflow: hidden; height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); color:#fff; }
   .portfolio-root .p-card-thumb img { width:100%; height:100%; object-fit:cover; }
+  .portfolio-root .p-card-thumb .p-card-thumb-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: blur(24px) saturate(1.2); transform: scale(1.2); z-index: 0; }
+  .portfolio-root .p-card-thumb .p-card-thumb-img { position: relative; z-index: 1; object-fit: cover; }
   .portfolio-root .p-card-body { padding: 20px; }
   .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
   .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; margin: 0 0 8px; transition: color .2s ease; }
@@ -318,7 +320,7 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-projects { grid-template-columns: 1fr; gap: 18px; }
     .portfolio-root .p-card { min-width: 0; }
     .portfolio-root .p-card-thumb { height: auto; aspect-ratio: 16 / 10; }
-    .portfolio-root .p-card-thumb img { width: 100%; height: 100%; object-fit: contain; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); }
+    .portfolio-root .p-card-thumb .p-card-thumb-img { width: 100%; height: 100%; object-fit: contain; background: transparent; }
     .portfolio-root .p-timeline { padding-left: 22px; }
     .portfolio-root .p-tl-dot { left: -22px; }
     .portfolio-root .p-tl-role { font-size: 1.05rem; }
