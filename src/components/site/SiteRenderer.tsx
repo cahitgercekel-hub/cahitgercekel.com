@@ -453,3 +453,66 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       return null;
   }
 }
+
+// Module-level guard so the bars only animate once per full page load.
+const playedLanguageAnim = { current: false };
+
+function LanguagesBlock({ sectionId, d, alt, sectionStyle, innerStyle }: { sectionId: string; d: any; alt: boolean; sectionStyle: React.CSSProperties; innerStyle: React.CSSProperties }) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [animate, setAnimate] = useState(playedLanguageAnim.current);
+
+  useEffect(() => {
+    if (playedLanguageAnim.current) {
+      setAnimate(true);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            playedLanguageAnim.current = true;
+            setAnimate(true);
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.25 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section ref={ref} id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
+      <div className="p-inner" style={innerStyle}>
+        {d.label && <div className="p-label">{d.label}</div>}
+        {d.title && <h2 className="p-title">{d.title}</h2>}
+        {(d.items ?? []).map((it: any, i: number) => {
+          const target = it.value ?? 100;
+          return (
+            <div key={i}>
+              <div className="p-lang-row">
+                <span>{it.name}</span>
+                <span className="p-lang-level">{it.level}</span>
+              </div>
+              <div className="p-stat-track">
+                <div
+                  className="p-stat-fill"
+                  style={{
+                    width: `${animate ? target : 0}%`,
+                    transition: "width 1.2s cubic-bezier(0.22, 1, 0.36, 1)",
+                    transitionDelay: `${i * 120}ms`,
+                    ...(d.barColor ? { background: d.barColor } : {}),
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
