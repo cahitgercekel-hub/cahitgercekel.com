@@ -172,9 +172,10 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-hero { padding: 140px 40px 60px; background: var(--p-hero); color: #fff; }
   .portfolio-root .p-pd-back { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-bottom: 24px; }
   .portfolio-root .p-pd-back:hover { color: #fff; }
-  .portfolio-root .p-pd-head { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
+  .portfolio-root .p-pd-head { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; width: 100%; }
+  .portfolio-root .p-pd-head-btn { margin-left: auto; flex-shrink: 0; }
   .portfolio-root .p-pd-icon { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); }
-  .portfolio-root .p-pd-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -1.5px; line-height: 1.05; color: #fff; margin: 0; }
+  .portfolio-root .p-pd-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -1.5px; line-height: 1.05; color: #fff; margin: 0; flex-grow: 1; }
   .portfolio-root .p-pd-tag-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
   .portfolio-root .p-pd-tag-row .p-hero-tag { margin-bottom: 0; }
   .portfolio-root .p-pd-year-tag { margin-left: auto; display: inline-block; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); border-radius: 100px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); }
