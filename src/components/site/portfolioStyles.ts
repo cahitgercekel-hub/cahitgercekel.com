@@ -117,7 +117,7 @@ export const PORTFOLIO_CSS = `
     background: #fff;
   }
   @keyframes p-card-live-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
-  .portfolio-root .p-card-thumb { position: relative; overflow: hidden; height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: linear-gradient(135deg, var(--p-accent), var(--p-accent3)); color:#fff; }
+  .portfolio-root .p-card-thumb { position: relative; overflow: hidden; height: 160px; display:flex; align-items:center; justify-content:center; font-size: 2.5rem; background: var(--p-accent); color:#fff; }
   .portfolio-root .p-card-thumb img { width:100%; height:100%; object-fit:cover; }
   .portfolio-root .p-card-thumb .p-card-thumb-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: blur(24px) saturate(1.2); transform: scale(1.2); z-index: 0; }
   .portfolio-root .p-card-thumb .p-card-thumb-img { position: relative; z-index: 1; object-fit: cover; }
