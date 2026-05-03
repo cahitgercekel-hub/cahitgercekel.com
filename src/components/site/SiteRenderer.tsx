@@ -393,7 +393,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                       {it.location && <div className="p-tl-location">{it.location}</div>}
                     </div>
                   </div>
-                  <div className="p-tl-desc">{it.description}</div>
+                  <div className="p-tl-desc" style={{ whiteSpace: "pre-line" }}>{it.description}</div>
                 </div>
               ))}
             </div>
