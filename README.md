@@ -1,3 +1,7 @@
-# Welcome to your Lovable project
+cahitgercekel.com
+Cahit Gercekel's personal portfolio — product-minded engineer.
 
-TODO: Document your project here
+Credits
+Design: Cahit Emre Gerçekel — website design, projects.
+
+Development: Lovable & Claude (Anthropic)
