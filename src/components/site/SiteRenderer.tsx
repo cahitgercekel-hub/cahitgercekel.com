@@ -293,23 +293,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       );
     }
     case "languages":
-      return (
-        <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
-          <div className="p-inner" style={innerStyle}>
-            {d.label && <div className="p-label">{d.label}</div>}
-            {d.title && <h2 className="p-title">{d.title}</h2>}
-            {(d.items ?? []).map((it: any, i: number) => (
-              <div key={i}>
-                <div className="p-lang-row">
-                  <span>{it.name}</span>
-                  <span className="p-lang-level">{it.level}</span>
-                </div>
-                <div className="p-stat-track"><div className="p-stat-fill" style={{ width: `${it.value ?? 100}%`, ...(d.barColor ? { background: d.barColor } : {}) }} /></div>
-              </div>
-            ))}
-          </div>
-        </section>
-      );
+      return <LanguagesBlock sectionId={sectionId} d={d} alt={alt} sectionStyle={sectionStyle} innerStyle={innerStyle} />;
     case "projects": {
       const items: any[] = d.items ?? [];
       const usedSlugs = new Set<string>();
