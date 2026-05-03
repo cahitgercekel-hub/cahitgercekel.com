@@ -80,14 +80,20 @@ const DotGrid: React.FC<DotGridProps> = ({
     const wrap = wrapperRef.current;
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
-    const { width, height } = wrap.getBoundingClientRect();
+    const rect = wrap.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    
+    canvas.width = Math.ceil(width * dpr);
+    canvas.height = Math.ceil(height * dpr);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+    
     const ctx = canvas.getContext('2d');
-    if (ctx) ctx.scale(dpr, dpr);
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
 
     const cols = Math.floor((width + gap) / (dotSize + gap));
     const rows = Math.floor((height + gap) / (dotSize + gap));
@@ -117,7 +123,13 @@ const DotGrid: React.FC<DotGridProps> = ({
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      
+      // Clear with identity transform to ensure full canvas is cleared regardless of scale (DPR)
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
       const { x: px, y: py } = pointerRef.current;
       for (const dot of dotsRef.current) {
         const ox = dot.cx + dot.xOffset;
@@ -148,16 +160,31 @@ const DotGrid: React.FC<DotGridProps> = ({
 
   useEffect(() => {
     buildGrid();
+    
+    const handleResize = () => buildGrid();
+    
     let ro: ResizeObserver | null = null;
     if ('ResizeObserver' in window) {
-      ro = new ResizeObserver(buildGrid);
+      ro = new ResizeObserver(handleResize);
       wrapperRef.current && ro.observe(wrapperRef.current);
     } else {
-      (window as Window).addEventListener('resize', buildGrid);
+      window.addEventListener('resize', handleResize);
     }
+
+    // Handle zoom by listening for DPR changes
+    let mq: MediaQueryList | null = null;
+    const listenDPR = () => {
+      if (mq) mq.removeEventListener('change', listenDPR);
+      buildGrid();
+      mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+      mq.addEventListener('change', listenDPR);
+    };
+    listenDPR();
+
     return () => {
       if (ro) ro.disconnect();
-      else window.removeEventListener('resize', buildGrid);
+      window.removeEventListener('resize', handleResize);
+      if (mq) mq.removeEventListener('change', listenDPR);
     };
   }, [buildGrid]);
 

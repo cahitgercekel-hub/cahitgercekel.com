@@ -123,7 +123,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-card-thumb .p-card-thumb-img { position: relative; z-index: 1; object-fit: cover; }
   .portfolio-root .p-card-body { padding: 20px; }
   .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
-  .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; margin: 0 0 8px; transition: color .2s ease; }
+  .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; transition: color .2s ease; }
   .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
   .portfolio-root .p-card .p-card-cta { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
   .portfolio-root .p-timeline { position: relative; padding-left: 32px; }
