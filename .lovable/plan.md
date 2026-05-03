@@ -1,33 +1,24 @@
-# Smooth scroll for nav anchors
+## Plan: Replace `README.md` with a real project README
 
-## Problem
-Clicking nav links like "Projects" or "Contact" jumps instantly (or worse, triggers a route change) instead of smoothly scrolling to the section. Two causes:
+The current `README.md` is just a TODO placeholder. I'll replace it with a complete README tailored to this project (Cahit's portfolio site built on Lovable + Vite + React + Supabase/Lovable Cloud).
 
-1. In `SiteChrome.tsx`, hash links are rendered as `href="/#projects"` — when already on `/`, browsers do an instant jump; on other routes it's a full navigation.
-2. There's no smooth-scroll behavior configured, and no offset for the sticky `.p-nav` header (the section title would slide under the nav).
+### Sections it will include
 
-## Fix
+1. **Title + tagline** — "Personal Portfolio — fully editable through an in-app admin editor."
+2. **Live links** — Published site (`admin-muse-kit.lovable.app`), custom domain (`cahitgercekel.com`), Lovable preview.
+3. **Features** — multi-language site (EN/TR/DE) with AI auto-translate, drag-and-drop section editor, work experience reordering, animated skill/language bars, BorderGlow skill pills, scroll/rotate text effects, theme + layout controls, file uploads.
+4. **Tech stack** — React 18, Vite 5, TypeScript, Tailwind v3, shadcn/ui, TanStack Query, React Router, react-helmet-async, GSAP / motion, Lovable Cloud (Supabase: Postgres + RLS + Storage + Edge Functions), Lovable AI Gateway (Gemini) for translations.
+5. **Project structure** — short tree of `src/pages`, `src/components/site`, `src/components/admin`, `supabase/functions`.
+6. **Getting started** — `bun install` / `npm install`, `npm run dev`, env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`) with a note that these are public anon keys safe to commit.
+7. **Backend / Cloud** — note that backend runs on Lovable Cloud (managed Supabase); admin access gated by a `user_roles` table + `has_role()` security-definer function; `translate` edge function uses `LOVABLE_API_KEY` (server-side secret, never in repo).
+8. **Admin editor** — how to log in (`/admin/login`), how to edit blocks, drag-reorder, publish.
+9. **Scripts** — `dev`, `build`, `preview`, `lint`, `test`.
+10. **Editing the project** — three options: edit on Lovable (link), local IDE with two-way GitHub sync, GitHub Codespaces.
+11. **Deployment** — via Lovable's Publish, plus note that the repo is portable (standard Vite output) so it can be hosted anywhere (Vercel/Netlify/Cloudflare Pages) once env vars are set.
+12. **Security note** — `.env` only contains the Supabase publishable anon key (safe to be public); all sensitive secrets live in Lovable Cloud.
+13. **License** — placeholder (MIT or "All rights reserved" — I'll default to MIT, you can change it).
 
-### 1. Intercept anchor clicks (desktop + mobile menu) in `src/components/site/SiteChrome.tsx`
-- Add a `handleNavClick(href)` helper. If `href` starts with `#` (or `/#`), prevent default, find the target element by id, and call `window.scrollTo({ top: el.offsetTop - NAV_OFFSET, behavior: "smooth" })`.
-- If we're not on `/`, navigate to `/` first (via `useNavigate`) and then scroll after a tick.
-- Update `history.pushState` so the URL hash reflects the section.
-- Close the mobile menu on click (already handled, keep it).
+### File touched
+- `README.md` — overwrite the placeholder with the full README.
 
-### 2. Apply to both nav lists
-- Desktop `<ul className="p-nav-links">` and mobile `<ul className="p-mobile-menu">` — both map nav items.
-
-### 3. Add CSS scroll-margin for sections in `src/components/site/portfolioStyles.ts`
-- Add `.portfolio-root section[id] { scroll-margin-top: 80px; }` as a safety net (also helps when users land via a hash URL or use browser back/forward).
-- Add `html { scroll-behavior: smooth; }` so the existing "Back to top" button and any direct hash-URL loads also animate.
-
-### 4. Keep "Back to top" buttons as-is
-They already use `behavior: "smooth"` — no change needed.
-
-## Files to edit
-- `src/components/site/SiteChrome.tsx` — add click handler, wire to both nav lists.
-- `src/components/site/portfolioStyles.ts` — add `scroll-margin-top` and `scroll-behavior: smooth`.
-
-## Out of scope
-- Active-section highlighting in the nav (can be added later if wanted).
-- Animating section reveal on scroll.
+That's a single-file change. Approve and I'll write it.
