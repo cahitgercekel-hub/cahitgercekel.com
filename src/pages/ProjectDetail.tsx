@@ -124,37 +124,35 @@ export default function ProjectDetail() {
                 {item.client && <span>{item.client}</span>}
               </div>
             )}
+            {tech.length > 0 && (
+              <div className="p-pd-hero-tech">
+                {tech.map((t, i) => <span key={i} className="p-pill">{t}</span>)}
+              </div>
+            )}
             {(() => {
               const status: string = item.status ?? (item.link ? "live" : "");
               const hasGhost = links.length > 0;
               const showRow = status === "live" || status === "in_progress" || (status === "none" && item.statusText) || hasGhost;
-              if (!showRow && tech.length === 0) return null;
+              if (!showRow) return null;
               return (
                 <div className="p-pd-hero-footer">
-                  {showRow && (
-                    <div className="p-pd-link-row">
-                      {status === "live" && item.link && (
-                        <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
-                          <span className="p-pd-live-dot" aria-hidden="true" />
-                          <span>Live</span>
-                        </a>
-                      )}
-                      {status === "in_progress" && (
-                        <span className="p-pd-status"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
-                      )}
-                      {status === "none" && item.statusText && (
-                        <span className="p-pd-status">{item.statusText}</span>
-                      )}
-                      {links.map((l, i) => (
-                        <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
-                      ))}
-                    </div>
-                  )}
-                  {tech.length > 0 && (
-                    <div className="p-pd-hero-tech">
-                      {tech.map((t, i) => <span key={i} className="p-pill">{t}</span>)}
-                    </div>
-                  )}
+                  <div className="p-pd-link-row">
+                    {status === "live" && item.link && (
+                      <a className="p-pd-link-btn p-pd-live" href={item.link} target="_blank" rel="noreferrer">
+                        <span className="p-pd-live-dot" aria-hidden="true" />
+                        <span>Live</span>
+                      </a>
+                    )}
+                    {status === "in_progress" && (
+                      <span className="p-pd-status"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
+                    )}
+                    {status === "none" && item.statusText && (
+                      <span className="p-pd-status">{item.statusText}</span>
+                    )}
+                    {links.map((l, i) => (
+                      <a key={i} className="p-pd-link-btn ghost" href={l.href} target="_blank" rel="noreferrer">{l.label || l.href}</a>
+                    ))}
+                  </div>
                 </div>
               );
             })()}
