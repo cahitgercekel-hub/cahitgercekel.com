@@ -111,13 +111,17 @@ export default function ProjectDetail() {
               {item.iconUrl && <img className="p-pd-icon" src={item.iconUrl} alt="" />}
               <h1 className="p-pd-title">{item.title}</h1>
             </div>
-            {item.tag && <div className="p-hero-tag">{item.tag}</div>}
+            {(item.tag || item.year) && (
+              <div className="p-pd-tag-row">
+                {item.tag && <div className="p-hero-tag">{item.tag}</div>}
+                {item.year && <div className="p-pd-year-tag">{item.year}</div>}
+              </div>
+            )}
             {item.subtitle && <p className="p-pd-sub">{item.subtitle}</p>}
-            {(item.role || item.client || item.year) && (
+            {(item.role || item.client) && (
               <div className="p-pd-meta">
                 {item.role && <span>{item.role}</span>}
                 {item.client && <span>{item.client}</span>}
-                {item.year && <span>{item.year}</span>}
               </div>
             )}
             {(() => {

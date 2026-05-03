@@ -173,6 +173,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-head { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
   .portfolio-root .p-pd-icon { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); }
   .portfolio-root .p-pd-title { font-family: var(--p-font); font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.6rem); letter-spacing: -1.5px; line-height: 1.05; color: #fff; margin: 0; }
+  .portfolio-root .p-pd-tag-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .portfolio-root .p-pd-tag-row .p-hero-tag { margin-bottom: 0; }
+  .portfolio-root .p-pd-year-tag { display: inline-block; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); border-radius: 100px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); }
   .portfolio-root .p-pd-sub { font-size: 1.15rem; color: rgba(255,255,255,0.88); max-width: 640px; line-height: 1.55; margin: 6px 0 18px; }
   .portfolio-root .p-pd-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; color: rgba(255,255,255,0.85); font-size: 0.92rem; margin-bottom: 24px; }
   .portfolio-root .p-pd-meta span + span::before { content: '·'; margin-right: 16px; opacity: 0.6; }
