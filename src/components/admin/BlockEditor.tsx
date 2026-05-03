@@ -619,6 +619,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
               { key: "image", label: "Cover image (upload or URL)", type: "image", folder: "projects", focalKey: "focal" },
               { key: "emoji", label: "Emoji fallback" },
               { key: "link", label: "External link (used by Live button & card external link)" },
+              { key: "liveText", label: "Live button label (defaults to 'Live')" },
               { key: "openExternal", label: "Open external link instead of detail page", type: "checkbox" },
               {
                 key: "status", label: "Status button on detail page", type: "select",

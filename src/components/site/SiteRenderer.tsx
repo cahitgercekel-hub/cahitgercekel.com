@@ -314,10 +314,11 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
 
                 const hasDetail = !it.openExternal && !!slug;
                 const ctaLabel = it.caseStudy?.enabled ? "Open case study →" : "View →";
+                const status = (it.status || "").toLowerCase() || (it.link ? "live" : "");
                 const inner = (
                   <>
                     <div className="p-card-thumb">{it.image ? <img src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} /> : it.emoji || "✨"}</div>
-                    <div className="p-card-body">
+                    <div className="p-card-body" style={{ position: "relative" }}>
                       {it.tag && <div className="p-card-tag">{it.tag}</div>}
                       <h3>{it.title}</h3>
                       <p>{it.description}</p>
@@ -328,9 +329,22 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                           ))}
                         </div>
                       )}
-                      {hasDetail
-                        ? <span className="p-card-cta">{ctaLabel}</span>
-                        : it.link && <a className="p-card-cta" href={it.link} target="_blank" rel="noreferrer">{ctaLabel}</a>}
+                      <span className="p-card-cta">{ctaLabel}</span>
+                      {status === "live" && it.link && (
+                        <a
+                          href={it.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-card-live-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          title="View Live Site"
+                        >
+                          <span className="p-card-live-dot" />
+                          {it.liveText || "Live"}
+                        </a>
+                      )}
                     </div>
                   </>
                 );
