@@ -72,10 +72,13 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-card.featured { border-color: var(--p-accent); box-shadow: 0 4px 10px rgba(0,0,0,0.06), 0 14px 32px hsl(from var(--p-accent) h s l / 0.25); }
   .portfolio-root a.p-card { color: inherit; text-decoration: none; }
   .portfolio-root a.p-card:hover h3 { color: var(--p-accent); }
+  .portfolio-root .p-card-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+  .portfolio-root .p-card-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
+  .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; transition: color .2s ease; }
+  .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
+  .portfolio-root .p-card .p-card-cta { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
   .portfolio-root .p-card-live-btn {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -121,11 +124,6 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-card-thumb img { width:100%; height:100%; object-fit:cover; }
   .portfolio-root .p-card-thumb .p-card-thumb-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: blur(24px) saturate(1.2); transform: scale(1.2); z-index: 0; }
   .portfolio-root .p-card-thumb .p-card-thumb-img { position: relative; z-index: 1; object-fit: cover; }
-  .portfolio-root .p-card-body { padding: 20px; }
-  .portfolio-root .p-card-tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); margin-bottom: 6px; }
-  .portfolio-root .p-card h3 { font-family: var(--p-font); font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; transition: color .2s ease; }
-  .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
-  .portfolio-root .p-card .p-card-cta { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
   .portfolio-root .p-timeline { position: relative; padding-left: 32px; }
   .portfolio-root .p-timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--p-border); }
   .portfolio-root .p-tl-item { position: relative; margin-bottom: 44px; }
@@ -303,6 +301,8 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-desc-text { flex: 1; min-width: 0; }
   
   /* Side layout image sizing */
+  .portfolio-root .p-pd-desc-block.side-left { flex-direction: row-reverse; align-items: flex-start; gap: 48px; }
+  .portfolio-root .p-pd-desc-block.side-right { flex-direction: row; align-items: flex-start; gap: 48px; }
   .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img,
   .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img {
     flex: 0 1 auto;

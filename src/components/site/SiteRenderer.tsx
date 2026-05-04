@@ -334,22 +334,24 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                           ))}
                         </div>
                       )}
-                      <span className="p-card-cta">{ctaLabel}</span>
-                      {status === "live" && it.link && (
-                        <a
-                          href={it.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-card-live-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          title="View Live Site"
-                        >
-                          <span className="p-card-live-dot" />
-                          {it.liveText || "Live"}
-                        </a>
-                      )}
+                      <div className="p-card-footer">
+                        <span className="p-card-cta">{ctaLabel}</span>
+                        {status === "live" && it.link && (
+                          <a
+                            href={it.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-card-live-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            title="View Live Site"
+                          >
+                            <span className="p-card-live-dot" />
+                            {it.liveText || "Live"}
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </>
                 );
