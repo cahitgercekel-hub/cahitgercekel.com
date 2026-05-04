@@ -85,16 +85,6 @@ export default function ProjectDetail() {
     setSelectedImg(gallery[prevIdx].src);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedImg) return;
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setSelectedImg(null);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImg, currentIndex, gallery]);
 
   const useOverride = item.contactOverride?.enabled;
   const contactRaw = useOverride ? item.contactOverride : findContactSection(sections);
