@@ -183,11 +183,14 @@ export default function ProjectDetail() {
                   {descriptionBlocks.map((block, i) => {
                     const img = gallery[block.galleryIndex];
                     const layout = block.layout || "under";
-                    const ratio = block.aspectRatio || "auto";
+                    const scale = block.scale ?? 100;
                     const fit = block.objectFit || "contain";
                     
+                    const isSide = layout.startsWith("side");
                     const imgWrapperStyle: React.CSSProperties = {
-                      aspectRatio: ratio === "auto" ? undefined : ratio,
+                      width: isSide ? undefined : `${scale}%`,
+                      maxWidth: isSide ? `${scale}%` : "100%",
+                      flexBasis: isSide ? `${scale}%` : undefined,
                     };
                     const imgStyle: React.CSSProperties = {
                       objectFit: fit as any,

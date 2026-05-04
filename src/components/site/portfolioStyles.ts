@@ -306,7 +306,6 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img,
   .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img {
     flex: 0 1 auto;
-    max-width: 50%;
     min-height: 240px;
     max-height: 520px;
     width: fit-content;

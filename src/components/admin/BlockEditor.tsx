@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { Trash2, Plus, GripVertical } from "lucide-react";
 import type { BlockType } from "@/lib/blocks";
 import FileUploadField from "./FileUploadField";
@@ -64,10 +65,13 @@ function CsvInput({ value, onChange }: { value: string[]; onChange: (next: strin
 type SchemaField = {
   key: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group" | "caseStudy" | "contactOverride";
+  type?: "text" | "textarea" | "number" | "image" | "file" | "select" | "checkbox" | "csv" | "subList" | "group" | "caseStudy" | "contactOverride" | "slider";
   options?: { label: string; value: string }[];
   folder?: string;
   accept?: string;
+  min?: number;
+  max?: number;
+  step?: number;
   /** For image fields: companion key on the same item that stores focal point ("x% y%"). */
   focalKey?: string;
   /** For "subList": schema of each child item. */
@@ -196,6 +200,19 @@ function RenderField({
           factory={s.subFactory ?? (() => ({}))}
         />
       </div>
+    );
+  }
+  if (s.type === "slider") {
+    return (
+      <Field label={`${s.label} (${value[s.key] ?? 100}%)`}>
+        <Slider
+          value={[value[s.key] ?? 100]}
+          min={s.min ?? 1}
+          max={s.max ?? 100}
+          step={s.step ?? 1}
+          onValueChange={([v]) => update(s.key, v)}
+        />
+      </Field>
     );
   }
   if (s.type === "csv") {
@@ -656,14 +673,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                         ],
                       },
                       {
-                        key: "aspectRatio", label: "Aspect Ratio", type: "select",
-                        options: [
-                          { label: "Original (Auto)", value: "auto" },
-                          { label: "16:9 (Widescreen)", value: "16/9" },
-                          { label: "4:3 (Standard)", value: "4/3" },
-                          { label: "1:1 (Square)", value: "1/1" },
-                          { label: "3:4 (Portrait)", value: "3/4" },
-                        ],
+                        key: "scale", label: "Image Scale", type: "slider",
+                        min: 1, max: 100,
                       },
                       {
                         key: "objectFit", label: "Image Fit", type: "select",
@@ -673,7 +684,7 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                         ],
                       },
                     ],
-                    subFactory: () => ({ text: "", galleryIndex: 0, layout: "under", aspectRatio: "auto", objectFit: "contain" }),
+                    subFactory: () => ({ text: "", galleryIndex: 0, layout: "under", scale: 100, objectFit: "contain" }),
                   },
                   {
                     key: "links", label: "Extra links", type: "subList",
