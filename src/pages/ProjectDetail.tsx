@@ -83,8 +83,7 @@ export default function ProjectDetail() {
     if (gallery.length === 0) return;
     const prevIdx = (currentIndex - 1 + gallery.length) % gallery.length;
     setCurrentIndex(prevIdx);
-    setSelectedImg(gallery[prevIdx].src);
-  };
+  navRef.current = { next: () => handleNext(), prev: () => handlePrev() };
 
 
   const useOverride = item.contactOverride?.enabled;
