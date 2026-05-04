@@ -168,7 +168,7 @@ const DotGrid: React.FC<DotGridProps> = ({
       ro = new ResizeObserver(handleResize);
       wrapperRef.current && ro.observe(wrapperRef.current);
     } else {
-      window.addEventListener('resize', handleResize);
+      (window as Window).addEventListener('resize', handleResize);
     }
 
     // Handle zoom by listening for DPR changes
