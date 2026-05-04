@@ -338,18 +338,21 @@ export const PORTFOLIO_CSS = `
     overflow: hidden; 
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--p-border);
+    transition: transform .3s ease, box-shadow .3s ease;
   }
   .portfolio-root .p-pd-desc-img img { 
     display: block; 
-    transition: transform .4s ease; 
   }
-  .portfolio-root .p-pd-desc-img:hover img { transform: scale(1.02); }
+  .portfolio-root .p-pd-desc-img:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
   .portfolio-root .p-pd-desc-caption { 
     display: block; 
-    padding: 10px 0; 
+    padding: 10px 14px; 
     font-size: 0.85rem; 
     color: var(--p-muted); 
     flex-shrink: 0;
+    background: rgba(0,0,0,0.02);
+    border-top: 1px solid var(--p-border);
   }
 
   @media (max-width: 800px) {
