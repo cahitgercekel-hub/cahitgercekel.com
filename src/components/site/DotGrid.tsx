@@ -179,7 +179,7 @@ const DotGrid: React.FC<DotGridProps> = ({
 
     return () => {
       if (ro) ro.disconnect();
-      window.removeEventListener('resize', handleResize);
+      (window as Window).removeEventListener('resize', handleResize);
       if (mq) mq.removeEventListener('change', listenDPR);
     };
   }, [buildGrid]);
