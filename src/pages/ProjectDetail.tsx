@@ -94,6 +94,7 @@ export default function ProjectDetail() {
   const metrics: { label: string; value: string }[] = item.metrics ?? [];
   const csEnabled = item.caseStudy?.enabled;
   const csSections: any[] = item.caseStudy?.sections ?? [];
+  const descriptionBlocks: any[] = item.descriptionBlocks ?? [];
 
   return (
     <>
@@ -167,15 +168,40 @@ export default function ProjectDetail() {
           </div>
         </section>
 
-        {/* Overview */}
-        {(longParas.length > 0 || item.description) && (
+        {/* Overview / Rich Description */}
+        {(longParas.length > 0 || item.description || descriptionBlocks.length > 0) && (
           <section className="p-section">
             <div className="p-inner">
               <div className="p-pd-overview full-width">
                 <div className="p-pd-prose text-left">
+                  {/* Legacy simple description */}
                   {longParas.length > 0
                     ? longParas.map((p, i) => <p key={i}>{p}</p>)
                     : item.description && <p>{item.description}</p>}
+                  
+                  {/* Rich blocks */}
+                  {descriptionBlocks.map((block, i) => {
+                    const img = gallery[block.galleryIndex];
+                    const layout = block.layout || "under";
+                    return (
+                      <div key={i} className={`p-pd-desc-block ${layout}`}>
+                        <div className="p-pd-desc-text">
+                          {(block.text || "").split(/\n\n+/).map((p: string, pi: number) => (
+                            <p key={pi}>{p}</p>
+                          ))}
+                        </div>
+                        {img && (
+                          <div className="p-pd-desc-img" onClick={() => {
+                            setSelectedImg(img.src);
+                            setCurrentIndex(block.galleryIndex);
+                          }}>
+                            <img src={img.src} alt={img.alt || ""} style={{ objectPosition: img.focal || "50% 50%" }} />
+                            {img.caption && <span className="p-pd-desc-caption">{img.caption}</span>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -641,7 +641,23 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                   { key: "client", label: "Client" },
                   { key: "year", label: "Year / period" },
                   { key: "tech", label: "Tech & tools (comma separated)", type: "csv" },
-                  { key: "longDescription", label: "Long description (separate paragraphs with blank line)", type: "textarea" },
+                  { key: "longDescription", label: "Long description (legacy / simple text)", type: "textarea" },
+                  {
+                    key: "descriptionBlocks", label: "Description blocks (Rich Layout)", type: "subList",
+                    subSchema: [
+                      { key: "text", label: "Text content", type: "textarea" },
+                      { key: "galleryIndex", label: "Gallery image index (0 for 1st, 1 for 2nd...)", type: "number" },
+                      {
+                        key: "layout", label: "Layout", type: "select",
+                        options: [
+                          { label: "Image under text", value: "under" },
+                          { label: "Image on the left", value: "side-left" },
+                          { label: "Image on the right", value: "side-right" },
+                        ],
+                      },
+                    ],
+                    subFactory: () => ({ text: "", galleryIndex: 0, layout: "under" }),
+                  },
                   {
                     key: "links", label: "Extra links", type: "subList",
                     subSchema: [
