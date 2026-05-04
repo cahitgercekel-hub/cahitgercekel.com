@@ -39,16 +39,24 @@ export default function ProjectDetail() {
   }
 
   const match = findProjectBySlug(sections, slug);
+  
   if (!match) return <NotFound />;
 
-  // Translate the single project item via the parent block's i18n.
-  const blockTranslated = mergeI18n(match.blockData ?? {}, lang);
-  const items: any[] = blockTranslated.items ?? [];
-  const rawItems: any[] = match.blockData?.items ?? [];
-  const idx = rawItems.indexOf(match.item);
-  const item = (idx >= 0 ? items[idx] : match.item) ?? match.item;
-
-  const gallery: any[] = item.gallery ?? [];
+  let item: any;
+  let gallery: any[] = [];
+  
+  try {
+    // Translate the single project item via the parent block's i18n.
+    const blockTranslated = mergeI18n(match.blockData ?? {}, lang);
+    const items: any[] = blockTranslated.items ?? [];
+    const rawItems: any[] = match.blockData?.items ?? [];
+    const idx = rawItems.indexOf(match.item);
+    item = (idx >= 0 ? items[idx] : match.item) ?? match.item;
+    gallery = item.gallery ?? [];
+  } catch (err) {
+    console.error("Error resolving project item:", err);
+    return <NotFound />;
+  }
 
   const handleNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -188,9 +196,9 @@ export default function ProjectDetail() {
                     
                     const isSide = layout.startsWith("side");
                     const imgWrapperStyle: React.CSSProperties = {
-                      width: isSide ? undefined : `${scale}%`,
+                      width: isSide ? "fit-content" : `${scale}%`,
                       maxWidth: isSide ? `${scale}%` : "100%",
-                      flexBasis: isSide ? `${scale}%` : undefined,
+                      flex: isSide ? "0 1 auto" : undefined,
                     };
                     const imgStyle: React.CSSProperties = {
                       objectFit: fit as any,
