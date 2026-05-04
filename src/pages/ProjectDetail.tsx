@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
@@ -16,6 +16,7 @@ export default function ProjectDetail() {
   const { lang } = useLang();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const navRef = useRef<{ next: () => void; prev: () => void }>({ next: () => {}, prev: () => {} });
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -34,8 +35,8 @@ export default function ProjectDetail() {
     if (!selectedImg) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setSelectedImg(null);
-      if (e.key === "ArrowRight") setCurrentIndex((i) => i + 1);
-      if (e.key === "ArrowLeft") setCurrentIndex((i) => i - 1);
+      if (e.key === "ArrowRight") navRef.current.next();
+      if (e.key === "ArrowLeft") navRef.current.prev();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
