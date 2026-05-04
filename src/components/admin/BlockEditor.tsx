@@ -655,8 +655,25 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                           { label: "Image on the right", value: "side-right" },
                         ],
                       },
+                      {
+                        key: "aspectRatio", label: "Aspect Ratio", type: "select",
+                        options: [
+                          { label: "Original (Auto)", value: "auto" },
+                          { label: "16:9 (Widescreen)", value: "16/9" },
+                          { label: "4:3 (Standard)", value: "4/3" },
+                          { label: "1:1 (Square)", value: "1/1" },
+                          { label: "3:4 (Portrait)", value: "3/4" },
+                        ],
+                      },
+                      {
+                        key: "objectFit", label: "Image Fit", type: "select",
+                        options: [
+                          { label: "Contain (Fit full image)", value: "contain" },
+                          { label: "Cover (Fill area, may crop)", value: "cover" },
+                        ],
+                      },
                     ],
-                    subFactory: () => ({ text: "", galleryIndex: 0, layout: "under" }),
+                    subFactory: () => ({ text: "", galleryIndex: 0, layout: "under", aspectRatio: "auto", objectFit: "contain" }),
                   },
                   {
                     key: "links", label: "Extra links", type: "subList",

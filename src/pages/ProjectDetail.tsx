@@ -183,6 +183,17 @@ export default function ProjectDetail() {
                   {descriptionBlocks.map((block, i) => {
                     const img = gallery[block.galleryIndex];
                     const layout = block.layout || "under";
+                    const ratio = block.aspectRatio || "auto";
+                    const fit = block.objectFit || "contain";
+                    
+                    const imgWrapperStyle: React.CSSProperties = {
+                      aspectRatio: ratio === "auto" ? undefined : ratio,
+                    };
+                    const imgStyle: React.CSSProperties = {
+                      objectFit: fit as any,
+                      objectPosition: img?.focal || "50% 50%",
+                    };
+
                     return (
                       <div key={i} className={`p-pd-desc-block ${layout}`}>
                         <div className="p-pd-desc-text">
@@ -191,11 +202,15 @@ export default function ProjectDetail() {
                           ))}
                         </div>
                         {img && (
-                          <div className="p-pd-desc-img" onClick={() => {
-                            setSelectedImg(img.src);
-                            setCurrentIndex(block.galleryIndex);
-                          }}>
-                            <img src={img.src} alt={img.alt || ""} style={{ objectPosition: img.focal || "50% 50%" }} />
+                          <div 
+                            className="p-pd-desc-img" 
+                            style={imgWrapperStyle}
+                            onClick={() => {
+                              setSelectedImg(img.src);
+                              setCurrentIndex(block.galleryIndex);
+                            }}
+                          >
+                            <img src={img.src} alt={img.alt || ""} style={imgStyle} />
                             {img.caption && <span className="p-pd-desc-caption">{img.caption}</span>}
                           </div>
                         )}
