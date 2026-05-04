@@ -305,14 +305,30 @@ export const PORTFOLIO_CSS = `
   /* Side layout image sizing */
   .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img,
   .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img {
-    flex: 0 0 42%;
+    flex: 0 1 auto;
+    max-width: 50%;
     min-height: 240px;
     max-height: 520px;
+    width: fit-content;
+  }
+  .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img img,
+  .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img img {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   /* Under layout image sizing */
   .portfolio-root .p-pd-desc-block.under .p-pd-desc-img {
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
+    align-self: center;
+  }
+  .portfolio-root .p-pd-desc-block.under .p-pd-desc-img img {
+    height: auto;
+    width: auto;
+    max-width: 100%;
     max-height: 560px;
   }
 
@@ -321,28 +337,19 @@ export const PORTFOLIO_CSS = `
     cursor: pointer; 
     border-radius: var(--p-radius); 
     overflow: hidden; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
-    border: 1px solid var(--p-border); 
-    background: #fff;
     display: flex;
     flex-direction: column;
   }
   .portfolio-root .p-pd-desc-img img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
     display: block; 
     transition: transform .4s ease; 
-    flex: 1;
   }
   .portfolio-root .p-pd-desc-img:hover img { transform: scale(1.02); }
   .portfolio-root .p-pd-desc-caption { 
     display: block; 
-    padding: 10px 14px; 
-    font-size: 0.8rem; 
+    padding: 10px 0; 
+    font-size: 0.85rem; 
     color: var(--p-muted); 
-    background: rgba(0,0,0,0.02); 
-    border-top: 1px solid var(--p-border);
     flex-shrink: 0;
   }
 
@@ -354,7 +361,9 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-pd-desc-block.side-left,
     .portfolio-root .p-pd-desc-block.side-right { flex-direction: column; align-items: stretch; gap: 24px; }
     .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img,
-    .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img { flex: none; width: 100%; max-height: 400px; min-height: 200px; }
+    .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img { flex: none; width: fit-content; max-width: 100%; max-height: 440px; min-height: 200px; align-self: center; }
+    .portfolio-root .p-pd-desc-block.side-left .p-pd-desc-img img,
+    .portfolio-root .p-pd-desc-block.side-right .p-pd-desc-img img { height: auto; max-height: 400px; }
   }
   @media (max-width: 700px) {
     .portfolio-root nav.p-nav { width: calc(100% - 24px); padding: 10px 16px; top: 12px; }
