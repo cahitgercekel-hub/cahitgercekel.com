@@ -30,6 +30,17 @@ export default function ProjectDetail() {
     return () => { document.body.style.overflow = "auto"; };
   }, [selectedImg]);
 
+  useEffect(() => {
+    if (!selectedImg) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedImg(null);
+      if (e.key === "ArrowRight") setCurrentIndex((i) => i + 1);
+      if (e.key === "ArrowLeft") setCurrentIndex((i) => i - 1);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImg]);
+
   if (RESERVED_SLUGS.has(slug.toLowerCase())) {
     return <NotFound />;
   }
