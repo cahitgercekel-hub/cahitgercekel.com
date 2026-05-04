@@ -164,12 +164,8 @@ const DotGrid: React.FC<DotGridProps> = ({
     const handleResize = () => buildGrid();
     
     let ro: ResizeObserver | null = null;
-    if ('ResizeObserver' in window) {
-      ro = new ResizeObserver(handleResize);
-      wrapperRef.current && ro.observe(wrapperRef.current);
-    } else {
-      (window as Window).addEventListener('resize', handleResize);
-    }
+    ro = new ResizeObserver(handleResize);
+    wrapperRef.current && ro.observe(wrapperRef.current);
 
     // Handle zoom by listening for DPR changes
     let mq: MediaQueryList | null = null;
