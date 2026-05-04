@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
@@ -16,6 +16,7 @@ export default function ProjectDetail() {
   const { lang } = useLang();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const navRef = useRef<{ next: () => void; prev: () => void }>({ next: () => {}, prev: () => {} });
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -28,6 +29,17 @@ export default function ProjectDetail() {
       document.body.style.overflow = "auto";
     }
     return () => { document.body.style.overflow = "auto"; };
+  }, [selectedImg]);
+
+  useEffect(() => {
+    if (!selectedImg) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedImg(null);
+      if (e.key === "ArrowRight") navRef.current.next();
+      if (e.key === "ArrowLeft") navRef.current.prev();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImg]);
 
   if (RESERVED_SLUGS.has(slug.toLowerCase())) {
@@ -74,16 +86,7 @@ export default function ProjectDetail() {
     setSelectedImg(gallery[prevIdx].src);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedImg) return;
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setSelectedImg(null);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImg, currentIndex, gallery]);
+  navRef.current = { next: () => handleNext(), prev: () => handlePrev() };
 
   const useOverride = item.contactOverride?.enabled;
   const contactRaw = useOverride ? item.contactOverride : findContactSection(sections);
