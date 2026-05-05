@@ -12,6 +12,7 @@ import { mergeI18n } from "@/lib/i18n";
 import { projectSlug } from "@/lib/projectSlug";
 import SiteChrome from "./SiteChrome";
 import BorderGlow from "./BorderGlow";
+import { formatRichText } from "@/lib/markdown";
 
 export default function SiteRenderer() {
   const { data: sections, isLoading: sectionsLoading } = useSections(false);
@@ -132,6 +133,8 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
               duration={0.6}
               from={{ opacity: 0, y: 20 }}
               to={{ opacity: 1, y: 0 }}
+              // SplitText might not support complex children well, but let's try to pass the text.
+              // If it fails, we might need a simpler version for rich text.
             />
           )}
           <div className="p-btns">
@@ -184,7 +187,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       );
       const text = (
         <div className="p-about-text">
-          {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{p}</p>)}
+          {(d.paragraphs ?? []).map((p: string, i: number) => <p key={i}>{formatRichText(p)}</p>)}
           {(d.skills ?? []).length > 0 && (
             <div className="p-skills">
               {d.skills.map((s: string, i: number) => <span key={i} className="p-skill">{s}</span>)}
@@ -326,7 +329,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                     <div className="p-card-body" style={{ position: "relative" }}>
                       {it.tag && <div className="p-card-tag">{it.tag}</div>}
                       <h3>{it.title}</h3>
-                      <p>{it.description}</p>
+                      <p>{formatRichText(it.description)}</p>
                       {Array.isArray(it.pills) && it.pills.length > 0 && (
                         <div className="p-card-pills">
                           {it.pills.map((p: string, idx: number) => (
@@ -399,7 +402,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                       {it.location && <div className="p-tl-location">{it.location}</div>}
                     </div>
                   </div>
-                  <div className="p-tl-desc" style={{ whiteSpace: "pre-line" }}>{it.description}</div>
+                  <div className="p-tl-desc">{formatRichText(it.description)}</div>
                 </div>
               ))}
             </div>
@@ -413,7 +416,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             {d.label && <div className="p-label">{d.label}</div>}
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-contact-info">
-              {d.intro && <p>{d.intro}</p>}
+              {d.intro && <p>{formatRichText(d.intro)}</p>}
               <div className="p-contact-grid">
                 {(d.links ?? []).map((l: any, i: number) => (
                   <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">

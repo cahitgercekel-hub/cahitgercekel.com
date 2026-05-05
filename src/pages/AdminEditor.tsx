@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { GripVertical, Eye, EyeOff, Trash2, Copy, Plus, LogOut, ExternalLink, Pencil, Sparkles, Loader2 } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Trash2, Copy, Plus, LogOut, ExternalLink, Pencil, Sparkles, Loader2, ChevronDown, ChevronRight } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -292,6 +292,28 @@ function ThemeEditor({ settings, onSaved }: { settings: any; onSaved: () => void
             </div>
           </div>
         </div>
+        <div className="pt-4 border-t">
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-primary" /> Text Formatting Guide
+          </h3>
+          <div className="bg-muted/50 p-3 rounded-md text-xs space-y-2">
+            <p>Use these to style your descriptions and paragraphs:</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">Bold</span>
+                <code>**text**</code>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-medium italic">Italic</span>
+                <code>*text*</code>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-medium underline">Link</span>
+                <code>[label](url)</code>
+              </div>
+            </div>
+          </div>
+        </div>
         <Button onClick={save} disabled={busy}>{busy ? "Saving..." : "Save"}</Button>
       </CardContent>
     </Card>
@@ -344,6 +366,7 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
   const [navDe, setNavDe] = useState<string[]>(settings.i18n?.de?.nav_items ?? []);
   const [rowIds, setRowIds] = useState<string[]>(() => (settings.nav_items ?? []).map(() => crypto.randomUUID()));
   const [busy, setBusy] = useState(false);
+  const [collapsedMap, setCollapsedMap] = useState<Record<string, boolean>>({});
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const onDragEnd = (e: DragEndEvent) => {
@@ -435,6 +458,8 @@ function NavEditor({ settings, onSaved }: { settings: any; onSaved: () => void }
                   i={i}
                   navTr={navTr[i] ?? ""}
                   navDe={navDe[i] ?? ""}
+                  isCollapsed={collapsedMap[rowIds[i] ?? String(i)] ?? false}
+                  onToggleCollapse={() => setCollapsedMap(p => ({ ...p, [rowIds[i] ?? String(i)]: !p[rowIds[i] ?? String(i)] }))}
                   onLabel={(v) => { const n = [...items]; n[i] = { ...n[i], label: v }; setItems(n); }}
                   onHref={(v) => { const n = [...items]; n[i] = { ...n[i], href: v }; setItems(n); }}
                   onRemove={() => {
@@ -500,13 +525,15 @@ function TBtn({
 }
 
 function SortableNavRow({
-  id, it, i, navTr, navDe, onLabel, onHref, onRemove, setNavLang,
+  id, it, i, navTr, navDe, isCollapsed, onToggleCollapse, onLabel, onHref, onRemove, setNavLang,
 }: {
   id: string;
   it: { label: string; href: string };
   i: number;
   navTr: string;
   navDe: string;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   onLabel: (v: string) => void;
   onHref: (v: string) => void;
   onRemove: () => void;
@@ -524,20 +551,36 @@ function SortableNavRow({
         <button {...attributes} {...listeners} className="cursor-grab text-muted-foreground p-1 shrink-0" title="Drag to reorder" type="button">
           <GripVertical className="w-4 h-4" />
         </button>
-        <Input placeholder="Label (EN)" value={it.label} onChange={(e) => onLabel(e.target.value)} />
-        <Input placeholder="#anchor" value={it.href} onChange={(e) => onHref(e.target.value)} />
+        <button
+          type="button"
+          className="flex items-center gap-2 hover:text-foreground text-left flex-1 min-w-0"
+          onClick={onToggleCollapse}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="text-xs font-semibold text-muted-foreground truncate">
+            {it.label || "Untitled Link"}
+          </span>
+        </button>
         <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="w-4 h-4" /></Button>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex items-center gap-1.5">
-          <Input placeholder={`TR — ${it.label}`} value={navTr} onChange={(e) => setNavLang("tr", i, e.target.value)} />
-          <TBtn enValue={it.label} lang="tr" onResult={(v) => setNavLang("tr", i, v)} />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Input placeholder={`DE — ${it.label}`} value={navDe} onChange={(e) => setNavLang("de", i, e.target.value)} />
-          <TBtn enValue={it.label} lang="de" onResult={(v) => setNavLang("de", i, v)} />
-        </div>
-      </div>
+      {!isCollapsed && (
+        <>
+          <div className="flex gap-2 items-center px-1">
+            <Input placeholder="Label (EN)" value={it.label} onChange={(e) => onLabel(e.target.value)} />
+            <Input placeholder="#anchor" value={it.href} onChange={(e) => onHref(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-2 px-1">
+            <div className="flex items-center gap-1.5">
+              <Input placeholder={`TR — ${it.label}`} value={navTr} onChange={(e) => setNavLang("tr", i, e.target.value)} />
+              <TBtn enValue={it.label} lang="tr" onResult={(v) => setNavLang("tr", i, v)} />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Input placeholder={`DE — ${it.label}`} value={navDe} onChange={(e) => setNavLang("de", i, e.target.value)} />
+              <TBtn enValue={it.label} lang="de" onResult={(v) => setNavLang("de", i, v)} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

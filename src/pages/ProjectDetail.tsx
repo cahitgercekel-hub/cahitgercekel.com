@@ -6,6 +6,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
 import SiteChrome from "@/components/site/SiteChrome";
 import { findContactSection, findProjectBySlug, RESERVED_SLUGS } from "@/lib/projectSlug";
+import { formatRichText } from "@/lib/markdown";
 import NotFound from "./NotFound";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -151,11 +152,11 @@ export default function ProjectDetail() {
                 {item.year && <div className="p-pd-year-tag">{item.year}</div>}
               </div>
             )}
-            {item.subtitle && <p className="p-pd-sub">{item.subtitle}</p>}
+            {item.subtitle && <p className="p-pd-sub">{formatRichText(item.subtitle)}</p>}
             {(item.role || item.client) && (
               <div className="p-pd-meta">
-                {item.role && <span>{item.role}</span>}
-                {item.client && <span>{item.client}</span>}
+                {item.role && <span>{formatRichText(item.role)}</span>}
+                {item.client && <span>{formatRichText(item.client)}</span>}
               </div>
             )}
             {tech.length > 0 && (
@@ -187,8 +188,8 @@ export default function ProjectDetail() {
                 <div className="p-pd-prose text-left">
                   {/* Legacy simple description */}
                   {longParas.length > 0
-                    ? longParas.map((p, i) => <p key={i}>{p}</p>)
-                    : item.description && <p>{item.description}</p>}
+                    ? longParas.map((p, i) => <p key={i}>{formatRichText(p)}</p>)
+                    : item.description && <p>{formatRichText(item.description)}</p>}
                   
                   {/* Rich blocks */}
                   {descriptionBlocks.map((block, i) => {

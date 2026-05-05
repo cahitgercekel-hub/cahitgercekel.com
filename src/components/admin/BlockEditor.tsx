@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Trash2, Plus, GripVertical } from "lucide-react";
+import { Trash2, Plus, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
 import type { BlockType } from "@/lib/blocks";
 import FileUploadField from "./FileUploadField";
 import LayoutEditor from "./LayoutEditor";
@@ -101,6 +101,7 @@ function ListEditor({
   const setField = (next: any[]) => onChange({ ...data, [field]: next });
   const dragIndex = useRef<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [collapsedMap, setCollapsedMap] = useState<Record<number, boolean>>({});
 
   const handleDrop = (toIdx: number) => {
     const from = dragIndex.current;
@@ -115,46 +116,60 @@ function ListEditor({
 
   return (
     <div className="space-y-3">
-      {items.map((it, i) => (
-        <div
-          key={i}
-          className={`border rounded-lg p-3 space-y-2 bg-muted/30 transition-colors ${overIndex === i ? "border-primary bg-primary/5" : ""}`}
-          onDragOver={(e) => { e.preventDefault(); setOverIndex(i); }}
-          onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
-          onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
-        >
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span
-                className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
-                draggable
-                onDragStart={(e) => { dragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
-                onDragEnd={() => { dragIndex.current = null; setOverIndex(null); }}
-                title="Drag to reorder"
-              >
-                <GripVertical className="w-4 h-4" />
-              </span>
-              <span className="text-xs font-semibold text-muted-foreground">Item {i + 1}</span>
+      {items.map((it, i) => {
+        const isCollapsed = collapsedMap[i] ?? false;
+        const summary = it.title || it.label || it.name || it.heading || it.period || it.company || "";
+
+        return (
+          <div
+            key={i}
+            className={`border rounded-lg p-3 space-y-2 bg-muted/30 transition-colors ${overIndex === i ? "border-primary bg-primary/5" : ""}`}
+            onDragOver={(e) => { e.preventDefault(); setOverIndex(i); }}
+            onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
+            onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span
+                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+                  draggable
+                  onDragStart={(e) => { dragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
+                  onDragEnd={() => { dragIndex.current = null; setOverIndex(null); }}
+                  title="Drag to reorder"
+                >
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 hover:text-foreground text-left flex-1 min-w-0"
+                  onClick={() => setCollapsedMap((prev) => ({ ...prev, [i]: !isCollapsed }))}
+                >
+                  {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <span className="text-xs font-semibold text-muted-foreground truncate">
+                    Item {i + 1}{summary ? `: ${summary}` : ""}
+                  </span>
+                </button>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => setField(items.filter((_, x) => x !== i))}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
-            <Button size="icon" variant="ghost" onClick={() => setField(items.filter((_, x) => x !== i))}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            {!isCollapsed && schema.map((s) => (
+              <RenderField
+                key={s.key}
+                field={s}
+                parentKey={field}
+                value={it}
+                onValueChange={(next) => {
+                  const arr = [...items];
+                  arr[i] = next;
+                  setField(arr);
+                }}
+              />
+            ))}
           </div>
-          {schema.map((s) => (
-            <RenderField
-              key={s.key}
-              field={s}
-              parentKey={field}
-              value={it}
-              onValueChange={(next) => {
-                const arr = [...items];
-                arr[i] = next;
-                setField(arr);
-              }}
-            />
-          ))}
-        </div>
-      ))}
+        );
+      })}
       <Button variant="outline" size="sm" onClick={() => setField([...items, factory()])}>
         <Plus className="w-3 h-3 mr-1" /> Add item
       </Button>
@@ -856,6 +871,7 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
   const setGroups = (next: any[]) => onChange({ ...data, groups: next });
   const dragIndex = useRef<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [collapsedMap, setCollapsedMap] = useState<Record<number, boolean>>({});
 
   const handleDrop = (toIdx: number) => {
     const from = dragIndex.current;
@@ -870,48 +886,64 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
 
   return (
     <div className="space-y-3">
-      {groups.map((g, i) => (
-        <div
-          key={i}
-          className={`border rounded-lg p-3 space-y-2 bg-muted/30 transition-colors ${overIndex === i ? "border-primary bg-primary/5" : ""}`}
-          onDragOver={(e) => { e.preventDefault(); setOverIndex(i); }}
-          onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
-          onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
-        >
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span
-                className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
-                draggable
-                onDragStart={(e) => { dragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
-                onDragEnd={() => { dragIndex.current = null; setOverIndex(null); }}
-                title="Drag to reorder"
-              >
-                <GripVertical className="w-4 h-4" />
-              </span>
-              <span className="text-xs font-semibold text-muted-foreground">Group {i + 1}</span>
+      {groups.map((g, i) => {
+        const isCollapsed = collapsedMap[i] ?? false;
+        return (
+          <div
+            key={i}
+            className={`border rounded-lg p-3 space-y-2 bg-muted/30 transition-colors ${overIndex === i ? "border-primary bg-primary/5" : ""}`}
+            onDragOver={(e) => { e.preventDefault(); setOverIndex(i); }}
+            onDragLeave={() => setOverIndex((cur) => (cur === i ? null : cur))}
+            onDrop={(e) => { e.preventDefault(); handleDrop(i); }}
+          >
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span
+                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+                  draggable
+                  onDragStart={(e) => { dragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
+                  onDragEnd={() => { dragIndex.current = null; setOverIndex(null); }}
+                  title="Drag to reorder"
+                >
+                  <GripVertical className="w-4 h-4" />
+                </span>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 hover:text-foreground text-left flex-1 min-w-0"
+                  onClick={() => setCollapsedMap((prev) => ({ ...prev, [i]: !isCollapsed }))}
+                >
+                  {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <span className="text-xs font-semibold text-muted-foreground truncate">
+                    Group {i + 1}{g.name ? `: ${g.name}` : ""}
+                  </span>
+                </button>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => setGroups(groups.filter((_, x) => x !== i))}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
-            <Button size="icon" variant="ghost" onClick={() => setGroups(groups.filter((_, x) => x !== i))}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            {!isCollapsed && (
+              <>
+                <Field label="Group name (optional)">
+                  <Input value={g.name ?? ""} onChange={(e) => {
+                    const next = [...groups]; next[i] = { ...next[i], name: e.target.value }; setGroups(next);
+                  }} />
+                </Field>
+                <Field label="Skills (comma separated)">
+                  <CsvInput
+                    value={g.items ?? []}
+                    onChange={(v) => {
+                      const next = [...groups];
+                      next[i] = { ...next[i], items: v };
+                      setGroups(next);
+                    }}
+                  />
+                </Field>
+              </>
+            )}
           </div>
-          <Field label="Group name (optional)">
-            <Input value={g.name ?? ""} onChange={(e) => {
-              const next = [...groups]; next[i] = { ...next[i], name: e.target.value }; setGroups(next);
-            }} />
-          </Field>
-          <Field label="Skills (comma separated)">
-            <CsvInput
-              value={g.items ?? []}
-              onChange={(v) => {
-                const next = [...groups];
-                next[i] = { ...next[i], items: v };
-                setGroups(next);
-              }}
-            />
-          </Field>
-        </div>
-      ))}
+        );
+      })}
       <Button variant="outline" size="sm" onClick={() => setGroups([...groups, { name: "", items: [] }])}>
         <Plus className="w-3 h-3 mr-1" /> Add group
       </Button>
