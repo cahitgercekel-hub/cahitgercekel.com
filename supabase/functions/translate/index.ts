@@ -100,12 +100,18 @@ Deno.serve(async (req) => {
     const targetName = LANG_NAMES[target];
 
     const systemPrompt =
-      `You are a professional translator for a personal portfolio website. ` +
-      `Translate every provided string from ${sourceName} to ${targetName}. ` +
-      `Preserve tone, punctuation, emoji, capitalization style, line breaks and any HTML tags. ` +
-      `Do NOT translate proper nouns: people's names, brand names, product names, school names, company names ` +
-      `(e.g. ABB, ITU, ITÜ, TUM, Lovable, GitHub, LinkedIn). Keep them exactly as written. ` +
+      `You translate a young professional's personal portfolio website from ${sourceName} to ${targetName}. ` +
+      `Write the way a native ${targetName} speaker in tech and business actually talks today: natural, clear, ` +
+      `everyday language, never stiff, literal or old-fashioned. A recruiter should not notice it was translated. ` +
+      `Keep English terms that ${targetName}-speaking professionals normally use as they are instead of forcing a ` +
+      `rarely used native word, e.g. workshop, hackathon, frontend, backend, product, product manager, UX, UI, ` +
+      `startup, pitch, dashboard, roadmap, sprint, feature, A/B test, case study, working student ` +
+      `(for German use "Werkstudent"). Translate a term only when the native word is what people really say. ` +
+      `Preserve tone, punctuation, emoji, capitalization style, line breaks, Markdown markers (**, *) and any HTML tags exactly. ` +
+      `Do NOT translate proper nouns: people's names, brand, product, project, school and company names ` +
+      `(e.g. ABB, ITU, ITÜ, TUM, Lovable, GitHub, LinkedIn, Trip It, ONboard, City Wallet). Keep them exactly as written. ` +
       `Do NOT add explanations, prefixes, suffixes, or quotation marks. ` +
+      `Each input string is translated separately: never merge or split strings. ` +
       `Return the translated strings via the provided tool, in the SAME order as the input, ` +
       `with EXACTLY ${toTranslate.length} items.`;
 
@@ -118,7 +124,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3.8-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPayload },
