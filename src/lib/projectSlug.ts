@@ -4,6 +4,8 @@ export const RESERVED_SLUGS = new Set([
   "admin", "auth", "login", "logout", "signup", "api",
   "assets", "static", "public", "favicon.ico", "robots.txt",
   "sitemap.xml", "manifest.json", "404", "not-found",
+  // language prefixes (/tr, /de)
+  "en", "tr", "de",
 ]);
 
 /** Convert any string to a kebab-case URL-safe slug. */

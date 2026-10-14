@@ -9,6 +9,13 @@ import Index from "./pages/Index.tsx";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
+
+// Content embedded by the build-time prerender (vite-plugins/prerender.ts):
+// seed the cache so the page renders immediately, then refetch live data as usual.
+const prerendered = typeof window !== "undefined" ? (window as any).__SEO_DATA__ : undefined;
+if (prerendered?.sections) queryClient.setQueryData(["sections", false], prerendered.sections);
+if (prerendered && "settings" in prerendered) queryClient.setQueryData(["site_settings"], prerendered.settings);
+
 const AdminEditor = lazy(() => import("./pages/AdminEditor.tsx"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail.tsx"));
@@ -19,23 +26,27 @@ const PageFallback = () => <div className="min-h-screen bg-background" aria-hidd
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <LanguageProvider>
             <Suspense fallback={<PageFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/tr" element={<Index />} />
+                <Route path="/de" element={<Index />} />
                 <Route path="/admin" element={<AdminEditor />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/tr/:slug" element={<ProjectDetail />} />
+                <Route path="/de/:slug" element={<ProjectDetail />} />
                 <Route path="/:slug" element={<ProjectDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LanguageProvider>
+          </LanguageProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>
 );

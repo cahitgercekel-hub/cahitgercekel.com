@@ -10,6 +10,8 @@ import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
 import { projectSlug } from "@/lib/projectSlug";
+import { buildHomeHead, localizedPath } from "@/lib/seo";
+import SeoHead from "./SeoHead";
 import SiteChrome from "./SiteChrome";
 import BorderGlow from "./BorderGlow";
 import { formatRichText } from "@/lib/markdown";
@@ -26,13 +28,12 @@ export default function SiteRenderer() {
 
   return (
     <>
-      <Helmet>
-        <title>{settings?.site_title || settings?.logo_text || "Portfolio"}</title>
-        <meta name="description" content={settings?.meta_description || "Personal portfolio."} />
-        {settings?.favicon_url && <link rel="icon" href={settings.favicon_url} />}
-        {settings?.og_image_url && <meta property="og:image" content={settings.og_image_url} />}
-        {settings?.site_title && <meta property="og:title" content={settings.site_title} />}
-      </Helmet>
+      <SeoHead head={buildHomeHead(lang, sections, settings)} />
+      {settings?.favicon_url && (
+        <Helmet>
+          <link rel="icon" href={settings.favicon_url} />
+        </Helmet>
+      )}
       <SiteChrome>
         {(sections ?? []).map((s, i) => (
           <RenderBlock key={s.id} section={s} alt={i % 2 === 1} settings={settings} lang={lang} />
@@ -309,7 +310,8 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             <div className="p-projects">
               {items.map((it: any, i: number) => {
                 // Compute a unique slug for this card (matches ProjectDetail lookup).
-                let base = projectSlug(it);
+                // Use the untranslated item so URLs are the same in every language.
+                let base = projectSlug(raw.items?.[i] ?? it);
                 let slug = base;
                 let n = 2;
                 while (slug && usedSlugs.has(slug)) slug = `${base}-${n++}`;
@@ -360,7 +362,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                 );
                 const cls = `p-card${it.featured ? " featured" : ""}`;
                 if (hasDetail) {
-                  return <Link key={i} to={`/${slug}`} className={cls}>{inner}</Link>;
+                  return <Link key={i} to={localizedPath(`/${slug}`, lang)} className={cls}>{inner}</Link>;
                 }
                 if (it.link && it.openExternal) {
                   return <a key={i} className={cls} href={it.link} target="_blank" rel="noreferrer">{inner}</a>;

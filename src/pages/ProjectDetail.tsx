@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { useLang } from "@/contexts/LanguageContext";
 import { mergeI18n } from "@/lib/i18n";
 import SiteChrome from "@/components/site/SiteChrome";
-import { findContactSection, findProjectBySlug, RESERVED_SLUGS } from "@/lib/projectSlug";
+import { findContactSection, findProjectBySlug, RESERVED_SLUGS, slugify } from "@/lib/projectSlug";
+import { buildProjectHead, localizedPath } from "@/lib/seo";
+import SeoHead from "@/components/site/SeoHead";
 import { formatRichText } from "@/lib/markdown";
 import NotFound from "./NotFound";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -93,9 +94,6 @@ export default function ProjectDetail() {
   const contactRaw = useOverride ? item.contactOverride : findContactSection(sections);
   const contactBlock = contactRaw ? mergeI18n({ ...contactRaw }, lang) : null;
 
-  const pageTitle = `${item.title || "Project"} — ${settings?.site_title || settings?.logo_text || "Portfolio"}`;
-  const pageDesc = item.subtitle || item.description || settings?.meta_description || "";
-
   const longParas = String(item.longDescription || "")
     .split(/\n\n+/)
     .map((s) => s.trim())
@@ -110,16 +108,12 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDesc} />
-        {item.image && <meta property="og:image" content={item.image} />}
-      </Helmet>
+      <SeoHead head={buildProjectHead(lang, slugify(slug), item, settings)} />
       <SiteChrome>
         {/* Hero */}
         <section className="p-pd-hero">
           <div className="p-inner" style={{ width: "100%" }}>
-            <Link to="/#projects" className="p-pd-back">← Back to Home</Link>
+            <Link to={localizedPath("/#projects", lang)} className="p-pd-back">← Back to Home</Link>
             <div className="p-pd-head">
               {item.iconUrl && <img className="p-pd-icon" src={item.iconUrl} alt="" />}
               <h1 className="p-pd-title">{item.title}</h1>

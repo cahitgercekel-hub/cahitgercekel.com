@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSite";
 import { useLang, LANGS } from "@/contexts/LanguageContext";
 import { translateNavItems, translateString } from "@/lib/i18n";
+import { localizedPath, stripLang } from "@/lib/seo";
 import { PORTFOLIO_CSS } from "./portfolioStyles";
 
 const FONT_MAP: Record<string, string> = {
@@ -24,7 +25,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const { data: settings } = useSiteSettings();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { lang, setLang } = useLang();
+  const { lang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,8 +45,8 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     if (!id) return;
     e.preventDefault();
     setMenuOpen(false);
-    if (location.pathname !== "/") {
-      navigate("/");
+    if (stripLang(location.pathname) !== "/") {
+      navigate(localizedPath("/", lang));
       // Wait for the home page to render, then scroll.
       setTimeout(() => scrollToId(id), 80);
     } else {
@@ -108,6 +109,10 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const navItems = translateNavItems(settings?.nav_items, settings?.i18n, lang);
   const logoText = translateString(settings?.logo_text, settings?.i18n, lang, "logo_text") || "Portfolio";
   const logoWords = logoText.trim().split(/\s+/);
+  // In-page anchors ("#x" / "/#x") point at this language's home page.
+  const navHref = (href: string) =>
+    href.startsWith("#") || href.startsWith("/#") ? localizedPath(href.replace(/^\/?/, "/"), lang) : href;
+  const langHref = (l: typeof lang) => localizedPath(stripLang(location.pathname), l) + location.hash;
 
   return (
     <div style={styleVars} className="portfolio-root">
@@ -116,7 +121,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       <nav className={`p-nav${scrolled ? " scrolled" : ""}${menuOpen ? " menu-open" : ""}`}>
         <div className="p-nav-row">
           <div className="p-logo">
-            <Link to="/">
+            <Link to={localizedPath("/", lang)}>
               {logoWords.map((w, i) => (
                 <span key={i} className="p-logo-word">
                   {w.charAt(0)}
@@ -130,7 +135,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             {navItems.map((it, i) => (
               <li key={i}>
                 <a
-                  href={it.href.startsWith("#") ? `/${it.href}` : it.href}
+                  href={navHref(it.href)}
                   onClick={(e) => handleNavClick(e, it.href)}
                 >
                   {it.label}
@@ -153,7 +158,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             <ul className="p-mobile-menu">
               {navItems.map((it, i) => (
                 <li key={i}>
-                  <a href={it.href.startsWith("#") ? `/${it.href}` : it.href} onClick={(e) => handleNavClick(e, it.href)}>{it.label}</a>
+                  <a href={navHref(it.href)} onClick={(e) => handleNavClick(e, it.href)}>{it.label}</a>
                 </li>
               ))}
             </ul>
@@ -161,13 +166,14 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
               {LANGS.map((l, i) => (
                 <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
                   {i > 0 && <span className="p-lang-sep">|</span>}
-                  <button
-                    type="button"
+                  <Link
+                    to={langHref(l)}
+                    hrefLang={l}
                     className={lang === l ? "active" : ""}
-                    onClick={() => setLang(l)}
+                    aria-current={lang === l ? "page" : undefined}
                   >
                     {l.toUpperCase()}
-                  </button>
+                  </Link>
                 </span>
               ))}
             </div>
@@ -194,14 +200,14 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
         {LANGS.map((l, i) => (
           <span key={l} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             {i > 0 && <span className="p-lang-sep">|</span>}
-            <button
-              type="button"
+            <Link
+              to={langHref(l)}
+              hrefLang={l}
               className={lang === l ? "active" : ""}
-              onClick={() => setLang(l)}
-              aria-pressed={lang === l}
+              aria-current={lang === l ? "page" : undefined}
             >
               {l.toUpperCase()}
-            </button>
+            </Link>
           </span>
         ))}
       </div>

@@ -1,4 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { langFromPath, localizedPath, stripLang } from "@/lib/seo";
 
 export type Lang = "en" | "tr" | "de";
 export const LANGS: Lang[] = ["en", "tr", "de"];
@@ -6,23 +8,23 @@ export const LANGS: Lang[] = ["en", "tr", "de"];
 type Ctx = { lang: Lang; setLang: (l: Lang) => void };
 const LanguageContext = createContext<Ctx>({ lang: "en", setLang: () => {} });
 
-const STORAGE_KEY = "site.lang";
-
-function readInitial(): Lang {
-  if (typeof window === "undefined") return "en";
-  const saved = window.localStorage.getItem(STORAGE_KEY);
-  if (saved === "en" || saved === "tr" || saved === "de") return saved;
-  return "en";
-}
-
+/**
+ * The language comes from the URL prefix ("/", "/tr/...", "/de/...") so every
+ * language version has its own crawlable address. Must be rendered inside the router.
+ */
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(readInitial);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const lang = langFromPath(location.pathname);
+
   useEffect(() => {
-    try { window.localStorage.setItem(STORAGE_KEY, lang); } catch {}
     document.documentElement.lang = lang;
   }, [lang]);
+
+  const setLang = (l: Lang) => navigate(localizedPath(stripLang(location.pathname), l) + location.hash);
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang: setLangState }}>
+    <LanguageContext.Provider value={{ lang, setLang }}>
       {children}
     </LanguageContext.Provider>
   );
