@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { GripVertical, Eye, EyeOff, Trash2, Copy, Plus, LogOut, ExternalLink, Pencil, Sparkles, Loader2, ChevronDown, ChevronRight } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Trash2, Copy, Plus, LogOut, ExternalLink, Pencil, Sparkles, Loader2, ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -26,6 +26,28 @@ import FileUploadField from "@/components/admin/FileUploadField";
 import { translateOne, translateTexts, type TargetLang } from "@/lib/translate";
 
 const FONT_CHOICES = ["Inter", "Poppins", "Manrope", "Space Grotesk", "Playfair", "Syne", "DM Sans"];
+
+// The Vercel Deploy Hook URL acts like a secret, so it is kept only in this
+// browser (never in the code or the database).
+const DEPLOY_HOOK_KEY = "admin.deployHookUrl";
+
+/** Rebuild the site so the prerendered HTML search engines see picks up content edits. */
+async function triggerRebuild() {
+  let url = "";
+  try { url = localStorage.getItem(DEPLOY_HOOK_KEY) ?? ""; } catch {}
+  if (!url) {
+    url = (prompt("Paste the Vercel Deploy Hook URL (Vercel → Settings → Git → Deploy Hooks). It is stored only in this browser.") ?? "").trim();
+    if (!url) return;
+    if (!url.startsWith("https://api.vercel.com/")) { toast.error("That doesn't look like a Vercel Deploy Hook URL"); return; }
+    try { localStorage.setItem(DEPLOY_HOOK_KEY, url); } catch {}
+  }
+  try {
+    await fetch(url, { method: "POST", mode: "no-cors" });
+    toast.success("Rebuild started. Search engine pages update in about a minute.");
+  } catch {
+    toast.error("Could not reach Vercel");
+  }
+}
 
 export default function AdminEditor() {
   const { session, loading } = useAuth();
@@ -81,6 +103,9 @@ export default function AdminEditor() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="font-semibold">Portfolio Admin</h1>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={triggerRebuild} title="Rebuild the prerendered pages after editing content">
+              <RefreshCw className="w-4 h-4 mr-1" /> Update search pages
+            </Button>
             <Button variant="outline" size="sm" asChild><a href="/" target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> View site</a></Button>
             <Button variant="outline" size="sm" onClick={async () => { await supabase.auth.signOut(); nav("/admin/login"); }}>
               <LogOut className="w-4 h-4 mr-1" /> Sign out

@@ -6,14 +6,24 @@ import { translateNavItems, translateString, ui } from "@/lib/i18n";
 import { localizedPath, stripLang } from "@/lib/seo";
 import { PORTFOLIO_CSS } from "./portfolioStyles";
 
-const FONT_MAP: Record<string, string> = {
-  Inter: "Inter:wght@300;400;500;600;700;800",
-  Poppins: "Poppins:wght@300;400;500;600;700;800",
-  Manrope: "Manrope:wght@300;400;500;600;700;800",
-  "Space Grotesk": "Space+Grotesk:wght@300;400;500;600;700",
-  Playfair: "Playfair+Display:wght@400;500;600;700;800;900",
-  Syne: "Syne:wght@400;500;600;700;800",
-  "DM Sans": "DM+Sans:wght@300;400;500;700",
+// Fonts are self-hosted (Fontsource) instead of loaded from Google Fonts:
+// faster (same origin, no extra DNS/TLS) and no visitor IPs sent to Google.
+// Each loader is its own chunk, so only the selected font is downloaded.
+const FONTS: Record<string, { family: string; load: () => Promise<unknown> }> = {
+  Inter: { family: "'Inter Variable', 'Inter'", load: () => import("@fontsource-variable/inter") },
+  Poppins: {
+    family: "'Poppins'",
+    load: () => Promise.all([
+      import("@fontsource/poppins/300.css"), import("@fontsource/poppins/400.css"),
+      import("@fontsource/poppins/500.css"), import("@fontsource/poppins/600.css"),
+      import("@fontsource/poppins/700.css"), import("@fontsource/poppins/800.css"),
+    ]),
+  },
+  Manrope: { family: "'Manrope Variable', 'Manrope'", load: () => import("@fontsource-variable/manrope") },
+  "Space Grotesk": { family: "'Space Grotesk Variable', 'Space Grotesk'", load: () => import("@fontsource-variable/space-grotesk") },
+  Playfair: { family: "'Playfair Display Variable', 'Playfair Display'", load: () => import("@fontsource-variable/playfair-display") },
+  Syne: { family: "'Syne Variable', 'Syne'", load: () => import("@fontsource-variable/syne") },
+  "DM Sans": { family: "'DM Sans Variable', 'DM Sans'", load: () => import("@fontsource-variable/dm-sans") },
 };
 
 /**
@@ -68,20 +78,11 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   }, []);
 
   const fontFamily = settings?.font_family || "Inter";
-  const fontSpec = FONT_MAP[fontFamily] || FONT_MAP.Inter;
-  const fontHref = `https://fonts.googleapis.com/css2?family=${fontSpec}&display=swap`;
+  const font = FONTS[fontFamily] || FONTS.Inter;
 
   useEffect(() => {
-    const existing = document.getElementById("portfolio-fonts") as HTMLLinkElement | null;
-    if (existing) existing.href = fontHref;
-    else {
-      const l = document.createElement("link");
-      l.id = "portfolio-fonts";
-      l.rel = "stylesheet";
-      l.href = fontHref;
-      document.head.appendChild(l);
-    }
-  }, [fontHref]);
+    font.load().catch(() => {});
+  }, [font]);
 
   const t = settings?.theme ?? {
     accent: "#6c47ff",
@@ -103,7 +104,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     "--p-border": "#e0ddd7",
     "--p-muted": "#888",
     "--p-radius": `${radius}px`,
-    "--p-font": `'${fontFamily}', sans-serif`,
+    "--p-font": `${font.family}, sans-serif`,
   } as React.CSSProperties;
 
   const navItems = translateNavItems(settings?.nav_items, settings?.i18n, lang);

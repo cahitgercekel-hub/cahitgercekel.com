@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { gsap } from 'gsap';
 
 export interface SplitTextProps {
   text: string;
@@ -65,29 +64,38 @@ const SplitText: React.FC<SplitTextProps> = ({
     );
     if (!targets.length) return;
 
-    gsap.set(targets, { ...from });
+    // gsap is loaded on demand so it stays out of the main bundle.
+    let observer: IntersectionObserver | undefined;
+    let cancelled = false;
+    import('gsap').then(({ gsap }) => {
+      if (cancelled) return;
+      gsap.set(targets, { ...from });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (!entry?.isIntersecting || playedRef.current) return;
-        playedRef.current = true;
-        observer.disconnect();
-        gsap.to(targets, {
-          ...to,
-          duration,
-          ease,
-          stagger: delay / 1000,
-          force3D: true,
-          willChange: 'transform, opacity',
-          onComplete: () => onLetterAnimationComplete?.(),
-        });
-      },
-      { threshold, rootMargin }
-    );
-    observer.observe(el);
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry?.isIntersecting || playedRef.current) return;
+          playedRef.current = true;
+          observer?.disconnect();
+          gsap.to(targets, {
+            ...to,
+            duration,
+            ease,
+            stagger: delay / 1000,
+            force3D: true,
+            willChange: 'transform, opacity',
+            onComplete: () => onLetterAnimationComplete?.(),
+          });
+        },
+        { threshold, rootMargin }
+      );
+      observer.observe(el);
+    });
 
-    return () => observer.disconnect();
+    return () => {
+      cancelled = true;
+      observer?.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, fontsLoaded, splitType]);
 

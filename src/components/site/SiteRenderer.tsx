@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { Helmet } from "react-helmet-async";
-import DotGrid from "./DotGrid";
 import SplitText from "./SplitText";
-import RotatingText from "./RotatingText";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
 import { mergeI18n, ui } from "@/lib/i18n";
@@ -14,6 +12,10 @@ import { buildHomeHead, localizedPath } from "@/lib/seo";
 import SeoHead from "./SeoHead";
 import SiteChrome from "./SiteChrome";
 import BorderGlow from "./BorderGlow";
+
+// Decorative animations (gsap / motion) load as separate chunks after the page renders.
+const DotGrid = lazy(() => import("./DotGrid"));
+const RotatingText = lazy(() => import("./RotatingText"));
 import { formatRichText } from "@/lib/markdown";
 
 export default function SiteRenderer() {
@@ -95,7 +97,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
         ? { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" }
         : {};
       const photo = d.image && !isBackground && (
-        <img className="p-hero-photo" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax, objectPosition: d.imageFocal || "50% 50%" }} />
+        <img className="p-hero-photo" fetchPriority="high" src={d.image} alt={d.name || "Portrait"} style={{ maxWidth: imgMax, objectPosition: d.imageFocal || "50% 50%" }} />
       );
       const heroLine1 = `${d.greeting || "Hello"}.`;
       const heroLine2 = `${d.nameLine || `${d.intro || "I'm"} ${d.name || ""}`.trim()}.`;
@@ -156,6 +158,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       return (
         <section id={sectionId} className="p-hero" style={{ ...heroSectionStyle, position: "relative", overflow: "hidden" }}>
           <div aria-hidden style={{ position: "absolute", inset: 0, zIndex: 0, background: dotBg.background || "transparent" }}>
+            <Suspense fallback={null}>
             <DotGrid
               dotSize={dotBg.dotSize ?? 6}
               gap={dotBg.gap ?? 22}
@@ -167,6 +170,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
               resistance={dotBg.resistance ?? 750}
               returnDuration={dotBg.returnDuration ?? 1.5}
             />
+            </Suspense>
           </div>
           <div className="p-inner" style={{ width: "100%", position: "relative", zIndex: 1, ...innerStyle }}>
             <div className="p-hero-grid" style={gridStyle}>
@@ -177,6 +181,12 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       );
     }
     case "about": {
+      const pillStyle: React.CSSProperties = {
+        background: d.rotatingPills?.bg ?? "#db0000",
+        color: d.rotatingPills?.fg ?? "#ffffff",
+        fontSize: "0.7em",
+        lineHeight: 1.2,
+      };
       const pos = layout.imagePos ?? "right";
       const imgMax = IMAGE_SIZE_MAP[layout.imageSize ?? "medium"];
       const isStacked = pos === "top" || pos === "bottom";
@@ -184,7 +194,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
         ? { gridTemplateColumns: "1fr" }
         : { gridTemplateColumns: pos === "left" ? "1fr 1.2fr" : "1.2fr 1fr" };
       const portrait = d.portrait && (
-        <img className="p-about-portrait" src={d.portrait} alt="" style={{ maxWidth: imgMax, objectPosition: d.portraitFocal || "50% 50%" }} />
+        <img className="p-about-portrait" loading="lazy" decoding="async" src={d.portrait} alt="" style={{ maxWidth: imgMax, objectPosition: d.portraitFocal || "50% 50%" }} />
       );
       const text = (
         <div className="p-about-text">
@@ -204,25 +214,29 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
               <h2 className="p-title" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
                 <span>{d.title}</span>
                 {Array.isArray(d.rotatingPills?.texts) && d.rotatingPills.texts.filter(Boolean).length > 0 && (
-                  <RotatingText
-                    texts={d.rotatingPills.texts.filter(Boolean)}
-                    rotationInterval={d.rotatingPills?.intervalMs ?? 2000}
-                    staggerDuration={d.rotatingPills?.staggerDuration ?? 0.025}
-                    staggerFrom={d.rotatingPills?.staggerFrom ?? "last"}
-                    splitBy="characters"
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "-120%" }}
-                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                    mainClassName="px-3 py-1 rounded-lg overflow-hidden"
-                    splitLevelClassName="overflow-hidden pb-0.5"
-                    style={{
-                      background: d.rotatingPills?.bg ?? "#db0000",
-                      color: d.rotatingPills?.fg ?? "#ffffff",
-                      fontSize: "0.7em",
-                      lineHeight: 1.2,
-                    }}
-                  />
+                  <Suspense
+                    fallback={
+                      // Same pill without the animation while the motion chunk loads.
+                      <span className="px-3 py-1 rounded-lg overflow-hidden" style={pillStyle}>
+                        {d.rotatingPills.texts.filter(Boolean)[0]}
+                      </span>
+                    }
+                  >
+                    <RotatingText
+                      texts={d.rotatingPills.texts.filter(Boolean)}
+                      rotationInterval={d.rotatingPills?.intervalMs ?? 2000}
+                      staggerDuration={d.rotatingPills?.staggerDuration ?? 0.025}
+                      staggerFrom={d.rotatingPills?.staggerFrom ?? "last"}
+                      splitBy="characters"
+                      initial={{ y: "100%" }}
+                      animate={{ y: 0 }}
+                      exit={{ y: "-120%" }}
+                      transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                      mainClassName="px-3 py-1 rounded-lg overflow-hidden"
+                      splitLevelClassName="overflow-hidden pb-0.5"
+                      style={pillStyle}
+                    />
+                  </Suspense>
                 )}
               </h2>
             )}
@@ -324,8 +338,8 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                   <>
                     <div className="p-card-thumb">{it.image ? (
                       <>
-                        <img className="p-card-thumb-bg" src={it.image} alt="" aria-hidden />
-                        <img className="p-card-thumb-img" src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} />
+                        <img className="p-card-thumb-bg" loading="lazy" decoding="async" src={it.image} alt="" aria-hidden />
+                        <img className="p-card-thumb-img" loading="lazy" decoding="async" src={it.image} alt={it.title} style={{ objectPosition: it.focal || "50% 50%" }} />
                       </>
                     ) : (it.emoji || "✨")}</div>
                     <div className="p-card-body" style={{ position: "relative" }}>
@@ -394,7 +408,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                   <div className="p-tl-period">{it.period}</div>
                   <div className="p-tl-role">{it.role}</div>
                   <div className="p-tl-company-row">
-                    {it.logo && <img className="p-tl-logo" src={it.logo} alt="" />}
+                    {it.logo && <img className="p-tl-logo" loading="lazy" decoding="async" src={it.logo} alt="" />}
                     <div className="p-tl-company-text">
                       {it.companyHref ? (
                         <a className="p-tl-company" href={it.companyHref} target="_blank" rel="noreferrer">{it.company}</a>
@@ -423,7 +437,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                 {(d.links ?? []).map((l: any, i: number) => (
                   <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
                     {l.iconUrl
-                      ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
+                      ? <img className="p-contact-icon" loading="lazy" decoding="async" src={l.iconUrl} alt="" />
                       : <span>{l.icon}</span>}
                     <span>{l.label}</span>
                   </a>
@@ -442,7 +456,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             <div className="p-logos-row">
               {(d.items ?? []).map((it: any, i: number) => {
                 const content = it.logo
-                  ? <img src={it.logo} alt={it.name || ""} />
+                  ? <img loading="lazy" decoding="async" src={it.logo} alt={it.name || ""} />
                   : <span style={{ fontWeight: 700, color: "var(--p-muted)" }}>{it.name}</span>;
                 return it.href ? (
                   <a key={i} className="p-logo-item" href={it.href} target="_blank" rel="noreferrer" aria-label={it.name}>{content}</a>
@@ -458,7 +472,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
       return (
         <section id={sectionId} className={`p-section ${alt ? "alt" : ""}`} style={sectionStyle}>
           <div className="p-inner" style={{ textAlign: layout.textAlign || d.align || "center", ...innerStyle }}>
-            {d.src && <img src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16, objectFit: "cover", objectPosition: d.focal || "50% 50%" }} />}
+            {d.src && <img loading="lazy" decoding="async" src={d.src} alt={d.alt || ""} style={{ maxWidth: d.maxWidth || 720, width: "100%", borderRadius: 16, objectFit: "cover", objectPosition: d.focal || "50% 50%" }} />}
             {d.caption && <p style={{ color: "var(--p-muted)", marginTop: 12, fontSize: ".9rem" }}>{d.caption}</p>}
           </div>
         </section>

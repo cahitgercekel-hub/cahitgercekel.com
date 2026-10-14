@@ -219,7 +219,7 @@ export default function ProjectDetail() {
                               setCurrentIndex(block.galleryIndex);
                             }}
                           >
-                            <img src={img.src} alt={img.alt || ""} style={imgStyle} />
+                            <img loading="lazy" decoding="async" src={img.src} alt={img.alt || ""} style={imgStyle} />
                             {img.caption && <span className="p-pd-desc-caption">{img.caption}</span>}
                           </div>
                         )}
@@ -266,7 +266,7 @@ export default function ProjectDetail() {
                     className="cursor-pointer"
                   >
                     {g.alt && <div className="p-pd-gallery-label">{g.alt}</div>}
-                    {g.src && <img src={g.src} alt={g.alt || ""} style={{ objectPosition: g.focal || "50% 50%" }} />}
+                    {g.src && <img loading="lazy" decoding="async" src={g.src} alt={g.alt || ""} style={{ objectPosition: g.focal || "50% 50%" }} />}
                     {g.caption && <figcaption>{g.caption}</figcaption>}
                   </figure>
                 ))}
@@ -287,7 +287,7 @@ export default function ProjectDetail() {
                     {sec.body && <p>{sec.body}</p>}
                   </div>
                   {sec.image
-                    ? <img src={sec.image} alt={sec.heading || ""} />
+                    ? <img loading="lazy" decoding="async" src={sec.image} alt={sec.heading || ""} />
                     : <div />}
                 </div>
               ))}
@@ -307,7 +307,7 @@ export default function ProjectDetail() {
                   {(contactBlock.links ?? []).map((l: any, i: number) => (
                     <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
                       {l.iconUrl
-                        ? <img className="p-contact-icon" src={l.iconUrl} alt="" />
+                        ? <img className="p-contact-icon" loading="lazy" decoding="async" src={l.iconUrl} alt="" />
                         : <span>{l.icon}</span>}
                       <span>{l.label}</span>
                     </a>
