@@ -105,8 +105,11 @@ Deno.serve(async (req) => {
       `everyday language, never stiff, literal or old-fashioned. A recruiter should not notice it was translated. ` +
       `Keep an English term only where ${targetName}-speaking professionals really use it untranslated: job titles ` +
       `and fields (Product Manager, Product Specialist, Product Management, UX Design), and words like workshop, ` +
-      `hackathon, frontend, backend, UX, UI, startup, pitch, dashboard, roadmap, sprint, A/B test, Kanban ` +
-      `(for "working student" in German use "Werkstudent"). Everything else, including ordinary words such as ` +
+      `hackathon, frontend, backend, UX, UI, startup, pitch, dashboard, roadmap, sprint, A/B test, Kanban. ` +
+      (target === "de"
+        ? `For "working student" use "Werkstudent" / "Werkstudentenstelle". `
+        : `Keep "working student" in English. `) +
+      `Everything else, including ordinary words such as ` +
       `product, project, user, team, feature or tool used as common nouns, goes into natural ${targetName}; ` +
       `never capitalize a common English word in the middle of a sentence. ` +
       `Preserve tone, punctuation, emoji, capitalization style, line breaks, Markdown markers (**, *) and any HTML tags exactly. ` +

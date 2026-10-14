@@ -170,7 +170,7 @@ function personNode(sections: any[] | undefined, description: string) {
     url: `${SITE_URL}/`,
     ...(hero?.image ? { image: hero.image } : {}),
     description,
-    email: "mailto:info@cahitgercekel.com",
+    email: "mailto:cahit.gercekel@gmail.com",
     address: { "@type": "PostalAddress", addressLocality: "Heilbronn", addressCountry: "DE" },
     alumniOf: [
       { "@type": "CollegeOrUniversity", name: "Technical University of Munich", url: "https://www.tum.de/" },
