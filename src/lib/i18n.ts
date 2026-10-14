@@ -1,5 +1,5 @@
 import type { BlockType } from "./blocks";
-import type { Lang } from "@/contexts/LanguageContext";
+import type { Lang } from "../contexts/LanguageContext";
 
 /**
  * Translatable text fields per block type.
@@ -148,5 +148,5 @@ const UI_TEXT = {
 } satisfies Record<string, Record<Lang, string>>;
 
 export function ui(key: keyof typeof UI_TEXT, lang: Lang): string {
-  return UI_TEXT[key][lang] ?? UI_TEXT[key].en;
+  return (UI_TEXT[key] as Record<Lang, string>)[lang] ?? UI_TEXT[key].en;
 }
