@@ -122,6 +122,18 @@ export default function prerender(): Plugin {
       const templatePath = path.join(outDir, "index.html");
       if (!fs.existsSync(templatePath)) return;
       const template = fs.readFileSync(templatePath, "utf8");
+
+      // 404.html: hosts like Vercel serve it with a real 404 status for unknown
+      // URLs. The app still boots, so a project added after the last build
+      // renders for visitors; crawlers get the 404 until the next build.
+      fs.writeFileSync(
+        path.join(outDir, "404.html"),
+        template
+          .replace(/<title>[\s\S]*?<\/title>/, () => `<title>Page not found</title>`)
+          .replace(/\s*<meta data-rh="true"[^>]*>/g, "")
+          .replace("<!--seo-head-->", () => `<meta name="robots" content="noindex">`),
+      );
+
       const url = config.env.VITE_SUPABASE_URL;
       const key = config.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       if (!url || !key) { config.logger.warn("[seo-prerender] Supabase env vars missing – skipped"); return; }
