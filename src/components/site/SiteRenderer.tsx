@@ -8,7 +8,7 @@ import SplitText from "./SplitText";
 import RotatingText from "./RotatingText";
 import type { SectionRow, SiteSettings } from "@/lib/blocks";
 import { useLang, type Lang } from "@/contexts/LanguageContext";
-import { mergeI18n } from "@/lib/i18n";
+import { mergeI18n, ui } from "@/lib/i18n";
 import { projectSlug } from "@/lib/projectSlug";
 import { buildHomeHead, localizedPath } from "@/lib/seo";
 import SeoHead from "./SeoHead";
@@ -318,7 +318,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                 if (slug) usedSlugs.add(slug);
 
                 const hasDetail = !it.openExternal && !!slug;
-                const ctaLabel = it.caseStudy?.enabled ? "Open case study →" : "View →";
+                const ctaLabel = ui(it.caseStudy?.enabled ? "openCaseStudy" : "view", lang);
                 const status = (it.status || "").toLowerCase() || (it.link ? "live" : "");
                 const inner = (
                   <>
@@ -353,7 +353,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                             title="View Live Site"
                           >
                             <span className="p-card-live-dot" />
-                            {it.liveText || "Live"}
+                            {it.liveText || ui("live", lang)}
                           </a>
                         )}
                       </div>

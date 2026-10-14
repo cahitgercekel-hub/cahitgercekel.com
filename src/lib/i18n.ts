@@ -130,3 +130,21 @@ export function translateString(value: string | undefined, i18n: any, lang: Lang
   const v = i18n?.[lang]?.[key];
   return isFilled(v) ? v : (value ?? "");
 }
+
+/** Fixed UI labels that are not part of the editable content. */
+const UI_TEXT = {
+  view: { en: "View →", tr: "İncele →", de: "Ansehen →" },
+  openCaseStudy: { en: "Open case study →", tr: "Vaka çalışmasını aç →", de: "Fallstudie öffnen →" },
+  live: { en: "Live", tr: "Canlı", de: "Live" },
+  inProgress: { en: "In Progress", tr: "Geliştiriliyor", de: "In Arbeit" },
+  backToHome: { en: "← Back to Home", tr: "← Ana sayfaya dön", de: "← Zur Startseite" },
+  backToTop: { en: "Back to top ↑", tr: "Başa dön ↑", de: "Nach oben ↑" },
+  backToTopLabel: { en: "Back to top", tr: "Başa dön", de: "Nach oben" },
+  gallery: { en: "Gallery", tr: "Galeri", de: "Galerie" },
+  caseStudy: { en: "Case study", tr: "Vaka çalışması", de: "Fallstudie" },
+  galleryPreview: { en: "Gallery preview", tr: "Galeri önizlemesi", de: "Galerievorschau" },
+} satisfies Record<string, Record<Lang, string>>;
+
+export function ui(key: keyof typeof UI_TEXT, lang: Lang): string {
+  return UI_TEXT[key][lang] ?? UI_TEXT[key].en;
+}

@@ -84,6 +84,32 @@ type SchemaField = {
   defaultOpen?: boolean;
 };
 
+/**
+ * Apply the same reorder/removal to every language's copy of `data[field]`
+ * (data.i18n.<lang>[field]) so translations stay aligned with their items.
+ * No-op for nested lists, which have no i18n of their own.
+ */
+function syncI18nList(data: any, field: string, length: number, op: (arr: any[]) => any[]): any {
+  if (!data?.i18n) return data;
+  const i18n = { ...data.i18n };
+  for (const lang of Object.keys(i18n)) {
+    const arr = i18n[lang]?.[field];
+    if (!Array.isArray(arr)) continue;
+    const padded = [...arr];
+    while (padded.length < length) padded.push(null);
+    i18n[lang] = { ...i18n[lang], [field]: op(padded) };
+  }
+  return { ...data, i18n };
+}
+
+const moveOp = (from: number, to: number) => (arr: any[]) => {
+  const next = [...arr];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+};
+const removeOp = (index: number) => (arr: any[]) => arr.filter((_, x) => x !== index);
+
 function ListEditor({
   data,
   onChange,
@@ -108,10 +134,8 @@ function ListEditor({
     dragIndex.current = null;
     setOverIndex(null);
     if (from == null || from === toIdx) return;
-    const next = [...items];
-    const [moved] = next.splice(from, 1);
-    next.splice(toIdx, 0, moved);
-    setField(next);
+    const op = moveOp(from, toIdx);
+    onChange(syncI18nList({ ...data, [field]: op(items) }, field, items.length, op));
   };
 
   return (
@@ -150,7 +174,7 @@ function ListEditor({
                   </span>
                 </button>
               </div>
-              <Button size="icon" variant="ghost" onClick={() => setField(items.filter((_, x) => x !== i))}>
+              <Button size="icon" variant="ghost" onClick={() => onChange(syncI18nList({ ...data, [field]: removeOp(i)(items) }, field, items.length, removeOp(i)))}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -878,10 +902,8 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
     dragIndex.current = null;
     setOverIndex(null);
     if (from == null || from === toIdx) return;
-    const next = [...groups];
-    const [moved] = next.splice(from, 1);
-    next.splice(toIdx, 0, moved);
-    setGroups(next);
+    const op = moveOp(from, toIdx);
+    onChange(syncI18nList({ ...data, groups: op(groups) }, "groups", groups.length, op));
   };
 
   return (
@@ -918,7 +940,7 @@ function SkillGroupsEditor({ data, onChange }: { data: any; onChange: (d: any) =
                   </span>
                 </button>
               </div>
-              <Button size="icon" variant="ghost" onClick={() => setGroups(groups.filter((_, x) => x !== i))}>
+              <Button size="icon" variant="ghost" onClick={() => onChange(syncI18nList({ ...data, groups: removeOp(i)(groups) }, "groups", groups.length, removeOp(i)))}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>

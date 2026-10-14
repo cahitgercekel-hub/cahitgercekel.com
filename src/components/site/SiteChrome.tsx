@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSite";
 import { useLang, LANGS } from "@/contexts/LanguageContext";
-import { translateNavItems, translateString } from "@/lib/i18n";
+import { translateNavItems, translateString, ui } from "@/lib/i18n";
 import { localizedPath, stripLang } from "@/lib/seo";
 import { PORTFOLIO_CSS } from "./portfolioStyles";
 
@@ -191,7 +191,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             className="p-footer-to-top"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            Back to top ↑
+            {ui("backToTop", lang)}
           </button>
         </div>
       </footer>
@@ -214,7 +214,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       <button
         type="button"
         className={`p-to-top${showTop ? " visible" : ""}`}
-        aria-label="Back to top"
+        aria-label={ui("backToTopLabel", lang)}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

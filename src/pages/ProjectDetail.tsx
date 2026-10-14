@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { useLang } from "@/contexts/LanguageContext";
-import { mergeI18n } from "@/lib/i18n";
+import { mergeI18n, ui } from "@/lib/i18n";
 import SiteChrome from "@/components/site/SiteChrome";
 import { findContactSection, findProjectBySlug, RESERVED_SLUGS, slugify } from "@/lib/projectSlug";
 import { buildProjectHead, localizedPath } from "@/lib/seo";
@@ -113,7 +113,7 @@ export default function ProjectDetail() {
         {/* Hero */}
         <section className="p-pd-hero">
           <div className="p-inner" style={{ width: "100%" }}>
-            <Link to={localizedPath("/#projects", lang)} className="p-pd-back">← Back to Home</Link>
+            <Link to={localizedPath("/#projects", lang)} className="p-pd-back">{ui("backToHome", lang)}</Link>
             <div className="p-pd-head">
               {item.iconUrl && <img className="p-pd-icon" src={item.iconUrl} alt="" />}
               <h1 className="p-pd-title">{item.title}</h1>
@@ -123,13 +123,13 @@ export default function ProjectDetail() {
                   return (
                     <a className="p-pd-link-btn p-pd-live p-pd-head-btn" href={item.link} target="_blank" rel="noreferrer">
                       <span className="p-pd-live-dot" aria-hidden="true" />
-                      <span>Live</span>
+                      <span>{item.liveText || ui("live", lang)}</span>
                     </a>
                   );
                 }
                 if (status === "in_progress") {
                   return (
-                    <span className="p-pd-status p-pd-head-btn"><span aria-hidden="true">🚧</span><span>In Progress</span></span>
+                    <span className="p-pd-status p-pd-head-btn"><span aria-hidden="true">🚧</span><span>{ui("inProgress", lang)}</span></span>
                   );
                 }
                 if (status === "none" && item.statusText) {
@@ -252,7 +252,7 @@ export default function ProjectDetail() {
         {gallery.length > 0 && (
           <section className="p-section">
             <div className="p-inner">
-              <h2 className="p-title">Gallery</h2>
+              <h2 className="p-title">{ui("gallery", lang)}</h2>
               <div className="p-pd-gallery">
                 {gallery.map((g, i) => (
                   <figure
@@ -279,7 +279,7 @@ export default function ProjectDetail() {
         {csEnabled && csSections.length > 0 && (
           <section className="p-section alt">
             <div className="p-inner">
-              <h2 className="p-title">Case study</h2>
+              <h2 className="p-title">{ui("caseStudy", lang)}</h2>
               {csSections.map((sec: any, i: number) => (
                 <div key={i} className={`p-pd-cs-row${i % 2 === 1 ? " flip" : ""}`}>
                   <div>
@@ -337,7 +337,7 @@ export default function ProjectDetail() {
             )}
 
             <div className="p-pd-lightbox-content" onClick={(e) => e.stopPropagation()}>
-              <img src={selectedImg} alt="Gallery Preview" />
+              <img src={selectedImg} alt={ui("galleryPreview", lang)} />
             </div>
           </div>
         )}
