@@ -141,7 +141,7 @@ export default function prerender(): Plugin {
       let sections: any[];
       let settings: any;
       try {
-        const get = async (q: string) => {
+        const get = async (q: string): Promise<any> => {
           const res = await fetch(`${url}/rest/v1/${q}`, {
             headers: { apikey: key, Authorization: `Bearer ${key}` },
             signal: AbortSignal.timeout(20000),

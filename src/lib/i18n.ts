@@ -1,5 +1,11 @@
 import type { BlockType } from "./blocks";
-import type { Lang } from "@/contexts/LanguageContext";
+
+/**
+ * Language code, defined locally (not imported from contexts/LanguageContext)
+ * so node-side tooling that imports this file (vite-plugins/prerender) does not
+ * pull a .tsx module into a no-JSX program.
+ */
+export type Lang = "en" | "tr" | "de";
 
 /**
  * Translatable text fields per block type.
@@ -148,5 +154,5 @@ const UI_TEXT = {
 } satisfies Record<string, Record<Lang, string>>;
 
 export function ui(key: keyof typeof UI_TEXT, lang: Lang): string {
-  return UI_TEXT[key][lang] ?? UI_TEXT[key].en;
+  return (UI_TEXT[key] as Record<Lang, string>)[lang] ?? UI_TEXT[key].en;
 }
