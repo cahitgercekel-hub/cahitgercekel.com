@@ -10,6 +10,7 @@ import { mergeI18n, ui } from "@/lib/i18n";
 import { projectSlug } from "@/lib/projectSlug";
 import { buildHomeHead, localizedPath } from "@/lib/seo";
 import SeoHead from "./SeoHead";
+import ContactLinks from "./ContactLinks";
 import SiteChrome from "./SiteChrome";
 import BorderGlow from "./BorderGlow";
 
@@ -356,19 +357,28 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                       <div className="p-card-footer">
                         <span className="p-card-cta">{ctaLabel}</span>
                         {status === "live" && it.link && (
-                          <a
-                            href={it.link}
-                            target="_blank"
-                            rel="noreferrer"
+                          // The card itself is a link, and links can't be nested,
+                          // so the Live button opens the site from a click handler.
+                          <span
+                            role="link"
+                            tabIndex={0}
                             className="p-card-live-btn"
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
+                              window.open(it.link, "_blank", "noopener,noreferrer");
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key !== "Enter" && e.key !== " ") return;
+                              e.preventDefault();
+                              e.stopPropagation();
+                              window.open(it.link, "_blank", "noopener,noreferrer");
                             }}
                             title="View Live Site"
                           >
                             <span className="p-card-live-dot" />
                             {it.liveText || ui("live", lang)}
-                          </a>
+                          </span>
                         )}
                       </div>
                     </div>
@@ -433,16 +443,7 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
             {d.title && <h2 className="p-title">{d.title}</h2>}
             <div className="p-contact-info">
               {d.intro && <p>{formatRichText(d.intro)}</p>}
-              <div className="p-contact-grid">
-                {(d.links ?? []).map((l: any, i: number) => (
-                  <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
-                    {l.iconUrl
-                      ? <img className="p-contact-icon" loading="lazy" decoding="async" src={l.iconUrl} alt="" />
-                      : <span>{l.icon}</span>}
-                    <span>{l.label}</span>
-                  </a>
-                ))}
-              </div>
+              <ContactLinks links={d.links ?? []} lang={lang} />
             </div>
           </div>
         </section>

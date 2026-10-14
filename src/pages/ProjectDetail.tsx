@@ -7,6 +7,7 @@ import SiteChrome from "@/components/site/SiteChrome";
 import { findContactSection, findProjectBySlug, RESERVED_SLUGS, slugify } from "@/lib/projectSlug";
 import { buildProjectHead, localizedPath } from "@/lib/seo";
 import SeoHead from "@/components/site/SeoHead";
+import ContactLinks from "@/components/site/ContactLinks";
 import { formatRichText } from "@/lib/markdown";
 import NotFound from "./NotFound";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -303,16 +304,7 @@ export default function ProjectDetail() {
               {contactBlock.title && <h2 className="p-title">{contactBlock.title}</h2>}
               <div className="p-contact-info">
                 {contactBlock.intro && <p>{contactBlock.intro}</p>}
-                <div className="p-contact-grid">
-                  {(contactBlock.links ?? []).map((l: any, i: number) => (
-                    <a key={i} className="p-contact-link" href={l.href} target="_blank" rel="noreferrer">
-                      {l.iconUrl
-                        ? <img className="p-contact-icon" loading="lazy" decoding="async" src={l.iconUrl} alt="" />
-                        : <span>{l.icon}</span>}
-                      <span>{l.label}</span>
-                    </a>
-                  ))}
-                </div>
+                <ContactLinks links={contactBlock.links ?? []} lang={lang} />
               </div>
             </div>
           </section>

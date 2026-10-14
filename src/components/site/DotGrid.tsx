@@ -64,7 +64,10 @@ const DotGrid: React.FC<DotGridProps> = ({
   const pointerRef = useRef({
     x: -9999, y: -9999, vx: 0, vy: 0, speed: 0, lastTime: 0, lastX: 0, lastY: 0
   });
-  const isTouchRef = useRef(false);
+  // Highlight state: target in client coords, eased position in canvas coords,
+  // and an intensity that fades in/out so the glow never jumps or sticks.
+  const glowRef = useRef({ clientX: -9999, clientY: -9999, x: -9999, y: -9999, intensity: 0, active: false });
+  const visibleRef = useRef(true);
 
   const baseRgb = useMemo(() => hexToRgb(baseColor), [baseColor]);
   const activeRgb = useMemo(() => hexToRgb(activeColor), [activeColor]);
@@ -119,10 +122,20 @@ const DotGrid: React.FC<DotGridProps> = ({
     let rafId: number;
     const proxSq = proximity * proximity;
     const draw = () => {
+      rafId = requestAnimationFrame(draw);
       const canvas = canvasRef.current;
-      if (!canvas) return;
+      if (!canvas || !visibleRef.current) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+
+      // Ease the glow toward the pointer every frame (pointer events are sparse).
+      const glow = glowRef.current;
+      const rect = canvas.getBoundingClientRect();
+      const tx = glow.clientX - rect.left;
+      const ty = glow.clientY - rect.top;
+      if (glow.intensity < 0.01) { glow.x = tx; glow.y = ty; }
+      else { glow.x += (tx - glow.x) * 0.2; glow.y += (ty - glow.y) * 0.2; }
+      glow.intensity += ((glow.active ? 1 : 0) - glow.intensity) * 0.12;
       
       // Clear with identity transform to ensure full canvas is cleared regardless of scale (DPR)
       ctx.save();
@@ -130,7 +143,9 @@ const DotGrid: React.FC<DotGridProps> = ({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
 
-      const { x: px, y: py } = pointerRef.current;
+      const px = glow.x;
+      const py = glow.y;
+      const strength = glow.intensity;
       for (const dot of dotsRef.current) {
         const ox = dot.cx + dot.xOffset;
         const oy = dot.cy + dot.yOffset;
@@ -138,9 +153,9 @@ const DotGrid: React.FC<DotGridProps> = ({
         const dy = dot.cy - py;
         const dsq = dx * dx + dy * dy;
         let style = baseColor;
-        if (dsq <= proxSq) {
+        if (strength > 0.01 && dsq <= proxSq) {
           const dist = Math.sqrt(dsq);
-          const t = 1 - dist / proximity;
+          const t = (1 - dist / proximity) * strength;
           const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
           const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
           const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
@@ -152,7 +167,6 @@ const DotGrid: React.FC<DotGridProps> = ({
         ctx.fill(circlePath);
         ctx.restore();
       }
-      rafId = requestAnimationFrame(draw);
     };
     draw();
     return () => cancelAnimationFrame(rafId);
@@ -167,6 +181,10 @@ const DotGrid: React.FC<DotGridProps> = ({
     ro = new ResizeObserver(handleResize);
     wrapperRef.current && ro.observe(wrapperRef.current);
 
+    // Skip drawing while the grid is scrolled out of view.
+    const io = new IntersectionObserver(([entry]) => { visibleRef.current = !!entry?.isIntersecting; });
+    wrapperRef.current && io.observe(wrapperRef.current);
+
     // Handle zoom by listening for DPR changes
     let mq: MediaQueryList | null = null;
     const listenDPR = () => {
@@ -179,6 +197,7 @@ const DotGrid: React.FC<DotGridProps> = ({
 
     return () => {
       if (ro) ro.disconnect();
+      io.disconnect();
       (window as Window).removeEventListener('resize', handleResize);
       if (mq) mq.removeEventListener('change', listenDPR);
     };
@@ -209,12 +228,9 @@ const DotGrid: React.FC<DotGridProps> = ({
       // Skip if pointer is outside the canvas (keeps page scroll-friendly)
       if (pr.x < 0 || pr.y < 0 || pr.x > rect.width || pr.y > rect.height) return;
 
-      // On touch, ignore the speed gate so even a slow drag pushes dots
-      const effectiveTrigger = isTouchRef.current ? 0 : speedTrigger;
-
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - pr.x, dot.cy - pr.y);
-        if (speed >= effectiveTrigger && dist < proximity && !dot._inertiaApplied) {
+        if (speed >= speedTrigger && dist < proximity && !dot._inertiaApplied) {
           dot._inertiaApplied = true;
           gsap.killTweensOf(dot);
           const pushX = (dot.cx - pr.x) * 0.3 + vx * 0.003;
@@ -260,35 +276,52 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     };
 
-    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
-    const onClick = (e: MouseEvent) => handleShock(e.clientX, e.clientY);
-    const onTouchStart = (e: TouchEvent) => {
-      isTouchRef.current = true;
-      const t = e.touches[0];
-      if (!t) return;
-      const pr = pointerRef.current;
-      pr.lastTime = performance.now();
-      pr.lastX = t.clientX;
-      pr.lastY = t.clientY;
-      handleShock(t.clientX, t.clientY);
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    // Touch screens have no hover: a glow would stick where the finger was and
+    // every scroll would shove the dots. On touch, only a tap sends a ripple.
+    const isTouch = window.matchMedia?.('(hover: none)').matches;
+
+    const onMouseMove = (e: MouseEvent) => {
+      const glow = glowRef.current;
+      glow.clientX = e.clientX;
+      glow.clientY = e.clientY;
+      glow.active = true;
     };
-    const onTouchMove = (e: TouchEvent) => {
+    const onMouseLeave = () => { glowRef.current.active = false; };
+    const onPush = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onClick = (e: MouseEvent) => handleShock(e.clientX, e.clientY);
+
+    let touchStart: { x: number; y: number; t: number } | null = null;
+    const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0];
-      if (!t) return;
-      handleMove(t.clientX, t.clientY);
+      touchStart = t && e.touches.length === 1 ? { x: t.clientX, y: t.clientY, t: performance.now() } : null;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const t = e.changedTouches[0];
+      if (!touchStart || !t) return;
+      const moved = Math.hypot(t.clientX - touchStart.x, t.clientY - touchStart.y);
+      if (moved < 10 && performance.now() - touchStart.t < 400) handleShock(t.clientX, t.clientY);
+      touchStart = null;
     };
 
-    const throttledMove = throttle(onMouseMove, 50);
-    const throttledTouchMove = throttle(onTouchMove, 30);
-    window.addEventListener('mousemove', throttledMove, { passive: true });
-    window.addEventListener('click', onClick);
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', throttledTouchMove, { passive: true });
+    if (reduceMotion) return;
+    const throttledPush = throttle(onPush, 50);
+    if (isTouch) {
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchend', onTouchEnd, { passive: true });
+    } else {
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('mousemove', throttledPush, { passive: true });
+      document.documentElement.addEventListener('mouseleave', onMouseLeave);
+      window.addEventListener('click', onClick);
+    }
     return () => {
-      window.removeEventListener('mousemove', throttledMove);
-      window.removeEventListener('click', onClick);
       window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', throttledTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousemove', throttledPush);
+      document.documentElement.removeEventListener('mouseleave', onMouseLeave);
+      window.removeEventListener('click', onClick);
     };
   }, [maxSpeed, speedTrigger, proximity, resistance, returnDuration, shockRadius, shockStrength]);
 

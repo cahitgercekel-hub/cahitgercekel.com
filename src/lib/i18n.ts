@@ -143,6 +143,8 @@ const UI_TEXT = {
   gallery: { en: "Gallery", tr: "Galeri", de: "Galerie" },
   caseStudy: { en: "Case study", tr: "Vaka çalışması", de: "Fallstudie" },
   galleryPreview: { en: "Gallery preview", tr: "Galeri önizlemesi", de: "Galerievorschau" },
+  copy: { en: "Copy", tr: "Kopyala", de: "Kopieren" },
+  copied: { en: "Copied ✓", tr: "Kopyalandı ✓", de: "Kopiert ✓" },
 } satisfies Record<string, Record<Lang, string>>;
 
 export function ui(key: keyof typeof UI_TEXT, lang: Lang): string {

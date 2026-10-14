@@ -22,11 +22,18 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-word { display: inline-flex; align-items: baseline; }
   .portfolio-root .p-logo-word + .p-logo-word { margin-left: 0.28em; transition: margin-left .25s ease; }
   .portfolio-root .p-logo-rest { display: inline-block; max-width: 10ch; overflow: hidden; opacity: 1; transform: translateX(0); transition: max-width .25s ease, opacity .15s ease, transform .25s ease; }
-  .portfolio-root nav.p-nav.scrolled .p-logo-word + .p-logo-word { margin-left: 0; }
-  .portfolio-root nav.p-nav.scrolled .p-logo-rest { max-width: 0; opacity: 0; transform: translateX(8px); }
+  .portfolio-root nav.p-nav.scrolled .p-logo-word + .p-logo-word,
+  .portfolio-root nav.p-nav.fit-short .p-logo-word + .p-logo-word { margin-left: 0; }
+  .portfolio-root nav.p-nav.scrolled .p-logo-rest,
+  .portfolio-root nav.p-nav.fit-short .p-logo-rest { max-width: 0; opacity: 0; transform: translateX(8px); }
+  /* Disable transitions while measuring whether the links fit (see SiteChrome) */
+  .portfolio-root nav.p-nav.fit-measure, .portfolio-root nav.p-nav.fit-measure * { transition: none !important; }
+  .portfolio-root nav.p-nav.fit-burger .p-nav-links { position: absolute; visibility: hidden; pointer-events: none; }
+  .portfolio-root nav.p-nav.fit-burger .p-nav-burger { display: inline-flex; }
   .portfolio-root .p-logo-dot { color: #db0000; }
-  .portfolio-root .p-nav-links { display: flex; gap: 28px; list-style: none; margin:0; padding:0; }
-  .portfolio-root .p-nav-links a { text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
+  .portfolio-root .p-nav-links { display: flex; flex-shrink: 0; gap: 12px; list-style: none; margin:0; padding:0; }
+  /* Padding enlarges the click/tap area around the text; the negative margin keeps the nav height unchanged */
+  .portfolio-root .p-nav-links a { display: inline-block; padding: 10px 8px; margin: -10px 0; white-space: nowrap; border-radius: 8px; text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
   .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
   .portfolio-root .p-section { padding: 100px 20px; }
   .portfolio-root .p-section.alt { background: #fff; }
@@ -79,6 +86,7 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-card p { font-size: 0.88rem; color: var(--p-muted); line-height: 1.6; margin-bottom: 16px; }
   .portfolio-root .p-card .p-card-cta { font-size: 0.85rem; font-weight: 700; color: var(--p-accent); text-decoration: none; }
   .portfolio-root .p-card-live-btn {
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -143,6 +151,12 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-contact-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--p-fg); font-weight: 500; padding: 14px 18px; border-radius: var(--p-radius); border: 1px solid var(--p-border); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease; }
   .portfolio-root .p-contact-link:hover { transform: translateY(-4px); background: var(--p-bg); border-color: var(--p-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.14); }
   .portfolio-root .p-contact-icon { width: 22px; height: 22px; object-fit: contain; }
+  .portfolio-root button.p-contact-email { font: inherit; text-align: left; cursor: pointer; width: 100%; min-width: 0; }
+  .portfolio-root .p-contact-email-addr { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .portfolio-root .p-contact-copy { flex-shrink: 0; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--p-border); color: var(--p-muted); transition: color .2s ease, border-color .2s ease, background .2s ease; }
+  .portfolio-root .p-contact-email:hover .p-contact-copy { color: var(--p-fg); border-color: var(--p-fg); }
+  .portfolio-root .p-contact-copy.copied { color: #0a7a3e; border-color: #0a7a3e; background: rgba(10,122,62,0.08); }
+  @media (min-width: 701px) { .portfolio-root .p-contact-email { grid-column: span 2; } }
   .portfolio-root .p-logos-section { padding: 60px 40px; }
   .portfolio-root .p-logos-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 2px; color: var(--p-muted); text-align: center; margin-bottom: 28px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   .portfolio-root .p-logos-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 48px; }

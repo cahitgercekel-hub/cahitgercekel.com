@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSite";
 import { useLang, LANGS } from "@/contexts/LanguageContext";
@@ -110,6 +110,42 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   const navItems = translateNavItems(settings?.nav_items, settings?.i18n, lang);
   const logoText = translateString(settings?.logo_text, settings?.i18n, lang, "logo_text") || "Portfolio";
   const logoWords = logoText.trim().split(/\s+/);
+
+  // Fit the nav to its width in any language/zoom: if the links overflow,
+  // first collapse the logo to initials, then fall back to the burger menu.
+  const navRef = useRef<HTMLElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<"" | "fit-short" | "fit-burger">("");
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const row = rowRef.current;
+    if (!nav || !row) return;
+    const fit = () => {
+      if (window.matchMedia("(max-width: 700px)").matches) {
+        nav.classList.remove("fit-short", "fit-burger");
+        setFit("");
+        return;
+      }
+      // Measure synchronously with transitions off, then hand the result to React.
+      nav.classList.add("fit-measure");
+      nav.classList.remove("fit-short", "fit-burger");
+      const overflows = () => row.scrollWidth > row.clientWidth + 1;
+      let next: "" | "fit-short" | "fit-burger" = "";
+      if (overflows()) {
+        nav.classList.add("fit-short");
+        next = "fit-short";
+        if (overflows()) { nav.classList.add("fit-burger"); next = "fit-burger"; }
+      }
+      void row.offsetWidth; // apply the final state before transitions come back
+      nav.classList.remove("fit-measure");
+      setFit(next);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(row);
+    document.fonts?.ready.then(fit).catch(() => {});
+    return () => ro.disconnect();
+  }, [lang, logoText, navItems.length]);
   // In-page anchors ("#x" / "/#x") point at this language's home page.
   const navHref = (href: string) =>
     href.startsWith("#") || href.startsWith("/#") ? localizedPath(href.replace(/^\/?/, "/"), lang) : href;
@@ -119,8 +155,8 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     <div style={styleVars} className="portfolio-root">
       <style>{PORTFOLIO_CSS}</style>
 
-      <nav className={`p-nav${scrolled ? " scrolled" : ""}${menuOpen ? " menu-open" : ""}`}>
-        <div className="p-nav-row">
+      <nav ref={navRef} className={`p-nav${scrolled ? " scrolled" : ""}${menuOpen ? " menu-open" : ""}${fit === "fit-burger" ? " fit-short fit-burger" : fit ? ` ${fit}` : ""}`}>
+        <div ref={rowRef} className="p-nav-row">
           <div className="p-logo">
             <Link to={localizedPath("/", lang)}>
               {logoWords.map((w, i) => (
