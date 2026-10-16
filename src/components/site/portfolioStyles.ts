@@ -66,6 +66,8 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-skill-group h4 { font-family: var(--p-font); font-size: 0.95rem; font-weight: 700; margin: 0 0 10px; color: var(--p-fg); }
   .portfolio-root .p-skill-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .portfolio-root .p-pill { background: #fff; border: 1px solid var(--p-border); color: var(--p-fg); padding: 8px 16px; border-radius: 100px; font-size: 0.85rem; font-weight: 500; }
+  .portfolio-root .p-pill.has-icon { display: inline-flex; align-items: center; gap: 7px; padding-left: 12px; }
+  .portfolio-root .p-pill-icon { width: 15px; height: 15px; flex-shrink: 0; }
   .portfolio-root .p-stat-label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
   .portfolio-root .p-stat-track { background: var(--p-border); border-radius: 6px; height: 8px; overflow: hidden; margin-bottom: 18px; }
   .portfolio-root .p-stat-fill { height: 100%; border-radius: 6px; background: var(--p-accent); }

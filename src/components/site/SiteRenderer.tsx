@@ -11,6 +11,7 @@ import { projectSlug } from "@/lib/projectSlug";
 import { buildHomeHead, localizedPath } from "@/lib/seo";
 import SeoHead from "./SeoHead";
 import ContactLinks from "./ContactLinks";
+import { skillIcon } from "@/lib/skillIcons";
 import SiteChrome from "./SiteChrome";
 import BorderGlow from "./BorderGlow";
 
@@ -299,10 +300,10 @@ function RenderBlock({ section, alt, settings, lang }: { section: SectionRow; al
                         backgroundColor={bg}
                         colors={colorsArr}
                       >
-                        <span className="p-pill">{s}</span>
+                        <SkillPill name={s} />
                       </BorderGlow>
                     ) : (
-                      <span key={j} className="p-pill">{s}</span>
+                      <SkillPill key={j} name={s} />
                     )
                   ))}
                 </div>
@@ -555,5 +556,24 @@ function LanguagesBlock({ sectionId, d, alt, sectionStyle, innerStyle }: { secti
         })}
       </div>
     </section>
+  );
+}
+
+/** Skill pill with the tool's brand icon when one is known. */
+function SkillPill({ name }: { name: string }) {
+  const icon = skillIcon(name);
+  return (
+    <span className={`p-pill${icon ? " has-icon" : ""}`}>
+      {icon?.kind === "path" && (
+        <svg className="p-pill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d={icon.path} fill={icon.color} />
+        </svg>
+      )}
+      {icon?.kind === "svg" && (
+        // Static, bundled brand artwork (see lib/brandIconsExtra.ts)
+        <svg className="p-pill-icon" viewBox={icon.viewBox} aria-hidden="true" focusable="false" dangerouslySetInnerHTML={{ __html: icon.body }} />
+      )}
+      {name}
+    </span>
   );
 }
