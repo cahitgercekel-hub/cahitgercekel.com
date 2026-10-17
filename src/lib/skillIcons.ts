@@ -1,5 +1,6 @@
 import {
   siAsana,
+  siClaude,
   siFigma,
   siFirebase,
   siGithub,
@@ -8,6 +9,7 @@ import {
   siJira,
   siN8n,
   siPython,
+  siUnity,
   type SimpleIcon,
 } from "simple-icons";
 import { EXTRA_BRAND_ICONS } from "./brandIconsExtra";
@@ -17,7 +19,7 @@ export type SkillIcon =
   | { kind: "path"; path: string; color: string }
   | { kind: "svg"; viewBox: string; body: string };
 
-const simple = (icon: SimpleIcon): SkillIcon => ({ kind: "path", path: icon.path, color: `#${icon.hex}` });
+const simple = (icon: SimpleIcon, color = `#${icon.hex}`): SkillIcon => ({ kind: "path", path: icon.path, color });
 const extra = (key: keyof typeof EXTRA_BRAND_ICONS): SkillIcon => ({ kind: "svg", ...EXTRA_BRAND_ICONS[key] });
 
 /**
@@ -40,6 +42,12 @@ const ICONS: [RegExp, SkillIcon][] = [
   [/^tableau$/i, extra("tableau")],
   [/^lovable$/i, extra("lovable")],
   [/^google ai studio$/i, extra("aistudio")],
+  [/^chat ?gpt$|^openai$/i, extra("openai")],
+  [/^claude( code)?$/i, simple(siClaude)],
+  [/^(google )?antigravity$/i, extra("antigravity")],
+  [/^gemini( cli)?$|^google gemini$/i, extra("gemini")],
+  // Simple Icons ships Unity in white, which disappears on the white pill
+  [/^unity$/i, simple(siUnity, "#000000")],
 ];
 
 export function skillIcon(name: string): SkillIcon | undefined {
