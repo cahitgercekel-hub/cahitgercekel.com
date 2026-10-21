@@ -57,6 +57,11 @@ const PROJECT_TITLES: Record<string, Record<SeoLang, string>> = {
     tr: "Link – Windows için Yapay Zekâ Asistanı",
     de: "Link – KI-Desktop-Assistent für Windows",
   },
+  weiter: {
+    en: "Weiter – German Learning App for Android",
+    tr: "Weiter – Android için Almanca Öğrenme Uygulaması",
+    de: "Weiter – Deutsch-Lern-App für Android",
+  },
 };
 
 const HOME_LABEL: Record<SeoLang, string> = { en: "Home", tr: "Ana Sayfa", de: "Startseite" };
