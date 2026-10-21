@@ -52,6 +52,11 @@ const PROJECT_TITLES: Record<string, Record<SeoLang, string>> = {
     tr: "City Wallet – Hack-Nation Projesi",
     de: "City Wallet – Hack-Nation KI-Hackathon",
   },
+  link: {
+    en: "Link – AI Desktop Assistant for Windows",
+    tr: "Link – Windows için Yapay Zekâ Asistanı",
+    de: "Link – KI-Desktop-Assistent für Windows",
+  },
 };
 
 const HOME_LABEL: Record<SeoLang, string> = { en: "Home", tr: "Ana Sayfa", de: "Startseite" };
