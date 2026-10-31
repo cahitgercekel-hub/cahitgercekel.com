@@ -24,16 +24,17 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
   stats: ["label", "title", "items[].label"],
   skills: ["label", "title", "groups[].name", "groups[].items[]"],
   languages: ["label", "title", "items[].name", "items[].level"],
-  // Note: deeply-nested per-item arrays (items[].links[].label,
-  // items[].gallery[].caption, items[].caseStudy.sections[].*, etc.) are not
-  // yet supported by the i18n merge/translation parser, so they're omitted
-  // here. Add them once the parser handles 3+ levels of nesting.
+  // "items[].links[].label" style specs (a field on each entry of an object
+  // array inside each item) are supported by mergeI18n and the translations
+  // panel. Deeper nesting (items[].caseStudy.sections[].*) is not.
   projects: [
     "label", "title",
     "items[].tag", "items[].title", "items[].description", "items[].pills[]",
     "items[].subtitle", "items[].role", "items[].client",
     "items[].longDescription", "items[].tech[]", "items[].statusText", "items[].liveText",
     "items[].model3dTitle", "items[].model3dIntro", "items[].year",
+    "items[].links[].label", "items[].gallery[].alt", "items[].gallery[].caption",
+    "items[].documents[].label", "items[].documents[].description", "items[].documents[].meta",
   ],
   experience: ["label", "title", "items[].period", "items[].role", "items[].company", "items[].location", "items[].description"],
   contact: ["label", "title", "intro", "links[].label"],
@@ -76,9 +77,19 @@ export function mergeI18n<T extends Record<string, any>>(data: T, lang: Lang): T
         const merged: any = { ...item };
         for (const ik of Object.keys(trItem)) {
           const tv = trItem[ik];
-          // nested string-array (e.g. groups[].items)
           if (Array.isArray(merged[ik]) && Array.isArray(tv)) {
-            merged[ik] = merged[ik].map((s: any, j: number) => isFilled(tv[j]) ? tv[j] : s);
+            merged[ik] = merged[ik].map((s: any, j: number) => {
+              const t = tv[j];
+              // nested object array (e.g. items[].links[]): merge the filled fields only
+              if (s && typeof s === "object" && !Array.isArray(s)) {
+                if (!t || typeof t !== "object") return s;
+                const o: any = { ...s };
+                for (const f of Object.keys(t)) if (isFilled(t[f])) o[f] = t[f];
+                return o;
+              }
+              // nested string array (e.g. groups[].items)
+              return isFilled(t) ? t : s;
+            });
           } else if (isFilled(tv)) {
             merged[ik] = tv;
           }
@@ -150,6 +161,9 @@ const UI_TEXT = {
   gallery: { en: "Gallery", tr: "Galeri", de: "Galerie" },
   caseStudy: { en: "Case study", tr: "Vaka çalışması", de: "Fallstudie" },
   galleryPreview: { en: "Gallery preview", tr: "Galeri önizlemesi", de: "Galerievorschau" },
+  documents: { en: "Documents", tr: "Belgeler", de: "Dokumente" },
+  openFile: { en: "Open", tr: "Aç", de: "Öffnen" },
+  downloadFile: { en: "Download", tr: "İndir", de: "Herunterladen" },
   navOverview: { en: "Overview", tr: "Genel bakış", de: "Überblick" },
   nav3d: { en: "3D view", tr: "3D görünüm", de: "3D-Ansicht" },
   navContact: { en: "Contact", tr: "İletişim", de: "Kontakt" },

@@ -743,6 +743,17 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                     subFactory: () => ({ src: "", alt: "", caption: "", focal: "" }),
                   },
                   {
+                    key: "documents", label: "Documents (PDFs shown on the project page, e.g. a catalogue)", type: "subList",
+                    subSchema: [
+                      { key: "label", label: "Title" },
+                      { key: "description", label: "Short description", type: "textarea" },
+                      { key: "file", label: "File (PDF)", type: "file", folder: "projects", accept: "application/pdf,.pdf" },
+                      { key: "thumb", label: "Cover image (first page, optional)", type: "image", folder: "projects" },
+                      { key: "meta", label: "Small label above the title (e.g. “PDF · 8 pages”)" },
+                    ],
+                    subFactory: () => ({ label: "", description: "", file: "", thumb: "", meta: "" }),
+                  },
+                  {
                     key: "metrics", label: "Metrics / KPIs", type: "subList",
                     subSchema: [
                       { key: "value", label: "Value (e.g. “+38%”)" },
