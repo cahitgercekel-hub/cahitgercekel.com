@@ -446,7 +446,8 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-lang-mobile .p-lang-sep { color: var(--p-fg); opacity: 0.25; font-size: 0.72rem; }
     .portfolio-root .p-pd-hero { padding: 100px 20px 40px; }
     .portfolio-root .p-pd-cover { padding: 24px 20px 0; }
-    .portfolio-root .p-pd-head { gap: 14px; }
+    .portfolio-root .p-pd-head { gap: 14px; flex-wrap: wrap; row-gap: 12px; }
+    .portfolio-root .p-pd-title { overflow-wrap: anywhere; }
     .portfolio-root .p-pd-icon { width: 52px; height: 52px; }
     .portfolio-root .p-pd-gallery { --g-row: 170px; gap: 10px; }
     .portfolio-root .p-pd-gallery figcaption { padding: 8px 10px 10px; font-size: 0.78rem; }
