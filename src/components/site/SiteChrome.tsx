@@ -31,7 +31,13 @@ const FONTS: Record<string, { family: string; load: () => Promise<unknown> }> = 
  * footer, floating language pill, theme CSS variables, and Google fonts loader.
  * Used by both the home page and project detail pages.
  */
-export default function SiteChrome({ children }: { children: ReactNode }) {
+/** In-page shortcut for the nav (project pages): `id` is the id of a section on the current page. */
+export type PageNavItem = { id: string; label: string };
+
+/** Home sections that stay in the nav on pages with their own shortcuts. */
+const KEEP_HOME_SECTIONS = ["about", "projects"];
+
+export default function SiteChrome({ children, pageNav }: { children: ReactNode; pageNav?: PageNavItem[] }) {
   const { data: settings } = useSiteSettings();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,7 +53,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     window.scrollTo({ top, behavior: "smooth" });
     try { window.history.replaceState(null, "", `#${id}`); } catch {}
   };
-  const handleNavClick = (e: React.MouseEvent, href: string) => {
+  const handleNavClick = (e: React.MouseEvent, href: string, local = false) => {
     // Extract anchor id from "#x" or "/#x"
     const hashIdx = href.indexOf("#");
     if (hashIdx === -1) return; // not a hash link, let it navigate normally
@@ -55,7 +61,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     if (!id) return;
     e.preventDefault();
     setMenuOpen(false);
-    if (stripLang(location.pathname) !== "/") {
+    if (local) {
+      scrollToId(id);
+    } else if (stripLang(location.pathname) !== "/") {
       navigate(localizedPath("/", lang));
       // Wait for the home page to render, then scroll.
       setTimeout(() => scrollToId(id), 80);
@@ -65,6 +73,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   };
 
   const [showTop, setShowTop] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  // The logo collapses to its initials ("CEG.") once the page's hero has scrolled out from under the nav.
+  const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -76,6 +87,25 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const check = () => {
+      const hero = document.querySelector<HTMLElement>(".portfolio-root .p-hero, .portfolio-root .p-pd-hero");
+      const navBottom = navRef.current?.getBoundingClientRect().bottom ?? 80;
+      setPastHero(hero ? hero.getBoundingClientRect().bottom <= navBottom : window.scrollY > 80);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    // The hero renders after the content loads, and its height can change; re-check when the page resizes.
+    const ro = new ResizeObserver(check);
+    ro.observe(document.body);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+      ro.disconnect();
+    };
+  }, [location.pathname]);
 
   const fontFamily = settings?.font_family || "Inter";
   const font = FONTS[fontFamily] || FONTS.Inter;
@@ -107,13 +137,40 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     "--p-font": `${font.family}, sans-serif`,
   } as React.CSSProperties;
 
-  const navItems = translateNavItems(settings?.nav_items, settings?.i18n, lang);
+  const homeItems = translateNavItems(settings?.nav_items, settings?.i18n, lang);
+  const hasPageNav = !!pageNav && pageNav.length > 0;
+  type NavEntry = { label: string; href: string; local?: boolean };
+  const navItems: NavEntry[] = hasPageNav
+    ? [
+        ...pageNav!.map((p) => ({ label: p.label, href: `#${p.id}`, local: true })),
+        ...homeItems.filter((it) => KEEP_HOME_SECTIONS.includes(it.href.replace(/^\/?#/, ""))),
+      ]
+    : homeItems;
+
+  // Highlight the in-page section that is currently on screen.
+  const [currentId, setCurrentId] = useState("");
+  const pageNavKey = hasPageNav ? pageNav!.map((p) => p.id).join("|") : "";
+  useEffect(() => {
+    if (!pageNavKey) return;
+    const ids = pageNavKey.split("|");
+    const onScroll = () => {
+      const line = window.innerHeight * 0.35;
+      let cur = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= line) cur = id;
+      }
+      setCurrentId(cur);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pageNavKey]);
   const logoText = translateString(settings?.logo_text, settings?.i18n, lang, "logo_text") || "Portfolio";
   const logoWords = logoText.trim().split(/\s+/);
 
   // Fit the nav to its width in any language/zoom: if the links overflow,
   // first collapse the logo to initials, then fall back to the burger menu.
-  const navRef = useRef<HTMLElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const [fit, setFit] = useState<"" | "fit-short" | "fit-burger">("");
   useLayoutEffect(() => {
@@ -147,15 +204,15 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     return () => ro.disconnect();
   }, [lang, logoText, navItems.length]);
   // In-page anchors ("#x" / "/#x") point at this language's home page.
-  const navHref = (href: string) =>
-    href.startsWith("#") || href.startsWith("/#") ? localizedPath(href.replace(/^\/?/, "/"), lang) : href;
+  const navHref = (href: string, local = false) =>
+    local ? href : href.startsWith("#") || href.startsWith("/#") ? localizedPath(href.replace(/^\/?/, "/"), lang) : href;
   const langHref = (l: typeof lang) => localizedPath(stripLang(location.pathname), l) + location.hash;
 
   return (
     <div style={styleVars} className="portfolio-root">
       <style>{PORTFOLIO_CSS}</style>
 
-      <nav ref={navRef} className={`p-nav${scrolled ? " scrolled" : ""}${menuOpen ? " menu-open" : ""}${fit === "fit-burger" ? " fit-short fit-burger" : fit ? ` ${fit}` : ""}`}>
+      <nav ref={navRef} className={`p-nav${scrolled ? " scrolled" : ""}${pastHero ? " compact" : ""}${menuOpen ? " menu-open" : ""}${fit === "fit-burger" ? " fit-short fit-burger" : fit ? ` ${fit}` : ""}`}>
         <div ref={rowRef} className="p-nav-row">
           <div className="p-logo">
             <Link to={localizedPath("/", lang)}>
@@ -170,10 +227,12 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           </div>
           <ul className="p-nav-links">
             {navItems.map((it, i) => (
-              <li key={i}>
+              <li key={i} className={hasPageNav && !it.local && navItems[i - 1]?.local ? "p-nav-sep" : undefined}>
                 <a
-                  href={navHref(it.href)}
-                  onClick={(e) => handleNavClick(e, it.href)}
+                  href={navHref(it.href, it.local)}
+                  onClick={(e) => handleNavClick(e, it.href, it.local)}
+                  className={it.local && currentId === it.href.slice(1) ? "active" : undefined}
+                  aria-current={it.local && currentId === it.href.slice(1) ? "location" : undefined}
                 >
                   {it.label}
                 </a>
@@ -194,8 +253,14 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           <>
             <ul className="p-mobile-menu">
               {navItems.map((it, i) => (
-                <li key={i}>
-                  <a href={navHref(it.href)} onClick={(e) => handleNavClick(e, it.href)}>{it.label}</a>
+                <li key={i} className={hasPageNav && !it.local && navItems[i - 1]?.local ? "p-nav-sep" : undefined}>
+                  <a
+                    href={navHref(it.href, it.local)}
+                    onClick={(e) => handleNavClick(e, it.href, it.local)}
+                    className={it.local && currentId === it.href.slice(1) ? "active" : undefined}
+                  >
+                    {it.label}
+                  </a>
                 </li>
               ))}
             </ul>
