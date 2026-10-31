@@ -37,10 +37,13 @@ type ParsedSpec =
 
 function parseSpec(spec: string): ParsedSpec {
   if (spec.includes("[].")) {
-    const [arrKey, rest] = spec.split("[].", 2);
+    // Split at the first "[]." only (String#split with a limit drops the rest).
+    const cut = spec.indexOf("[].");
+    const arrKey = spec.slice(0, cut);
+    const rest = spec.slice(cut + 3);
     if (rest.includes("[].")) {
-      const [sub, field] = rest.split("[].", 2);
-      return { kind: "itemObjField", key: arrKey, sub, field };
+      const c2 = rest.indexOf("[].");
+      return { kind: "itemObjField", key: arrKey, sub: rest.slice(0, c2), field: rest.slice(c2 + 3) };
     }
     if (rest.endsWith("[]")) {
       return { kind: "itemStringArr", key: arrKey, sub: rest.slice(0, -2) };
