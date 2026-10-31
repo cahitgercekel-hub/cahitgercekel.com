@@ -221,22 +221,23 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-pd-gallery figure:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
   .portfolio-root .p-pd-gallery-media { width: 100%; overflow: hidden; background: rgba(0,0,0,0.04); }
   .portfolio-root .p-pd-gallery-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+  .portfolio-root .p-pd-gallery-media.fit img { object-fit: contain; }
   .portfolio-root .p-pd-gallery figure:hover .p-pd-gallery-media img { transform: scale(1.02); }
-  .portfolio-root .p-pd-gallery figcaption { padding: 10px 12px 12px; text-align: left; font-size: 0.82rem; line-height: 1.35; min-height: calc(2.7em + 22px); box-sizing: border-box; }
-  .portfolio-root .p-pd-gallery-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 1em; font-weight: 600; color: var(--p-fg); }
+  .portfolio-root .p-pd-gallery figcaption { flex: 1; padding: 10px 12px 12px; text-align: left; font-size: 0.82rem; line-height: 1.35; min-height: calc(2.7em + 22px); box-sizing: border-box; }
+  .portfolio-root .p-pd-gallery-title { display: block; overflow-wrap: break-word; hyphens: auto; font-size: 1em; font-weight: 600; color: var(--p-fg); }
   .portfolio-root .p-pd-gallery-caption { display: block; margin-top: 2px; font-size: 0.95em; color: var(--p-muted); }
-  .portfolio-root .p-pd-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-  .portfolio-root .p-pd-doc { display: flex; gap: 16px; align-items: stretch; padding: 14px; border-radius: calc(var(--p-radius) + 4px); border: 1px solid var(--p-border); background: #fff; transition: box-shadow .25s ease, transform .25s ease; }
+  .portfolio-root .p-pd-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+  .portfolio-root .p-pd-doc { display: flex; gap: 16px; align-items: flex-start; min-width: 0; padding: 14px; border-radius: calc(var(--p-radius) + 4px); border: 1px solid var(--p-border); background: #fff; transition: box-shadow .25s ease, transform .25s ease; }
   .portfolio-root .p-pd-doc:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,0.07); }
-  .portfolio-root .p-pd-doc-thumb { flex: none; width: 92px; aspect-ratio: 210 / 297; border-radius: 6px; overflow: hidden; border: 1px solid var(--p-border); background: #f4f4f4; display: grid; place-items: center; text-decoration: none; }
-  .portfolio-root .p-pd-doc-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .portfolio-root .p-pd-doc-thumb { flex: none; width: 104px; height: auto; aspect-ratio: 210 / 297; box-sizing: border-box; border-radius: 6px; overflow: hidden; border: 1px solid var(--p-border); background: #f4f4f4; display: grid; place-items: center; text-decoration: none; }
+  .portfolio-root .p-pd-doc-thumb img { width: 100%; height: 100%; object-fit: contain; background: #fff; display: block; }
   .portfolio-root .p-pd-doc-thumb span { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; font-weight: 700; color: #c62828; letter-spacing: 1px; }
-  .portfolio-root .p-pd-doc-body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-  .portfolio-root .p-pd-doc-body h3 { margin: 0; font-family: var(--p-font); font-size: 1rem; font-weight: 700; line-height: 1.3; }
-  .portfolio-root .p-pd-doc-body p { margin: 0; font-size: 0.85rem; line-height: 1.45; color: var(--p-muted); }
-  .portfolio-root .p-pd-doc-meta { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--p-muted); }
+  .portfolio-root .p-pd-doc-body { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; gap: 4px; }
+  .portfolio-root .p-pd-doc-body h3 { margin: 0; font-family: var(--p-font); font-size: 1rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; hyphens: auto; }
+  .portfolio-root .p-pd-doc-body p { margin: 0; font-size: 0.85rem; line-height: 1.45; color: var(--p-muted); overflow-wrap: break-word; hyphens: auto; }
+  .portfolio-root .p-pd-doc-meta { overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--p-muted); }
   .portfolio-root .p-pd-doc-actions { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .portfolio-root .p-pd-doc-actions a { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-decoration: none; border: 1px solid var(--p-border); color: var(--p-fg); }
+  .portfolio-root .p-pd-doc-actions a { display: inline-flex; align-items: center; white-space: nowrap; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-decoration: none; border: 1px solid var(--p-border); color: var(--p-fg); }
   .portfolio-root .p-pd-doc-actions a.primary { background: var(--p-fg); border-color: var(--p-fg); color: var(--p-bg); }
   .portfolio-root .p-pd-doc-actions a:hover { opacity: .85; }
 
@@ -447,7 +448,10 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-pd-cover { padding: 24px 20px 0; }
     .portfolio-root .p-pd-head { gap: 14px; }
     .portfolio-root .p-pd-icon { width: 52px; height: 52px; }
-    .portfolio-root .p-pd-gallery { --g-row: 140px; gap: 10px; }
+    .portfolio-root .p-pd-gallery { --g-row: 170px; gap: 10px; }
+    .portfolio-root .p-pd-gallery figcaption { padding: 8px 10px 10px; font-size: 0.78rem; }
+    .portfolio-root .p-pd-doc { gap: 12px; padding: 12px; }
+    .portfolio-root .p-pd-doc-thumb { width: 84px; }
   }
   @media (max-width: 420px) {
     .portfolio-root nav.p-nav { padding: 8px 14px; }

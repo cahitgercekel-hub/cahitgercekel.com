@@ -737,7 +737,8 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                     key: "gallery", label: "Gallery images", type: "subList",
                     subSchema: [
                       { key: "src", label: "Image", type: "image", folder: "projects", focalKey: "focal" },
-                      { key: "alt", label: "Alt text" },
+                      { key: "thumb", label: "Small version for the grid (optional, ~640 px; the full image opens on click)", type: "image", folder: "projects" },
+                      { key: "alt", label: "Title (shown under the image)" },
                       { key: "caption", label: "Caption" },
                     ],
                     subFactory: () => ({ src: "", alt: "", caption: "", focal: "" }),
