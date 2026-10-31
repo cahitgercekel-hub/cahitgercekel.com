@@ -9,6 +9,7 @@ import { buildProjectHead, localizedPath } from "@/lib/seo";
 import SeoHead from "@/components/site/SeoHead";
 import ContactLinks from "@/components/site/ContactLinks";
 import Exploded3D from "@/components/site/Exploded3D";
+import SkillPill from "@/components/site/SkillPill";
 import { formatRichText } from "@/lib/markdown";
 import NotFound from "./NotFound";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -20,6 +21,8 @@ export default function ProjectDetail() {
   const { lang } = useLang();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  // Image aspect ratios (width / height) learnt on load, for the justified gallery rows.
+  const [ratios, setRatios] = useState<Record<string, number>>({});
   const navRef = useRef<{ next: () => void; prev: () => void }>({ next: () => {}, prev: () => {} });
 
   useEffect(() => {
@@ -102,6 +105,9 @@ export default function ProjectDetail() {
     .filter(Boolean);
 
   const tech: string[] = item.tech ?? [];
+  const enTech: string[] = match.item?.tech ?? [];
+  const documents: { label?: string; description?: string; file?: string; thumb?: string; meta?: string }[] =
+    (item.documents ?? []).filter((d: any) => d?.file);
   const links: { label: string; href: string }[] = (item.links ?? []).filter((l: any) => l?.href);
   const metrics: { label: string; value: string }[] = item.metrics ?? [];
   const csEnabled = item.caseStudy?.enabled;
@@ -115,6 +121,7 @@ export default function ProjectDetail() {
     hasOverview && { id: "overview", label: ui("navOverview", lang) },
     has3d && { id: "model-3d", label: ui("nav3d", lang) },
     gallery.length > 0 && { id: "gallery", label: ui("gallery", lang) },
+    documents.length > 0 && { id: "documents", label: ui("documents", lang) },
     csEnabled && csSections.length > 0 && { id: "case-study", label: ui("caseStudy", lang) },
     contactBlock && { id: "contact", label: ui("navContact", lang) },
   ].filter(Boolean) as PageNavItem[];
@@ -168,7 +175,7 @@ export default function ProjectDetail() {
             )}
             {tech.length > 0 && (
               <div className="p-pd-hero-tech">
-                {tech.map((t, i) => <span key={i} className="p-pill">{t}</span>)}
+                {tech.map((t, i) => <SkillPill key={i} name={t} iconName={enTech[i]} />)}
               </div>
             )}
             {(() => {
@@ -277,23 +284,79 @@ export default function ProjectDetail() {
           <section id="gallery" className="p-section">
             <div className="p-inner">
               <h2 className="p-title">{ui("gallery", lang)}</h2>
+              {/* Justified rows: every image keeps its own shape (no cropping, no empty space),
+                  images in a row share one height, titles sit below in a fixed two-line slot. */}
               <div className="p-pd-gallery">
-                {gallery.map((g, i) => (
-                  <figure
-                    key={i}
-                    onClick={() => {
-                      if (g.src) {
-                        setSelectedImg(g.src);
-                        setCurrentIndex(i);
-                      }
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {g.alt && <div className="p-pd-gallery-label">{g.alt}</div>}
-                    {g.src && <img loading="lazy" decoding="async" src={g.src} alt={g.alt || ""} style={{ objectPosition: g.focal || "50% 50%" }} />}
-                    {g.caption && <figcaption>{g.caption}</figcaption>}
-                  </figure>
-                ))}
+                {gallery.map((g, i) => {
+                  const ar = g.w > 0 && g.h > 0 ? g.w / g.h : ratios[g.src] ?? 4 / 3;
+                  return (
+                    <figure
+                      key={i}
+                      style={{ flexGrow: ar, flexBasis: `calc(${ar.toFixed(4)} * var(--g-row))` }}
+                      onClick={() => {
+                        if (g.src) {
+                          setSelectedImg(g.src);
+                          setCurrentIndex(i);
+                        }
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <div className="p-pd-gallery-media" style={{ aspectRatio: ar.toFixed(4) }}>
+                        {g.src && (
+                          <img
+                            loading="lazy"
+                            decoding="async"
+                            src={g.src}
+                            alt={g.alt || ""}
+                            onLoad={(e) => {
+                              const im = e.currentTarget;
+                              if (!im.naturalWidth || !im.naturalHeight || (g.w > 0 && g.h > 0)) return;
+                              const r = im.naturalWidth / im.naturalHeight;
+                              setRatios((cur) => (Math.abs((cur[g.src] ?? 0) - r) < 0.001 ? cur : { ...cur, [g.src]: r }));
+                            }}
+                          />
+                        )}
+                      </div>
+                      {(g.alt || g.caption) && (
+                        <figcaption>
+                          {g.alt && <span className="p-pd-gallery-title">{g.alt}</span>}
+                          {g.caption && <span className="p-pd-gallery-caption">{g.caption}</span>}
+                        </figcaption>
+                      )}
+                    </figure>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Documents (PDFs etc.) */}
+        {documents.length > 0 && (
+          <section id="documents" className="p-section">
+            <div className="p-inner">
+              <h2 className="p-title">{ui("documents", lang)}</h2>
+              <div className="p-pd-docs">
+                {documents.map((d, i) => {
+                  const name = d.label || decodeURIComponent(String(d.file).split("/").pop() || "");
+                  const ext = (String(d.file).split("?")[0].split(".").pop() || "").toUpperCase().slice(0, 4);
+                  return (
+                    <article key={i} className="p-pd-doc">
+                      <a className="p-pd-doc-thumb" href={d.file} target="_blank" rel="noreferrer" aria-label={name}>
+                        {d.thumb ? <img loading="lazy" decoding="async" src={d.thumb} alt="" /> : <span>{ext || "FILE"}</span>}
+                      </a>
+                      <div className="p-pd-doc-body">
+                        <span className="p-pd-doc-meta">{d.meta || ext}</span>
+                        <h3>{name}</h3>
+                        {d.description && <p>{d.description}</p>}
+                        <div className="p-pd-doc-actions">
+                          <a className="primary" href={d.file} target="_blank" rel="noreferrer">{ui("openFile", lang)}</a>
+                          <a href={d.file} download>{ui("downloadFile", lang)}</a>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>

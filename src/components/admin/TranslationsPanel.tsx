@@ -24,6 +24,7 @@ const LANGS: { code: LangCode; label: string }[] = [
  *   "key[]"           -> string array (paragraphs, skills)
  *   "items[].sub"     -> string field on each object array entry
  *   "groups[].items[]" -> string array nested in object array
+ *   "items[].links[].label" -> string field on each entry of an object array inside each item
  */
 type ParsedSpec =
   | { kind: "string"; key: string }
@@ -31,11 +32,16 @@ type ParsedSpec =
   | { kind: "nestedStringArr"; key: string; sub: string }
   | { kind: "stringArr"; key: string }
   | { kind: "itemField"; key: string; sub: string }
-  | { kind: "itemStringArr"; key: string; sub: string };
+  | { kind: "itemStringArr"; key: string; sub: string }
+  | { kind: "itemObjField"; key: string; sub: string; field: string };
 
 function parseSpec(spec: string): ParsedSpec {
   if (spec.includes("[].")) {
     const [arrKey, rest] = spec.split("[].", 2);
+    if (rest.includes("[].")) {
+      const [sub, field] = rest.split("[].", 2);
+      return { kind: "itemObjField", key: arrKey, sub, field };
+    }
     if (rest.endsWith("[]")) {
       return { kind: "itemStringArr", key: arrKey, sub: rest.slice(0, -2) };
     }
@@ -72,7 +78,8 @@ type Path =
   | { kind: "nestedStringArr"; key: string; sub: string; index: number }
   | { kind: "stringArr"; key: string; index: number }
   | { kind: "itemField"; key: string; sub: string; index: number }
-  | { kind: "itemStringArr"; key: string; sub: string; index: number; inner: number };
+  | { kind: "itemStringArr"; key: string; sub: string; index: number; inner: number }
+  | { kind: "itemObjField"; key: string; sub: string; field: string; index: number; inner: number };
 
 function readPathFromEn(enData: any, p: Path): string {
   switch (p.kind) {
@@ -82,6 +89,7 @@ function readPathFromEn(enData: any, p: Path): string {
     case "stringArr": return String(enData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(enData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(enData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
+    case "itemObjField": return String(enData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner]?.[p.field] ?? "");
   }
 }
 
@@ -93,6 +101,7 @@ function readPathFromTr(trData: any, p: Path): string {
     case "stringArr": return String(trData?.[p.key]?.[p.index] ?? "");
     case "itemField": return String(trData?.[p.key]?.[p.index]?.[p.sub] ?? "");
     case "itemStringArr": return String(trData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner] ?? "");
+    case "itemObjField": return String(trData?.[p.key]?.[p.index]?.[p.sub]?.[p.inner]?.[p.field] ?? "");
   }
 }
 
@@ -133,7 +142,20 @@ function writePathToTr(trData: any, p: Path, value: string): any {
       next[p.key] = outer;
       return next;
     }
+    case "itemObjField": {
+      next[p.key] = setItemObjField(next[p.key], p.index, p.sub, p.inner, p.field, value);
+      return next;
+    }
   }
+}
+
+/** Immutably set arr[index][sub][inner][field] = value, creating missing levels. */
+function setItemObjField(arr: any[] | undefined, index: number, sub: string, inner: number, field: string, value: string): any[] {
+  const outer = [...(arr ?? [])];
+  const list = [...((outer[index]?.[sub]) ?? [])];
+  list[inner] = { ...(list[inner] ?? {}), [field]: value };
+  outer[index] = { ...(outer[index] ?? {}), [sub]: list };
+  return outer;
 }
 
 /** Enumerate every translatable path that has a non-empty EN value. */
@@ -177,6 +199,18 @@ function collectAllPaths(type: BlockType, enData: any): Path[] {
           const inner: string[] = it?.[p.sub] ?? [];
           inner.forEach((v, j) => {
             if (String(v ?? "").trim()) paths.push({ kind: "itemStringArr", key: p.key, sub: p.sub, index: i, inner: j });
+          });
+        });
+        break;
+      }
+      case "itemObjField": {
+        const arr: any[] = enData?.[p.key] ?? [];
+        arr.forEach((it, i) => {
+          const inner: any[] = Array.isArray(it?.[p.sub]) ? it[p.sub] : [];
+          inner.forEach((o, j) => {
+            if (String(o?.[p.field] ?? "").trim()) {
+              paths.push({ kind: "itemObjField", key: p.key, sub: p.sub, field: p.field, index: i, inner: j });
+            }
           });
         });
         break;
@@ -616,6 +650,48 @@ function SpecField({
                   />
                 </Field>
               ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (parsed.kind === "itemObjField") {
+    const { key: k, sub: sk, field: f } = parsed;
+    const enArr: any[] = enData?.[k] ?? [];
+    const trArr: any[] = trData?.[k] ?? [];
+    if (!enArr.some((it) => Array.isArray(it?.[sk]) && it[sk].some((o: any) => String(o?.[f] ?? "").trim()))) return null;
+    const setVal = (i: number, j: number, v: string) =>
+      setTr((cur) => ({ ...cur, [k]: setItemObjField(cur?.[k], i, sk, j, f, v) }));
+    return (
+      <div className="space-y-2">
+        <Label className="text-xs font-semibold">{label}</Label>
+        {enArr.map((enItem, i) => {
+          const enList: any[] = Array.isArray(enItem?.[sk]) ? enItem[sk] : [];
+          if (!enList.some((o) => String(o?.[f] ?? "").trim())) return null;
+          return (
+            <div key={i} className="border rounded p-2 space-y-1.5 bg-background/40">
+              <div className="text-[11px] text-muted-foreground">#{i + 1} {String(enItem?.title ?? "")}</div>
+              {enList.map((o, j) => {
+                const enS = String(o?.[f] ?? "");
+                if (!enS.trim()) return null;
+                const trS = trArr[i]?.[sk]?.[j]?.[f] ?? "";
+                return (
+                  <Field
+                    key={j}
+                    label={`#${j + 1}`}
+                    en={enS}
+                    action={<TranslateBtn enValue={enS} lang={lang} onResult={(v) => setVal(i, j, v)} />}
+                  >
+                    {enS.length > 80 ? (
+                      <Textarea rows={3} value={trS} onChange={(e) => setVal(i, j, e.target.value)} placeholder={enS} />
+                    ) : (
+                      <Input value={trS} onChange={(e) => setVal(i, j, e.target.value)} placeholder={enS} />
+                    )}
+                  </Field>
+                );
+              })}
             </div>
           );
         })}
