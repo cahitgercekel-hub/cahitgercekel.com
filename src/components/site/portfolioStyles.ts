@@ -467,6 +467,7 @@ export const PORTFOLIO_CSS = `
      Desktop: model on the left, a panel with the part card and the numbered part list on the right.
      Mobile: model on top, the card and a horizontally scrolling strip of parts below it. */
   .portfolio-root .p-x3d { position: relative; height: 560vh; }
+  .portfolio-root .p-x3d.done { height: 100vh; height: 100dvh; }
   .portfolio-root .p-x3d-sticky { box-sizing: border-box; position: sticky; top: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; padding: 92px 20px 24px; overflow: hidden; }
   .portfolio-root .p-x3d-head { width: 100%; max-width: 1200px; margin: 0 auto; }
   .portfolio-root .p-x3d-head .p-label { margin-bottom: 6px; }
@@ -509,6 +510,7 @@ export const PORTFOLIO_CSS = `
   }
   @media (max-width: 900px) {
     .portfolio-root .p-x3d { height: 520vh; }
+    .portfolio-root .p-x3d.done { height: 100vh; height: 100dvh; }
     .portfolio-root .p-x3d-sticky { padding: 80px 12px 14px; gap: 8px; }
     .portfolio-root .p-x3d-hint { font-size: 0.82rem; }
     .portfolio-root .p-x3d-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 10px; }
