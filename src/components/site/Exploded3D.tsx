@@ -31,6 +31,12 @@ const SPOT_FROM = 0.4, SPOT_SPAN = 0.58;
 
 const UI = {
   heading: { en: "Scroll to take it apart.", tr: "Parçalarına ayırmak için kaydır.", de: "Scrolle, um es zu zerlegen." },
+  headingDone: { en: "Taken apart.", tr: "Parçalarına ayrılmış hali.", de: "Zerlegt." },
+  hintDone: {
+    en: "Pick a part from the list or on the model.",
+    tr: "Listeden ya da model üzerinden bir parça seç.",
+    de: "Wähle ein Teil in der Liste oder am Modell.",
+  },
   hint: {
     en: "Or pick a part from the list or on the model.",
     tr: "Ya da listeden veya model üzerinden bir parça seç.",
@@ -63,6 +69,11 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
   const [manifest, setManifest] = useState<ExplodedManifest | null>(null);
   const [active, setActive] = useState(-1);
   const [failed, setFailed] = useState(false);
+  // Once the visitor has scrolled past the whole section, it collapses to one screen and stops
+  // following the scroll, so scrolling back up does not play the animation again.
+  const [done, setDone] = useState(false);
+  const doneRef = useRef(false);
+  const pickRef = useRef(-1); // part chosen by click while collapsed (-1 = all parts)
 
   const spot = manifest ? spotOrder(manifest) : [];
 
@@ -70,9 +81,30 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
   const goTo = useCallback((i: number, count: number) => {
     const el = wrap.current;
     if (!el || count <= 0) return;
+    if (doneRef.current) { pickRef.current = i; setActive(i); return; }
     const p = i < 0 ? 0.04 : SPOT_FROM + ((i + 0.5) / count) * SPOT_SPAN;
     const top = el.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: Math.round(top + p * (el.offsetHeight - window.innerHeight)), behavior: "smooth" });
+  }, []);
+
+  // Collapse after the section has been scrolled past (keeps the page position steady).
+  useEffect(() => {
+    const check = () => {
+      const el = wrap.current;
+      if (!el || doneRef.current || el.getBoundingClientRect().bottom > 0) return;
+      // Read the position first: once the section shrinks the browser clamps scrollY on its own.
+      const before = el.offsetHeight, y0 = window.scrollY;
+      doneRef.current = true;
+      el.classList.add("done");
+      const delta = before - el.offsetHeight;
+      if (delta > 0) window.scrollTo({ top: Math.max(0, y0 - delta), behavior: "instant" as ScrollBehavior });
+      pickRef.current = -1;
+      setActive(-1);
+      setDone(true);
+      window.removeEventListener("scroll", check);
+    };
+    window.addEventListener("scroll", check, { passive: true });
+    return () => window.removeEventListener("scroll", check);
   }, []);
 
   // Keep the active chip visible in the (horizontally scrolling) list without moving the page.
@@ -225,16 +257,19 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const yaw0 = meta.camera?.yaw ?? 0.55, pitch0 = meta.camera?.pitch ?? 0.22;
         const v = new THREE.Vector3();
-        let visible = false, frame = 0, last = -2;
+        let visible = false, frame = 0, last = -2, yawS = NaN;
 
         const draw = (t: number) => {
           const el = wrap.current;
           if (!el) return;
           const r = el.getBoundingClientRect();
-          const p = clamp(-r.top / Math.max(1, r.height - window.innerHeight));
-          const ex = ease(clamp((p - EXPLODE_FROM) / (EXPLODE_TO - EXPLODE_FROM)));
-          const sp = clamp((p - SPOT_FROM) / SPOT_SPAN);
-          const idx = p < SPOT_FROM ? -1 : Math.min(order.length - 1, Math.floor(sp * order.length));
+          const collapsed = doneRef.current;
+          const p = collapsed ? 1 : clamp(-r.top / Math.max(1, r.height - window.innerHeight));
+          const ex = collapsed ? 1 : ease(clamp((p - EXPLODE_FROM) / (EXPLODE_TO - EXPLODE_FROM)));
+          const idx = collapsed
+            ? pickRef.current
+            : p < SPOT_FROM ? -1 : Math.min(order.length - 1, Math.floor(clamp((p - SPOT_FROM) / SPOT_SPAN) * order.length));
+          const sp = collapsed ? (idx >= 0 ? (idx + 0.5) / order.length : 0.5) : clamp((p - SPOT_FROM) / SPOT_SPAN);
           if (bar.current) bar.current.style.transform = `scaleX(${p.toFixed(4)})`;
           const aspect = host.clientWidth / Math.max(1, host.clientHeight);
           const target = new THREE.Vector3().lerpVectors(cA, cE, ex);
@@ -243,7 +278,9 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
           const hfov = 2 * Math.atan(Math.tan(fov / 2) * aspect);
           const halfW = 0.5 * Math.hypot(size.x * 0.9, size.z * 0.55), halfH = 0.5 * size.y + 0.15 * size.z;
           const fit = 1.15 * Math.max(halfH / Math.tan(fov / 2), halfW / Math.tan(hfov / 2)) + 0.5 * size.z;
-          const yaw = yaw0 - ex * 0.15 + (idx >= 0 ? (sp - 0.5) * 0.35 : 0) + (reduce ? 0 : Math.sin(t / 2600) * 0.04);
+          const yawTarget = yaw0 - ex * 0.15 + (idx >= 0 ? (sp - 0.5) * 0.35 : 0) + (reduce ? 0 : Math.sin(t / 2600) * 0.04);
+          yawS = Number.isNaN(yawS) ? yawTarget : yawS + (yawTarget - yawS) * 0.12; // ease camera moves (also after a click)
+          const yaw = yawS;
           const pitch = pitch0 + ex * 0.08;
           camera.position.set(
             target.x + Math.sin(yaw) * Math.cos(pitch) * fit,
@@ -267,7 +304,7 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
               pin.current.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
             }
           }
-          if (idx !== last) { last = idx; setActive(idx); }
+          if (idx !== last) { last = idx; if (!collapsed) setActive(idx); }
           renderer.render(scene, camera);
         };
         const loop = () => {
@@ -298,12 +335,12 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
   const count = spot.length;
 
   return (
-    <section id={id} className="p-x3d" ref={wrap} aria-label={eyebrow || UI.heading[lang]}>
+    <section id={id} className={`p-x3d${done ? " done" : ""}`} ref={wrap} aria-label={eyebrow || UI.heading[lang]}>
       <div className="p-x3d-sticky">
         <div className="p-x3d-head">
           {eyebrow && <div className="p-label">{eyebrow}</div>}
-          <h2 className="p-title">{UI.heading[lang]}</h2>
-          <p className="p-x3d-hint">{UI.hint[lang]}</p>
+          <h2 className="p-title">{done ? UI.headingDone[lang] : UI.heading[lang]}</h2>
+          <p className="p-x3d-hint">{done ? UI.hintDone[lang] : UI.hint[lang]}</p>
         </div>
         <div className="p-x3d-body">
           <div className="p-x3d-stage" ref={stage}>
