@@ -289,10 +289,13 @@ export default function ProjectDetail() {
               <div className="p-pd-gallery">
                 {gallery.map((g, i) => {
                   const ar = g.w > 0 && g.h > 0 ? g.w / g.h : ratios[g.src] ?? 4 / 3;
+                  // Very tall images (phone screenshots) get a minimum tile width so their titles fit;
+                  // the image is then shown whole inside the tile.
+                  const tile = Math.max(ar, 0.62);
                   return (
                     <figure
                       key={i}
-                      style={{ flexGrow: ar, flexBasis: `calc(${ar.toFixed(4)} * var(--g-row))` }}
+                      style={{ flexGrow: Math.round(tile * 100), flexBasis: `calc(${tile.toFixed(4)} * var(--g-row))` }}
                       onClick={() => {
                         if (g.src) {
                           setSelectedImg(g.src);
@@ -301,12 +304,14 @@ export default function ProjectDetail() {
                       }}
                       className="cursor-pointer"
                     >
-                      <div className="p-pd-gallery-media" style={{ aspectRatio: ar.toFixed(4) }}>
+                      <div className={`p-pd-gallery-media${tile > ar ? " fit" : ""}`} style={{ aspectRatio: tile.toFixed(4) }}>
                         {g.src && (
                           <img
                             loading="lazy"
                             decoding="async"
-                            src={g.src}
+                            src={g.thumb || g.src}
+                            width={g.w || undefined}
+                            height={g.h || undefined}
                             alt={g.alt || ""}
                             onLoad={(e) => {
                               const im = e.currentTarget;

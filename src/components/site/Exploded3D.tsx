@@ -87,8 +87,21 @@ export default function Exploded3D({ manifestUrl, lang, eyebrow, intro, id }: Pr
   useEffect(() => {
     let disposed = false;
     let cleanup = () => {};
+    // Download three.js and the model only when the section gets close to the viewport.
+    const near = new Promise<void>((resolve) => {
+      const el = wrap.current;
+      if (!el || !("IntersectionObserver" in window)) return resolve();
+      const io0 = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { io0.disconnect(); resolve(); }
+      }, { rootMargin: "1200px 0px" });
+      io0.observe(el);
+      const stop = cleanup;
+      cleanup = () => { io0.disconnect(); stop(); };
+    });
     (async () => {
       try {
+        await near;
+        if (disposed) return;
         const manifestHref = new URL(manifestUrl, window.location.href).href;
         const meta: ExplodedManifest = await fetch(manifestHref).then((r) => {
           if (!r.ok) throw new Error(`manifest ${r.status}`);
