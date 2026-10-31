@@ -433,4 +433,30 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-hero-photo { max-width: 180px !important; }
     .portfolio-root .p-title { font-size: 1.6rem; margin-bottom: 22px; }
   }
+
+  /* 3D exploded view (Exploded3D.tsx): a tall section with a sticky stage; scrolling drives the animation */
+  .portfolio-root .p-x3d { position: relative; height: 560vh; }
+  .portfolio-root .p-x3d-sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 96px 20px 0; overflow: hidden; }
+  .portfolio-root .p-x3d-head { width: 100%; }
+  .portfolio-root .p-x3d-head .p-title { margin-bottom: 0; }
+  .portfolio-root .p-x3d-stage { position: relative; min-height: 0; }
+  .portfolio-root .p-x3d-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+  .portfolio-root .p-x3d-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--p-muted); font-size: 0.85rem; text-align: center; }
+  .portfolio-root .p-x3d-pin { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; transition: opacity .3s ease; }
+  .portfolio-root .p-x3d-pin i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--p-accent); background: color-mix(in srgb, var(--p-accent) 22%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--p-accent) 12%, transparent); }
+  .portfolio-root .p-x3d-foot { width: 100%; display: grid; grid-template-columns: 1fr; gap: 14px; padding-bottom: 24px; }
+  @media (min-width: 900px) { .portfolio-root .p-x3d-foot { grid-template-columns: minmax(0, 26rem) 1fr; align-items: end; } }
+  .portfolio-root .p-x3d-card { min-height: 128px; padding: 18px 20px; border-radius: calc(var(--p-radius) + 6px); border: 1px solid var(--p-border); background: color-mix(in srgb, var(--p-bg) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .portfolio-root .p-x3d-card h3 { margin: 6px 0 4px; font-family: var(--p-font); font-weight: 800; font-size: 1.1rem; }
+  .portfolio-root .p-x3d-card p { margin: 6px 0 0; color: var(--p-muted); font-size: 0.95rem; line-height: 1.55; }
+  .portfolio-root .p-x3d-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); }
+  .portfolio-root .p-x3d-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  .portfolio-root .p-x3d-list li { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; padding: 3px 8px; border: 1px solid var(--p-border); border-radius: 6px; color: var(--p-muted); transition: all .25s ease; }
+  .portfolio-root .p-x3d-list li.on { color: #fff; background: var(--p-accent); border-color: var(--p-accent); }
+  @media (max-width: 700px) {
+    .portfolio-root .p-x3d { height: 520vh; }
+    .portfolio-root .p-x3d-sticky { padding: 84px 12px 0; }
+    .portfolio-root .p-x3d-list { display: none; }
+    .portfolio-root .p-x3d-card { min-height: 116px; }
+  }
 `;

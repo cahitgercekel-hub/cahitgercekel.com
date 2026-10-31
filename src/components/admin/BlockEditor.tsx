@@ -753,6 +753,15 @@ export default function BlockEditor({ type, data, onChange }: Props) {
                 ],
               },
               {
+                key: "_model3d", label: "3D exploded view (scroll animation)", type: "group", defaultOpen: false,
+                fields: [
+                  { key: "model3dEnabled", label: "Show the 3D exploded view on the project page", type: "checkbox" },
+                  { key: "model3dUrl", label: "Manifest URL (.json, e.g. /projects/<slug>/model/<name>.json) — see docs/3d-exploded-view.md" },
+                  { key: "model3dTitle", label: "Eyebrow above the 3D view (e.g. “Inside the LärmBox”)" },
+                  { key: "model3dIntro", label: "Intro text shown before the first part is highlighted", type: "textarea" },
+                ],
+              },
+              {
                 key: "_caseStudy", label: "Case study", type: "group", defaultOpen: false,
                 fields: [{ key: "caseStudy", label: "Case study", type: "caseStudy" }],
               },
