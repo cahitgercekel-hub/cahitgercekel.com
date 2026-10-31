@@ -8,6 +8,7 @@ import { findContactSection, findProjectBySlug, RESERVED_SLUGS, slugify } from "
 import { buildProjectHead, localizedPath } from "@/lib/seo";
 import SeoHead from "@/components/site/SeoHead";
 import ContactLinks from "@/components/site/ContactLinks";
+import Exploded3D from "@/components/site/Exploded3D";
 import { formatRichText } from "@/lib/markdown";
 import NotFound from "./NotFound";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -231,6 +232,16 @@ export default function ProjectDetail() {
               </div>
             </div>
           </section>
+        )}
+
+        {/* 3D exploded view (optional, scroll-driven) */}
+        {item.model3dEnabled && item.model3dUrl && (
+          <Exploded3D
+            manifestUrl={item.model3dUrl}
+            lang={lang}
+            eyebrow={item.model3dTitle || ""}
+            intro={item.model3dIntro || ""}
+          />
         )}
 
         {/* Metrics */}

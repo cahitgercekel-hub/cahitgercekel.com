@@ -1,0 +1,539 @@
+{
+ "version": 1,
+ "geometry": "laermbox.bin",
+ "units": "mm",
+ "note": "Box-local frame: back at z = 0, up = +y, lid towards +z. Exported from Blender with tools/blender/export_exploded_view.py.",
+ "camera": {
+  "fov": 30,
+  "yaw": 0.55,
+  "pitch": 0.22
+ },
+ "spotlight": [
+  "body",
+  "lid",
+  "oled",
+  "mcu",
+  "gland",
+  "plug",
+  "back",
+  "mic",
+  "pod",
+  "foam",
+  "hood"
+ ],
+ "parts": [
+  {
+   "id": "body",
+   "objects": [
+    "u_a_Body"
+   ],
+   "explode": [
+    0,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Main box",
+    "tr": "Ana kutu",
+    "de": "Hauptbox"
+   },
+   "text": {
+    "en": "Holds the senseBox MCU. Hanging tab with keyholes on top, slide rail on the side, cable gland underneath.",
+    "tr": "senseBox MCU'yu taşır. Üstte anahtar delikli askı, yanda kızak rayı, altta kablo rakoru.",
+    "de": "Trägt den senseBox MCU. Oben eine Aufhängelasche mit Schlüssellöchern, seitlich eine Schiene, unten die Kabelverschraubung."
+   }
+  },
+  {
+   "id": "mcu",
+   "objects": [
+    "u_mcu"
+   ],
+   "explode": [
+    0,
+    0,
+    55
+   ],
+   "name": {
+    "en": "senseBox MCU",
+    "tr": "senseBox MCU",
+    "de": "senseBox MCU"
+   },
+   "text": {
+    "en": "Microcontroller with WiFi-Bee and microSD-Bee. Reads the sound level 20 times per second and stores every second.",
+    "tr": "WiFi-Bee ve microSD-Bee ile mikrodenetleyici. Ses seviyesini saniyede 20 kez okur ve her saniyeyi kaydeder.",
+    "de": "Mikrocontroller mit WiFi-Bee und microSD-Bee. Liest den Schallpegel 20-mal pro Sekunde und speichert jede Sekunde."
+   }
+  },
+  {
+   "id": "lid",
+   "objects": [
+    "u_a_Lid"
+   ],
+   "explode": [
+    0,
+    0,
+    150
+   ],
+   "name": {
+    "en": "Lid",
+    "tr": "Kapak",
+    "de": "Deckel"
+   },
+   "text": {
+    "en": "Sealed with a gasket. Mounted with the display window at the top, right under the hanging tab.",
+    "tr": "Contayla sızdırmaz. Ekran penceresi üstte, askının hemen altında olacak şekilde takılır.",
+    "de": "Mit Dichtung abgedichtet. Montiert mit dem Displayfenster oben, direkt unter der Aufhängelasche."
+   }
+  },
+  {
+   "id": "oled",
+   "objects": [
+    "u_oled"
+   ],
+   "explode": [
+    0,
+    0,
+    110
+   ],
+   "name": {
+    "en": "OLED display",
+    "tr": "OLED ekran",
+    "de": "OLED-Display"
+   },
+   "text": {
+    "en": "Shows the live level, the last minute and the WiFi status behind the lid window.",
+    "tr": "Kapak penceresinin arkasında canlı seviyeyi, son dakikayı ve WiFi durumunu gösterir.",
+    "de": "Zeigt hinter dem Deckelfenster den Live-Pegel, die letzte Minute und den WLAN-Status."
+   }
+  },
+  {
+   "id": "gland",
+   "objects": [
+    "u_gland"
+   ],
+   "explode": [
+    0,
+    -50,
+    0
+   ],
+   "name": {
+    "en": "Cable gland",
+    "tr": "Kablo rakoru",
+    "de": "Kabelverschraubung"
+   },
+   "text": {
+    "en": "PG7 gland: the sound cable enters the box from below, sealed against rain.",
+    "tr": "PG7 rakor: ses kablosu kutuya alttan, yağmura karşı sızdırmaz şekilde girer.",
+    "de": "PG7-Verschraubung: Das Sensorkabel kommt regendicht von unten in die Box."
+   }
+  },
+  {
+   "id": "plug",
+   "objects": [
+    "u_plug"
+   ],
+   "explode": [
+    -60,
+    0,
+    0
+   ],
+   "name": {
+    "en": "USB-C power",
+    "tr": "USB-C güç",
+    "de": "USB-C-Strom"
+   },
+   "text": {
+    "en": "Power bank or charger, plugged in from the side under a small visor.",
+    "tr": "Powerbank ya da şarj cihazı; yandan, küçük bir siperliğin altından takılır.",
+    "de": "Powerbank oder Ladegerät, seitlich unter einem kleinen Schirm eingesteckt."
+   }
+  },
+  {
+   "id": "back",
+   "objects": [
+    "u_rail_Back"
+   ],
+   "explode": [
+    30,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Pod back",
+    "tr": "Modül arkası",
+    "de": "Modul-Rückteil"
+   },
+   "text": {
+    "en": "Dovetail channel: the microphone pod slides onto the rail of the main box.",
+    "tr": "Kırlangıç kuyruğu kanal: mikrofon modülü ana kutunun rayına kayarak takılır.",
+    "de": "Schwalbenschwanz-Führung: Das Mikrofonmodul wird auf die Schiene der Hauptbox geschoben."
+   }
+  },
+  {
+   "id": "pod",
+   "objects": [
+    "u_rail_Body"
+   ],
+   "explode": [
+    115,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Microphone pod",
+    "tr": "Mikrofon modülü",
+    "de": "Mikrofonmodul"
+   },
+   "text": {
+    "en": "Keeps the sound level meter outside the box, behind a narrow sound port.",
+    "tr": "Ses seviyesi ölçeri kutunun dışında, dar bir ses deliğinin arkasında tutar.",
+    "de": "Hält den Schallpegelmesser außerhalb der Box, hinter einer schmalen Schallöffnung."
+   }
+  },
+  {
+   "id": "mic",
+   "objects": [
+    "u_micboard"
+   ],
+   "explode": [
+    70,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Sound level meter",
+    "tr": "Ses seviyesi ölçer",
+    "de": "Schallpegelmesser"
+   },
+   "text": {
+    "en": "DFRobot SEN0232: 30–130 dB(A), accurate to about ±1.5 dB. Only levels, never audio.",
+    "tr": "DFRobot SEN0232: 30–130 dB(A), yaklaşık ±1,5 dB hassasiyet. Yalnızca seviye, asla ses kaydı yok.",
+    "de": "DFRobot SEN0232: 30–130 dB(A), Genauigkeit etwa ±1,5 dB. Nur Pegel, nie Audio."
+   }
+  },
+  {
+   "id": "foam",
+   "objects": [
+    "u_foam"
+   ],
+   "explode": [
+    160,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Foam",
+    "tr": "Köpük",
+    "de": "Schaumstoff"
+   },
+   "text": {
+    "en": "Wind and rain screen in front of the microphone.",
+    "tr": "Mikrofonun önünde rüzgâr ve yağmur siperi.",
+    "de": "Wind- und Regenschutz vor dem Mikrofon."
+   }
+  },
+  {
+   "id": "hood",
+   "objects": [
+    "u_rail_Hood"
+   ],
+   "explode": [
+    195,
+    0,
+    0
+   ],
+   "name": {
+    "en": "Rain hood",
+    "tr": "Yağmur başlığı",
+    "de": "Regenhaube"
+   },
+   "text": {
+    "en": "Roof over the sound port. Holds the foam in place.",
+    "tr": "Ses deliğinin üstündeki çatı. Köpüğü yerinde tutar.",
+    "de": "Dach über der Schallöffnung. Hält den Schaumstoff fest."
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "object": "u_a_Body",
+   "color": [
+    0.78,
+    0.77,
+    0.74
+   ],
+   "vertices": 11216,
+   "indices": 22212,
+   "index32": false,
+   "pos": 0,
+   "nrm": 134592,
+   "idx": 269184
+  },
+  {
+   "object": "u_a_Lid",
+   "color": [
+    0.6,
+    0.6,
+    0.58
+   ],
+   "vertices": 5406,
+   "indices": 11058,
+   "index32": false,
+   "pos": 313608,
+   "nrm": 378480,
+   "idx": 443352
+  },
+  {
+   "object": "u_mcu",
+   "color": [
+    0.05,
+    0.2,
+    0.22
+   ],
+   "vertices": 2590,
+   "indices": 5262,
+   "index32": false,
+   "pos": 465468,
+   "nrm": 496548,
+   "idx": 527628
+  },
+  {
+   "object": "u_mcu",
+   "color": [
+    0.16,
+    0.17,
+    0.18
+   ],
+   "vertices": 696,
+   "indices": 1284,
+   "index32": false,
+   "pos": 538152,
+   "nrm": 546504,
+   "idx": 554856
+  },
+  {
+   "object": "u_mcu",
+   "color": [
+    0.85,
+    0.83,
+    0.76
+   ],
+   "vertices": 240,
+   "indices": 360,
+   "index32": false,
+   "pos": 557424,
+   "nrm": 560304,
+   "idx": 563184
+  },
+  {
+   "object": "u_mcu",
+   "color": [
+    0.62,
+    0.63,
+    0.65
+   ],
+   "vertices": 264,
+   "indices": 516,
+   "index32": false,
+   "pos": 563904,
+   "nrm": 567072,
+   "idx": 570240
+  },
+  {
+   "object": "u_oled",
+   "color": [
+    0.05,
+    0.2,
+    0.22
+   ],
+   "vertices": 1804,
+   "indices": 3648,
+   "index32": false,
+   "pos": 571272,
+   "nrm": 592920,
+   "idx": 614568
+  },
+  {
+   "object": "u_oled",
+   "color": [
+    0.01,
+    0.01,
+    0.012
+   ],
+   "vertices": 24,
+   "indices": 36,
+   "index32": false,
+   "pos": 621864,
+   "nrm": 622152,
+   "idx": 622440
+  },
+  {
+   "object": "u_oled",
+   "color": [
+    0.85,
+    0.83,
+    0.76
+   ],
+   "vertices": 24,
+   "indices": 36,
+   "index32": false,
+   "pos": 622512,
+   "nrm": 622800,
+   "idx": 623088
+  },
+  {
+   "object": "u_gland",
+   "color": [
+    0.02,
+    0.02,
+    0.022
+   ],
+   "vertices": 1224,
+   "indices": 2388,
+   "index32": false,
+   "pos": 623160,
+   "nrm": 637848,
+   "idx": 652536
+  },
+  {
+   "object": "u_plug",
+   "color": [
+    0.02,
+    0.02,
+    0.022
+   ],
+   "vertices": 264,
+   "indices": 516,
+   "index32": false,
+   "pos": 657312,
+   "nrm": 660480,
+   "idx": 663648
+  },
+  {
+   "object": "u_plug",
+   "color": [
+    0.62,
+    0.63,
+    0.65
+   ],
+   "vertices": 264,
+   "indices": 516,
+   "index32": false,
+   "pos": 664680,
+   "nrm": 667848,
+   "idx": 671016
+  },
+  {
+   "object": "u_rail_Body",
+   "color": [
+    0.88,
+    0.87,
+    0.84
+   ],
+   "vertices": 11341,
+   "indices": 23658,
+   "index32": false,
+   "pos": 672048,
+   "nrm": 808140,
+   "idx": 944232
+  },
+  {
+   "object": "u_rail_Back",
+   "color": [
+    0.7,
+    0.69,
+    0.66
+   ],
+   "vertices": 4292,
+   "indices": 10896,
+   "index32": false,
+   "pos": 991548,
+   "nrm": 1043052,
+   "idx": 1094556
+  },
+  {
+   "object": "u_micboard",
+   "color": [
+    0.04,
+    0.05,
+    0.06
+   ],
+   "vertices": 1808,
+   "indices": 3660,
+   "index32": false,
+   "pos": 1116348,
+   "nrm": 1138044,
+   "idx": 1159740
+  },
+  {
+   "object": "u_micboard",
+   "color": [
+    0.62,
+    0.63,
+    0.65
+   ],
+   "vertices": 384,
+   "indices": 756,
+   "index32": false,
+   "pos": 1167060,
+   "nrm": 1171668,
+   "idx": 1176276
+  },
+  {
+   "object": "u_micboard",
+   "color": [
+    0.85,
+    0.83,
+    0.76
+   ],
+   "vertices": 48,
+   "indices": 72,
+   "index32": false,
+   "pos": 1177788,
+   "nrm": 1178364,
+   "idx": 1178940
+  },
+  {
+   "object": "u_micboard",
+   "color": [
+    0.16,
+    0.17,
+    0.18
+   ],
+   "vertices": 408,
+   "indices": 792,
+   "index32": false,
+   "pos": 1179084,
+   "nrm": 1183980,
+   "idx": 1188876
+  },
+  {
+   "object": "u_foam",
+   "color": [
+    0.06,
+    0.06,
+    0.065
+   ],
+   "vertices": 24,
+   "indices": 36,
+   "index32": false,
+   "pos": 1190460,
+   "nrm": 1190748,
+   "idx": 1191036
+  },
+  {
+   "object": "u_rail_Hood",
+   "color": [
+    0.5,
+    0.5,
+    0.49
+   ],
+   "vertices": 2242,
+   "indices": 4560,
+   "index32": false,
+   "pos": 1191108,
+   "nrm": 1218012,
+   "idx": 1244916
+  }
+ ]
+}

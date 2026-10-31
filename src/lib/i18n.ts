@@ -33,6 +33,7 @@ export const TRANSLATABLE_FIELDS: Record<BlockType, string[]> = {
     "items[].tag", "items[].title", "items[].description", "items[].pills[]",
     "items[].subtitle", "items[].role", "items[].client",
     "items[].longDescription", "items[].tech[]", "items[].statusText", "items[].liveText",
+    "items[].model3dTitle", "items[].model3dIntro",
   ],
   experience: ["label", "title", "items[].period", "items[].role", "items[].company", "items[].location", "items[].description"],
   contact: ["label", "title", "intro", "links[].label"],
