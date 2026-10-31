@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSections, useSiteSettings } from "@/hooks/useSite";
 import { useLang } from "@/contexts/LanguageContext";
 import { mergeI18n, ui } from "@/lib/i18n";
-import SiteChrome from "@/components/site/SiteChrome";
+import SiteChrome, { type PageNavItem } from "@/components/site/SiteChrome";
 import { findContactSection, findProjectBySlug, RESERVED_SLUGS, slugify } from "@/lib/projectSlug";
 import { buildProjectHead, localizedPath } from "@/lib/seo";
 import SeoHead from "@/components/site/SeoHead";
@@ -107,11 +107,22 @@ export default function ProjectDetail() {
   const csEnabled = item.caseStudy?.enabled;
   const csSections: any[] = item.caseStudy?.sections ?? [];
   const descriptionBlocks: any[] = item.descriptionBlocks ?? [];
+  const hasOverview = longParas.length > 0 || !!item.description || descriptionBlocks.length > 0;
+  const has3d = !!(item.model3dEnabled && item.model3dUrl);
+
+  // Shortcuts to the sections on this page, shown in the nav (plus About / Projects from the home page).
+  const pageNav: PageNavItem[] = [
+    hasOverview && { id: "overview", label: ui("navOverview", lang) },
+    has3d && { id: "model-3d", label: ui("nav3d", lang) },
+    gallery.length > 0 && { id: "gallery", label: ui("gallery", lang) },
+    csEnabled && csSections.length > 0 && { id: "case-study", label: ui("caseStudy", lang) },
+    contactBlock && { id: "contact", label: ui("navContact", lang) },
+  ].filter(Boolean) as PageNavItem[];
 
   return (
     <>
       <SeoHead head={buildProjectHead(lang, slugify(slug), item, settings)} />
-      <SiteChrome>
+      <SiteChrome pageNav={pageNav}>
         {/* Hero */}
         <section className="p-pd-hero">
           <div className="p-inner" style={{ width: "100%" }}>
@@ -177,8 +188,8 @@ export default function ProjectDetail() {
         </section>
 
         {/* Overview / Rich Description */}
-        {(longParas.length > 0 || item.description || descriptionBlocks.length > 0) && (
-          <section className="p-section">
+        {hasOverview && (
+          <section id="overview" className="p-section">
             <div className="p-inner">
               <div className="p-pd-overview full-width">
                 <div className="p-pd-prose text-left">
@@ -235,8 +246,9 @@ export default function ProjectDetail() {
         )}
 
         {/* 3D exploded view (optional, scroll-driven) */}
-        {item.model3dEnabled && item.model3dUrl && (
+        {has3d && (
           <Exploded3D
+            id="model-3d"
             manifestUrl={item.model3dUrl}
             lang={lang}
             eyebrow={item.model3dTitle || ""}
@@ -262,7 +274,7 @@ export default function ProjectDetail() {
 
         {/* Gallery */}
         {gallery.length > 0 && (
-          <section className="p-section">
+          <section id="gallery" className="p-section">
             <div className="p-inner">
               <h2 className="p-title">{ui("gallery", lang)}</h2>
               <div className="p-pd-gallery">
@@ -289,7 +301,7 @@ export default function ProjectDetail() {
 
         {/* Case study */}
         {csEnabled && csSections.length > 0 && (
-          <section className="p-section alt">
+          <section id="case-study" className="p-section alt">
             <div className="p-inner">
               <h2 className="p-title">{ui("caseStudy", lang)}</h2>
               {csSections.map((sec: any, i: number) => (

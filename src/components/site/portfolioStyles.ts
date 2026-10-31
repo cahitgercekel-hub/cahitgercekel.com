@@ -22,9 +22,9 @@ export const PORTFOLIO_CSS = `
   .portfolio-root .p-logo-word { display: inline-flex; align-items: baseline; }
   .portfolio-root .p-logo-word + .p-logo-word { margin-left: 0.28em; transition: margin-left .25s ease; }
   .portfolio-root .p-logo-rest { display: inline-block; max-width: 10ch; overflow: hidden; opacity: 1; transform: translateX(0); transition: max-width .25s ease, opacity .15s ease, transform .25s ease; }
-  .portfolio-root nav.p-nav.scrolled .p-logo-word + .p-logo-word,
+  .portfolio-root nav.p-nav.compact .p-logo-word + .p-logo-word,
   .portfolio-root nav.p-nav.fit-short .p-logo-word + .p-logo-word { margin-left: 0; }
-  .portfolio-root nav.p-nav.scrolled .p-logo-rest,
+  .portfolio-root nav.p-nav.compact .p-logo-rest,
   .portfolio-root nav.p-nav.fit-short .p-logo-rest { max-width: 0; opacity: 0; transform: translateX(8px); }
   /* Disable transitions while measuring whether the links fit (see SiteChrome) */
   .portfolio-root nav.p-nav.fit-measure, .portfolio-root nav.p-nav.fit-measure * { transition: none !important; }
@@ -35,6 +35,10 @@ export const PORTFOLIO_CSS = `
   /* Padding enlarges the click/tap area around the text; the negative margin keeps the nav height unchanged */
   .portfolio-root .p-nav-links a { display: inline-block; padding: 10px 8px; margin: -10px 0; white-space: nowrap; border-radius: 8px; text-decoration: none; color: var(--p-fg); font-size: 0.9rem; font-weight: 500; }
   .portfolio-root .p-nav-links a:hover { color: var(--p-accent); }
+  .portfolio-root .p-nav-links a.active { color: var(--p-accent); font-weight: 700; }
+  .portfolio-root .p-nav-links li.p-nav-sep { padding-left: 12px; border-left: 1px solid var(--p-border); }
+  .portfolio-root .p-mobile-menu li a.active { color: var(--p-accent); font-weight: 700; }
+  .portfolio-root .p-mobile-menu li.p-nav-sep { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--p-border); }
   .portfolio-root .p-section { padding: 100px 20px; }
   .portfolio-root .p-section.alt { background: #fff; }
   .portfolio-root .p-inner { max-width: 960px; margin: 0 auto; }
@@ -434,29 +438,65 @@ export const PORTFOLIO_CSS = `
     .portfolio-root .p-title { font-size: 1.6rem; margin-bottom: 22px; }
   }
 
-  /* 3D exploded view (Exploded3D.tsx): a tall section with a sticky stage; scrolling drives the animation */
+  /* 3D exploded view (Exploded3D.tsx): a tall section with a sticky stage; scrolling drives the animation.
+     Desktop: model on the left, a panel with the part card and the numbered part list on the right.
+     Mobile: model on top, the card and a horizontally scrolling strip of parts below it. */
   .portfolio-root .p-x3d { position: relative; height: 560vh; }
-  .portfolio-root .p-x3d-sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 96px 20px 0; overflow: hidden; }
-  .portfolio-root .p-x3d-head { width: 100%; }
-  .portfolio-root .p-x3d-head .p-title { margin-bottom: 0; }
-  .portfolio-root .p-x3d-stage { position: relative; min-height: 0; }
-  .portfolio-root .p-x3d-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+  .portfolio-root .p-x3d-sticky { box-sizing: border-box; position: sticky; top: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 12px; padding: 92px 20px 24px; overflow: hidden; }
+  .portfolio-root .p-x3d-head { width: 100%; max-width: 1200px; margin: 0 auto; }
+  .portfolio-root .p-x3d-head .p-label { margin-bottom: 6px; }
+  .portfolio-root .p-x3d-head .p-title { margin-bottom: 4px; }
+  .portfolio-root .p-x3d-hint { margin: 0; color: var(--p-muted); font-size: 0.9rem; }
+  .portfolio-root .p-x3d-body { width: 100%; max-width: 1200px; margin: 0 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; }
+  .portfolio-root .p-x3d-body > * { min-width: 0; }
+  .portfolio-root .p-x3d-stage { position: relative; min-height: 0; border-radius: calc(var(--p-radius) + 8px); background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.75), rgba(255,255,255,0) 70%); }
+  .portfolio-root .p-x3d-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; touch-action: pan-y; }
   .portfolio-root .p-x3d-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--p-muted); font-size: 0.85rem; text-align: center; }
   .portfolio-root .p-x3d-pin { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; transition: opacity .3s ease; }
   .portfolio-root .p-x3d-pin i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--p-accent); background: color-mix(in srgb, var(--p-accent) 22%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--p-accent) 12%, transparent); }
-  .portfolio-root .p-x3d-foot { width: 100%; display: grid; grid-template-columns: 1fr; gap: 14px; padding-bottom: 24px; }
-  @media (min-width: 900px) { .portfolio-root .p-x3d-foot { grid-template-columns: minmax(0, 26rem) 1fr; align-items: end; } }
-  .portfolio-root .p-x3d-card { min-height: 128px; padding: 18px 20px; border-radius: calc(var(--p-radius) + 6px); border: 1px solid var(--p-border); background: color-mix(in srgb, var(--p-bg) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  .portfolio-root .p-x3d-card h3 { margin: 6px 0 4px; font-family: var(--p-font); font-weight: 800; font-size: 1.1rem; }
-  .portfolio-root .p-x3d-card p { margin: 6px 0 0; color: var(--p-muted); font-size: 0.95rem; line-height: 1.55; }
+  .portfolio-root .p-x3d-panel { min-height: 0; display: flex; flex-direction: column; gap: 10px; align-self: center; max-height: 100%; }
+  .portfolio-root .p-x3d-card { position: relative; flex: none; padding: 16px 18px 18px; border-radius: calc(var(--p-radius) + 4px); border: 1px solid var(--p-border); background: color-mix(in srgb, var(--p-bg) 88%, white); box-shadow: 0 6px 24px rgba(0,0,0,0.06); overflow: hidden; }
+  .portfolio-root .p-x3d-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 22px; }
   .portfolio-root .p-x3d-n { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--p-accent); }
-  .portfolio-root .p-x3d-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
-  .portfolio-root .p-x3d-list li { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; padding: 3px 8px; border: 1px solid var(--p-border); border-radius: 6px; color: var(--p-muted); transition: all .25s ease; }
-  .portfolio-root .p-x3d-list li.on { color: #fff; background: var(--p-accent); border-color: var(--p-accent); }
-  @media (max-width: 700px) {
+  .portfolio-root .p-x3d-reset { border: 0; background: transparent; padding: 2px 0; font: inherit; font-size: 0.78rem; font-weight: 600; color: var(--p-muted); cursor: pointer; }
+  .portfolio-root .p-x3d-reset:hover { color: var(--p-accent); }
+  .portfolio-root .p-x3d-card h3 { margin: 6px 0 0; font-family: var(--p-font); font-weight: 800; font-size: 1.15rem; line-height: 1.25; }
+  .portfolio-root .p-x3d-card p { margin: 6px 0 0; color: var(--p-muted); font-size: 0.92rem; line-height: 1.5; min-height: 2.8em; }
+  .portfolio-root .p-x3d-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: color-mix(in srgb, var(--p-accent) 12%, transparent); }
+  .portfolio-root .p-x3d-progress span { display: block; height: 100%; background: var(--p-accent); transform-origin: left center; transform: scaleX(0); }
+  .portfolio-root .p-x3d-parts { list-style: none; margin: 0; padding: 0; min-height: 0; overflow-y: auto; overflow-x: hidden; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 4px; }
+  .portfolio-root .p-x3d-parts li { min-width: 0; }
+  .portfolio-root .p-x3d-parts button { width: 100%; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 0; border-radius: 10px; background: transparent; font: inherit; text-align: left; color: var(--p-fg); cursor: pointer; transition: background .2s ease, color .2s ease; }
+  .portfolio-root .p-x3d-parts button:hover { background: color-mix(in srgb, var(--p-accent) 8%, transparent); }
+  .portfolio-root .p-x3d-parts button:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 1px; }
+  .portfolio-root .p-x3d-num { flex: none; width: 26px; height: 26px; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--p-border); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.68rem; color: var(--p-muted); background: var(--p-bg); transition: all .2s ease; }
+  .portfolio-root .p-x3d-name { min-width: 0; font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .portfolio-root .p-x3d-parts button.done .p-x3d-num { border-color: color-mix(in srgb, var(--p-accent) 45%, transparent); color: var(--p-accent); }
+  .portfolio-root .p-x3d-parts button.done .p-x3d-name { color: var(--p-muted); }
+  .portfolio-root .p-x3d-parts button.on { background: color-mix(in srgb, var(--p-accent) 12%, transparent); }
+  .portfolio-root .p-x3d-parts button.on .p-x3d-num { background: var(--p-accent); border-color: var(--p-accent); color: #fff; }
+  .portfolio-root .p-x3d-parts button.on .p-x3d-name { font-weight: 700; }
+  @media (max-height: 760px) and (min-width: 901px) {
+    .portfolio-root .p-x3d-sticky { padding-top: 84px; gap: 8px; }
+    .portfolio-root .p-x3d-head .p-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+    .portfolio-root .p-x3d-parts button { padding: 3px 8px; }
+    .portfolio-root .p-x3d-card p { min-height: 0; }
+  }
+  @media (max-width: 900px) {
     .portfolio-root .p-x3d { height: 520vh; }
-    .portfolio-root .p-x3d-sticky { padding: 84px 12px 0; }
-    .portfolio-root .p-x3d-list { display: none; }
-    .portfolio-root .p-x3d-card { min-height: 116px; }
+    .portfolio-root .p-x3d-sticky { padding: 80px 12px 14px; gap: 8px; }
+    .portfolio-root .p-x3d-hint { font-size: 0.82rem; }
+    .portfolio-root .p-x3d-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 10px; }
+    .portfolio-root .p-x3d-panel { align-self: stretch; gap: 8px; }
+    .portfolio-root .p-x3d-card { padding: 12px 14px 14px; }
+    .portfolio-root .p-x3d-card h3 { font-size: 1.02rem; }
+    .portfolio-root .p-x3d-card p { font-size: 0.86rem; min-height: 2.6em; }
+    .portfolio-root .p-x3d-parts { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; max-width: 100%; scroll-snap-type: x proximity; scrollbar-width: none; padding-bottom: 2px; }
+    .portfolio-root .p-x3d-parts::-webkit-scrollbar { display: none; }
+    .portfolio-root .p-x3d-parts li { flex: none; scroll-snap-align: center; }
+    .portfolio-root .p-x3d-parts button { width: auto; padding: 6px 12px 6px 6px; gap: 8px; border: 1px solid var(--p-border); border-radius: 999px; background: var(--p-bg); }
+    .portfolio-root .p-x3d-parts button.on { border-color: var(--p-accent); }
+    .portfolio-root .p-x3d-num { width: 22px; height: 22px; font-size: 0.62rem; }
+    .portfolio-root .p-x3d-name { font-size: 0.82rem; }
   }
 `;
