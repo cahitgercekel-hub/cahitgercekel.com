@@ -107,7 +107,8 @@ Deno.serve(async (req) => {
       `and fields (Product Manager, Product Specialist, Product Management, UX Design), and words like workshop, ` +
       `hackathon, frontend, backend, UX, UI, startup, pitch, dashboard, roadmap, sprint, A/B test, Kanban. ` +
       (target === "de"
-        ? `For "working student" use "Werkstudent" / "Werkstudentenstelle". `
+        ? `For "working student" use "Werkstudent" / "Werkstudentenstelle". ` +
+          `Never map a foreign degree to a German one: a Turkish "High School Diploma" is "Schulabschluss (Türkei)", never "Abitur". `
         : `Keep "working student" in English. `) +
       `Everything else, including ordinary words such as ` +
       `product, project, user, team, feature or tool used as common nouns, goes into natural ${targetName}; ` +
