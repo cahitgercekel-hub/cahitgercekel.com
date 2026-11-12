@@ -6,7 +6,7 @@
 </linearGradient>
 <style>
 .s{fill:none;stroke:#f5f4ef;stroke-width:25;stroke-linecap:round;stroke-linejoin:round}
-.b{fill:none;stroke:#f5f4ef;stroke-width:25}
+.e{fill:none;stroke:#f5f4ef;stroke-width:25;stroke-linejoin:round}
 .f{fill:#f5f4ef}
 .d{fill:#d3f58c}
 g{transform-box:view-box}
@@ -60,10 +60,10 @@ g{transform-box:view-box}
 <rect width="1392" height="480" fill="url(#bg)"/>
 <svg x="376.0" y="92" width="640" height="234.7" viewBox="0 0 698 256" overflow="visible">
 <g class="l l1"><path class="s" d="M52.5 104V156A28 28 0 0 0 108.5 156V124M108.5 156A28 28 0 0 0 164.5 156V104"/></g>
-<g class="l l2"><path class="b" d="M285.5 144A40 40 0 1 0 273.8 172.3"/><circle class="f" cx="273.8" cy="172.3" r="12.5"/><path class="b" d="M205.5 144H296.5"/></g>
+<g class="l l2"><path class="e" d="M205.5 144H285.5A40 40 0 1 0 273.8 172.3"/><circle class="f" cx="273.8" cy="172.3" r="12.5"/></g>
 <g class="l l3"><path class="s" d="M328.5 104V184"/></g>
 <g class="l l4"><path class="s" d="M379.5 68V160A24 24 0 0 0 403.5 184H411.5M359.5 104H409.5"/></g>
-<g class="l l5"><path class="b" d="M526.5 144A40 40 0 1 0 514.8 172.3"/><circle class="f" cx="514.8" cy="172.3" r="12.5"/><path class="b" d="M446.5 144H537.5"/></g>
+<g class="l l5"><path class="e" d="M446.5 144H526.5A40 40 0 1 0 514.8 172.3"/><circle class="f" cx="514.8" cy="172.3" r="12.5"/></g>
 <g class="l l6"><path class="s" d="M571.5 104V184M571.5 140A36 36 0 0 1 607.5 104H613.5"/></g>
 <g class="st"><g class="ps"><circle class="d" cx="642.5" cy="180.5" r="16"/></g></g>
 <g class="sp"><circle class="d" cx="328.5" cy="59.5" r="16"/></g>
