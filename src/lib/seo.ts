@@ -231,8 +231,16 @@ export function buildHomeHead(lang: SeoLang, sections: any[] | undefined, settin
   };
 }
 
+// Social previews and search engines do not show SVG, so an animated SVG cover is shared as
+// the PNG of the same name next to it (e.g. weiter-cover.svg -> weiter-cover.png).
+function shareableImage(url: unknown): string | undefined {
+  if (typeof url !== "string" || !url) return undefined;
+  return url.replace(/\.svg(\?.*)?$/i, ".png$1");
+}
+
 export function buildProjectHead(lang: SeoLang, slug: string, item: any, settings: any): HeadData {
   const name = PROJECT_TITLES[slug]?.[lang] || plainText(item?.title) || "Project";
+  const image = shareableImage(item?.image);
   const title = `${name} | ${PERSON_NAME}`;
   const description = clip(plainText(item?.subtitle || item?.description || item?.longDescription) || HOME_META[lang].description);
   const path = localizedPath(`/${slug}`, lang);
@@ -246,7 +254,7 @@ export function buildProjectHead(lang: SeoLang, slug: string, item: any, setting
     canonical,
     alternates: alternatesFor(`/${slug}`),
     ogType: "article",
-    ogImage: item?.image || settings?.og_image_url || DEFAULT_OG_IMAGE,
+    ogImage: image || settings?.og_image_url || DEFAULT_OG_IMAGE,
     ogLocale: OG_LOCALE[lang],
     jsonLd: {
       "@context": "https://schema.org",
@@ -259,7 +267,7 @@ export function buildProjectHead(lang: SeoLang, slug: string, item: any, setting
           description,
           url: canonical,
           inLanguage: lang,
-          ...(item?.image ? { image: item.image } : {}),
+          ...(image ? { image } : {}),
           ...(tech.length ? { keywords: tech.join(", ") } : {}),
           ...(item?.link ? { sameAs: item.link } : {}),
           creator: { "@type": "Person", "@id": personId, name: PERSON_NAME, url: `${SITE_URL}/` },

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1392 480" width="1392" height="480" role="img" aria-labelledby="t">
+<title id="t">weiter. German practice app for Android</title>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#0a6b5c"/><stop offset="1" stop-color="#054e45"/>
+</linearGradient>
+<style>
+.s{fill:none;stroke:#f5f4ef;stroke-width:25;stroke-linecap:round;stroke-linejoin:round}
+.b{fill:none;stroke:#f5f4ef;stroke-width:25}
+.f{fill:#f5f4ef}
+.d{fill:#d3f58c}
+g{transform-box:view-box}
+.l{animation:rise 600ms cubic-bezier(.22,.8,.3,1) both}
+.l2{animation-delay:40ms}.l3{animation-delay:80ms}.l4{animation-delay:120ms}.l5{animation-delay:160ms}.l6{animation-delay:200ms}
+.pi{transform-origin:328.5px 59.5px;animation:pop 440ms cubic-bezier(.3,1.25,.5,1) 400ms both}
+.ps{transform-origin:642.5px 180.5px;animation:pop 440ms cubic-bezier(.3,1.25,.5,1) 540ms both}
+.sub{animation:fade 700ms ease-out 700ms both}
+@supports (animation-timing-function:linear(0,1)){
+ .l{animation-timing-function:linear(0,.068,.208,.362,.504,.624,.72,.795,.851,.893,.924,.946,.962,.973,.981,.987,.991,.994,.996,.997,1)}
+ .pi,.ps{animation-timing-function:linear(0,.036,.124,.242,.372,.501,.621,.727,.816,.888,.944,.985,1.013,1.032,1.042,1.046,1.045,1.042,1.037,1.031,1.025,1.019,1.014,1.01,1.006,1.003,1.001,1,.999,.998,.998,.998,1)}
+}
+@keyframes rise{from{opacity:0;transform:translateY(23px)}to{opacity:1;transform:none}}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.x,.y,.q,.st,.sp{animation-duration:4200ms;animation-delay:1100ms;animation-iteration-count:infinite;
+ animation-fill-mode:backwards;animation-timing-function:linear}
+.x{animation-name:x}
+.y{animation-name:y}
+.q{animation-name:q;transform-origin:328.5px 75.5px}
+.st{animation-name:st}
+.sp{animation-name:sp;transform-origin:328.5px 59.5px}
+@keyframes x{
+ 0%,3.333%{transform:translateX(0);animation-timing-function:cubic-bezier(.45,0,.25,1)}
+ 15.143%{transform:translateX(323.5px);animation-timing-function:cubic-bezier(.3,0,.3,1)}
+ 18.095%,100%{transform:translateX(314.0px)}
+}
+@keyframes y{
+ 0%,3.333%{transform:translateY(0);animation-timing-function:cubic-bezier(.333,.667,.667,1)}
+ 9.976%{transform:translateY(-43.5px);animation-timing-function:cubic-bezier(.333,0,.667,.333)}
+ 18.095%,100%{transform:translateY(121.0px)}
+}
+@keyframes q{
+ 0%{transform:none;animation-timing-function:cubic-bezier(.3,0,.3,1)}
+ 2.857%{transform:scale(1.14,.84);animation-timing-function:cubic-bezier(.2,0,.2,1)}
+ 4.047%{transform:scale(.9,1.12);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+ 9.976%{transform:none;animation-timing-function:cubic-bezier(.5,0,1,1)}
+ 17.786%{transform:scale(.93,1.09)}
+ 18.095%{transform:scale(1.06,.94);animation-timing-function:cubic-bezier(.2,.8,.3,1)}
+ 19.047%{transform:scale(1.2,.78);animation-timing-function:linear(0,.036,.124,.242,.372,.501,.621,.727,.816,.888,.944,.985,1.013,1.032,1.042,1.046,1.045,1.042,1.037,1.031,1.025,1.019,1.014,1.01,1.006,1.003,1.001,1,.999,.998,.998,.998,1)}
+ 28.095%,100%{transform:none}
+}
+@keyframes st{0%,18.086%{opacity:1}18.129%,100%{opacity:0}}
+@keyframes sp{
+ 0%,18.810%{transform:scale(0);animation-timing-function:linear(0,.036,.124,.242,.372,.501,.621,.727,.816,.888,.944,.985,1.013,1.032,1.042,1.046,1.045,1.042,1.037,1.031,1.025,1.019,1.014,1.01,1.006,1.003,1.001,1,.999,.998,.998,.998,1)}
+ 29.286%,100%{transform:scale(1)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.st{opacity:1}.sp{transform:scale(0)}}
+</style>
+</defs>
+<rect width="1392" height="480" fill="url(#bg)"/>
+<svg x="376.0" y="92" width="640" height="234.7" viewBox="0 0 698 256" overflow="visible">
+<g class="l l1"><path class="s" d="M52.5 104V156A28 28 0 0 0 108.5 156V124M108.5 156A28 28 0 0 0 164.5 156V104"/></g>
+<g class="l l2"><path class="b" d="M285.5 144A40 40 0 1 0 273.8 172.3"/><circle class="f" cx="273.8" cy="172.3" r="12.5"/><path class="b" d="M205.5 144H296.5"/></g>
+<g class="l l3"><path class="s" d="M328.5 104V184"/></g>
+<g class="l l4"><path class="s" d="M379.5 68V160A24 24 0 0 0 403.5 184H411.5M359.5 104H409.5"/></g>
+<g class="l l5"><path class="b" d="M526.5 144A40 40 0 1 0 514.8 172.3"/><circle class="f" cx="514.8" cy="172.3" r="12.5"/><path class="b" d="M446.5 144H537.5"/></g>
+<g class="l l6"><path class="s" d="M571.5 104V184M571.5 140A36 36 0 0 1 607.5 104H613.5"/></g>
+<g class="st"><g class="ps"><circle class="d" cx="642.5" cy="180.5" r="16"/></g></g>
+<g class="sp"><circle class="d" cx="328.5" cy="59.5" r="16"/></g>
+<g class="x"><g class="y"><g class="q"><g class="pi"><circle class="d" cx="328.5" cy="59.5" r="16"/></g></g></g></g>
+</svg>
+<g class="sub"><text x="696.0" y="419" text-anchor="middle" fill="#cfe3dc" font-size="40" font-family="'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif">German practice app for Android</text></g>
+</svg>
